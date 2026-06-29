@@ -10,4 +10,4 @@ services:
     environment:
       - MESSAGE=hello from git, iteration 1
     command: >
-      sh -c "echo '<h1>$$MESSAGE</h1>' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"
+      sh -c "echo \"<h1>$$MESSAGE</h1>\" > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"
