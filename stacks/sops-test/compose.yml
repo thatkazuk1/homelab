@@ -1,0 +1,13 @@
+name: sops-test
+
+services:
+  web:
+    image: nginx:alpine
+    container_name: sops-test-web
+    restart: unless-stopped
+    ports:
+      - "8091:80"
+    environment:
+      - SECRET_MESSAGE=${SECRET_MESSAGE}
+    command: >
+      sh -c 'echo "<h1>secret was: $$SECRET_MESSAGE</h1>" > /usr/share/nginx/html/index.html && nginx -g "daemon off;"'
