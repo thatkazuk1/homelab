@@ -1,0 +1,23 @@
+name: komodo-periphery
+
+services:
+  periphery:
+    image: komodo-periphery-sops:2
+    container_name: komodo-periphery
+    init: true
+    restart: unless-stopped
+    ports:
+      - 8120:8120
+    env_file:
+      - .env
+    environment:
+      PERIPHERY_ROOT_DIRECTORY: ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
+      PERIPHERY_DISABLE_TERMINALS: false
+      PERIPHERY_DISABLE_CONTAINER_EXEC: false
+      SOPS_AGE_KEY_FILE: /config/age-keys.txt
+    volumes:
+      - ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}:${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
+      - /proc:/proc
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./keys:/config/keys
+      - /home/kazuki/.config/sops/age/keys.txt:/config/age-keys.txt:ro
