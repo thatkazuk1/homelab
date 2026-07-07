@@ -2,7 +2,7 @@ name: komodo-periphery
 
 services:
   periphery:
-    image: komodo-periphery-sops:2
+    image: forgejo.ts.kazuki.uk/shokunbi/komodo-periphery-sops:2
     container_name: komodo-periphery
     init: true
     restart: unless-stopped
@@ -19,5 +19,5 @@ services:
       - ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}:${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
       - /proc:/proc
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./keys:/config/keys
       - /home/kazuki/.config/sops/age/keys.txt:/config/age-keys.txt:ro
+      - ./keys:/config/keys
