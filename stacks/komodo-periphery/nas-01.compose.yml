@@ -1,0 +1,23 @@
+name: komodo-periphery
+
+services:
+  periphery:
+    image: forgejo.ts.kazuki.uk/shokunbi/komodo-periphery-sops:2
+    container_name: komodo-periphery
+    restart: unless-stopped
+    init: true
+    labels:
+      komodo.skip:
+    ports:
+      - "8120:8120"
+    environment:
+      - PERIPHERY_ROOT_DIRECTORY=/data/komodo
+      - PERIPHERY_DISABLE_TERMINALS=false
+      - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
+      - SOPS_AGE_KEY_FILE=/config/age-keys.txt
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - /Volume1/@apps/komodo:/data/komodo
+      - ./keys:/config/keys
+      - /Volume1/@apps/homelab/komodo-periphery/age-keys.txt:/config/age-keys.txt:ro
