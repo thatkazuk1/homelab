@@ -1,0 +1,12 @@
+services:
+  cloudflared-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-tunnel
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+    volumes:
+      - /opt/homelab/cloudflared/config:/etc/cloudflared
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run nexus-pve-main
