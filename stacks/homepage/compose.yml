@@ -11,7 +11,6 @@ services:
       - /opt/homelab/homepage/config:/app/config
     networks:
       - private
-      - proxy
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_VAR_ALLOWED_HOSTS}
       - KOMODO_ADOPTION_VERIFIED=true
@@ -64,6 +63,4 @@ services:
 
 networks:
   private:
-    external: true
-  proxy:
     external: true
