@@ -19,3 +19,9 @@ services:
       - TZ=${TZ}
       - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_VAR_ALLOWED_HOSTS}
       - KOMODO_ADOPTION_VERIFIED=true
+
+networks:
+  private:
+    external: true
+  proxy:
+    external: true
