@@ -15,6 +15,7 @@ services:
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_VAR_ALLOWED_HOSTS}
       - KOMODO_ADOPTION_VERIFIED=true
+      - HOMEPAGE_ADOPTION_MARKER=sprint-3b1
       - PUID
       - PGID
       - TZ
