@@ -9,6 +9,7 @@ services:
       - TZ
       - DOMAIN
       - SIGNUPS_ALLOWED
+      - VAULTWARDEN_ADOPTION_MARKER=sprint-3b1
     ports:
       - "8000:80"
     volumes:
