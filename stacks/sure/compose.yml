@@ -39,7 +39,6 @@ services:
       - app-storage:/rails/storage
     environment:
       <<: *rails_env
-      SURE_ADOPTION_MARKER: "true"
     depends_on:
       db:
         condition: service_healthy
