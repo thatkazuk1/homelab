@@ -1,0 +1,26 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    env_file: /opt/homelab/homepage/.env
+    ports:
+      - "3000:3000"
+    volumes:
+      - /opt/homelab/homepage/assets/icons:/app/public/icons
+      - /opt/homelab/homepage/assets/images:/app/public/images
+      - /opt/homelab/homepage/config:/app/config
+    networks:
+      - private
+      - proxy
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_VAR_ALLOWED_HOSTS}
+
+networks:
+  private:
+    external: true
+  proxy:
+    external: true
