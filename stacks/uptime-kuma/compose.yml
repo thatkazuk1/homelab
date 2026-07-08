@@ -3,7 +3,7 @@ services:
     image: louislam/uptime-kuma:2
     container_name: uptime-kuma
     network_mode: host
-    restart: always
+    restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
