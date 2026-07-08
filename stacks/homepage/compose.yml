@@ -24,3 +24,4 @@ networks:
     external: true
   proxy:
     external: true
+# Adopted into Komodo on 2026-07-08
