@@ -8,6 +8,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    environment:
+      - PORTAINER_ADOPTION_MARKER=true
 
 volumes:
   portainer_data:
