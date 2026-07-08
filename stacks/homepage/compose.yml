@@ -18,10 +18,4 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_VAR_ALLOWED_HOSTS}
-
-networks:
-  private:
-    external: true
-  proxy:
-    external: true
-# Adopted into Komodo on 2026-07-08
+      - KOMODO_ADOPTION_VERIFIED=true
