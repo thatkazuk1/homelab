@@ -32,3 +32,6 @@ Thumbs.db
 # Local scratch
 /scratch/
 /tmp/
+
+docs/
+CLAUDE.md
