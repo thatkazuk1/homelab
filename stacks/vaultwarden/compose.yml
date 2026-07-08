@@ -1,0 +1,21 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+      - DOMAIN
+      - SIGNUPS_ALLOWED
+    ports:
+      - "8000:80"
+    volumes:
+      - /opt/homelab/vaultwarden/data:/data
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
