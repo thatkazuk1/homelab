@@ -7,6 +7,7 @@ services:
       - PUID
       - PGID
       - TZ
+      - CLOUDFLARED_ADOPTION_MARKER=true
     volumes:
       - /opt/homelab/cloudflared/config:/etc/cloudflared
     command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run nexus-pve-main
