@@ -33,5 +33,6 @@ Thumbs.db
 /scratch/
 /tmp/
 
+.claude/
 docs/
 CLAUDE.md
