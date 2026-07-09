@@ -1,0 +1,37 @@
+services:
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - beszel-data:/beszel_data
+      - beszel-socket:/beszel_socket
+    environment:
+      - APP_URL
+      - KEY
+      - PGID
+      - PORT
+      - PUID
+      - TOKEN
+      - TZ
+
+  beszel-agent:
+    image: henrygd/beszel-agent
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - beszel-agent-data:/var/lib/beszel-agent
+    environment:
+      LISTEN: ${PORT}
+      KEY: ${KEY}
+      TOKEN: ${TOKEN}
+      HUB_URL: ${APP_URL}
+
+volumes:
+  beszel-agent-data:
+  beszel-data:
+  beszel-socket:
