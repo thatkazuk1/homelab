@@ -4,6 +4,8 @@ services:
     container_name: garage-server
     restart: unless-stopped
     network_mode: host
+    environment:
+      - GARAGE_ADOPTION_MARKER=true
     volumes:
       - /opt/homelab/garage/garage.toml:/etc/garage.toml:ro
       - garage-meta:/var/lib/garage/meta
