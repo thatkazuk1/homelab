@@ -1,0 +1,29 @@
+services:
+  garage:
+    image: dxflrs/garage:v2.2.0
+    container_name: garage-server
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /opt/homelab/garage/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+
+  webui:
+    image: khairul169/garage-webui:1.1.0
+    container_name: garage-webui
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - garage
+    volumes:
+      - /opt/homelab/garage/garage.toml:/etc/garage.toml:ro
+    environment:
+      API_BASE_URL: "http://127.0.0.1:3903"
+      S3_ENDPOINT_URL: "http://127.0.0.1:3900"
+
+volumes:
+  garage-meta:
+    name: garage-meta
+  garage-data:
+    name: garage-data
