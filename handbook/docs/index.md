@@ -16,3 +16,5 @@ In the meantime, the full source — compose files, this handbook, and everythin
 to be shared — lives in the public repo:
 
 [github.com/meetKazuki/homelab](https://github.com/meetKazuki/homelab)
+
+_Last built: 2026-07-10_
