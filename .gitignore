@@ -33,6 +33,7 @@ Thumbs.db
 /scratch/
 /tmp/
 
-.claude/
+.claude/*
+!.claude/settings.json
 docs/
 CLAUDE.md
