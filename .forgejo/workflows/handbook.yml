@@ -23,7 +23,7 @@ jobs:
         with:
           registry: forgejo.ts.kazuki.uk
           username: kazuki
-          password: ${{ secrets.FORGEJO_REGISTRY_TOKEN }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
 
       - uses: docker/build-push-action@v6
         with:
