@@ -116,6 +116,7 @@ services:
       - logs_api:/code/plane/logs
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env, *proxy-env]
+      PLANE_ADOPTION_MARKER: "true"
     depends_on:
       - plane-db
       - plane-redis
