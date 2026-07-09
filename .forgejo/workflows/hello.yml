@@ -1,0 +1,13 @@
+name: hello
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .forgejo/workflows/hello.yml
+
+jobs:
+  echo:
+    runs-on: docker
+    steps:
+      - run: echo "hello from forgejo-runner-01"
