@@ -35,5 +35,5 @@ Thumbs.db
 
 .claude/*
 !.claude/settings.json
-docs/
+/docs/
 CLAUDE.md
