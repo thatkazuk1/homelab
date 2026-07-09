@@ -1,0 +1,31 @@
+services:
+  influxdb3-core:
+    image: influxdb:3-core
+    container_name: influxdb3-core
+    restart: unless-stopped
+    ports:
+      - 8181:8181
+    command:
+      - influxdb3
+      - serve
+      - --node-id=telemetry-prod-01
+      - --object-store=file
+      - --data-dir=/var/lib/influxdb3/data
+      - --plugin-dir=/var/lib/influxdb3/plugins
+    volumes:
+      - /opt/homelab/influxdb3/data:/var/lib/influxdb3/data
+      - /opt/homelab/influxdb3/plugins:/var/lib/influxdb3/plugins
+
+  influxdb3-explorer:
+    image: influxdata/influxdb3-ui:1.8.0
+    container_name: influxdb3-explorer
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+      - "8889:8888"
+    volumes:
+      - /opt/homelab/influxdb3/config:/app-root/config:ro
+      - /opt/homelab/influxdb3/explorer-db:/db
+    command: ["--mode=admin"]
+    depends_on:
+      - influxdb3-core

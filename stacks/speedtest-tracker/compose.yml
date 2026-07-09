@@ -1,0 +1,21 @@
+services:
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    container_name: speedtest-tracker
+    restart: unless-stopped
+    ports:
+      - 8080:80
+      - 8443:443
+    volumes:
+      - /opt/homelab/speedtest-tracker/config:/config
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - APP_URL=${APP_URL}
+      - ASSET_URL=${ASSET_URL}
+      - APP_KEY=${APP_KEY}
+      - DB_CONNECTION=sqlite
+      - PUBLIC_DASHBOARD=true
+      - DISPLAY_TIMEZONE=${TZ}
+      - SPEEDTEST_SCHEDULE=${SPEEDTEST_SCHEDULE}
