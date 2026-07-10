@@ -1,0 +1,20 @@
+name: forgejo-runner
+
+services:
+  runner:
+    image: data.forgejo.org/forgejo/runner:12
+    container_name: forgejo-runner
+    restart: unless-stopped
+    labels:
+      komodo.skip:
+    working_dir: /data
+    command: forgejo-runner --config /data/config.yaml daemon
+    group_add:
+      - "988" # host's docker group GID, needed for the runner's non-root user to reach docker.sock
+    volumes:
+      - forgejo-runner-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  forgejo-runner-data:
+    name: forgejo-runner-data
