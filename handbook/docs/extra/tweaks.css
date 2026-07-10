@@ -1,0 +1,56 @@
+/*
+ * Custom palette for the Homelab Handbook
+ * Source: operator's coolors.co selection
+ *   #f9e7e7 blush     — light accent surfaces
+ *   #ded6d6 warm grey — subtle borders
+ *   #d2cbcb warm grey — subtle borders
+ *   #ada0a6 dusty     — muted text
+ *   #7d938a sage      — primary/accent
+ *
+ * Light scheme: near-white canvas, warm accent surfaces, sage primary
+ * Dark scheme: cool dark canvas, lighter sage primary
+ */
+
+/* Primary + accent — applies to both light and dark schemes */
+:root {
+  --md-primary-fg-color: #7d938a;
+  --md-primary-fg-color--light: #a5b3ab;
+  --md-primary-fg-color--dark: #5c6f68;
+
+  --md-accent-fg-color: #7d938a;
+  --md-accent-fg-color--transparent: rgba(125, 147, 138, 0.1);
+}
+
+/* Light scheme */
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #fafafa;
+  --md-default-bg-color--light: #f9e7e7;
+  --md-default-bg-color--lighter: rgba(249, 231, 231, 0.5);
+  --md-default-fg-color: #2a2528;
+  --md-default-fg-color--light: #4d4a4c;
+  --md-default-fg-color--lighter: #ada0a6;
+  --md-default-fg-color--lightest: #ded6d6;
+
+  --md-code-bg-color: #f5f0f0;
+  --md-code-fg-color: #2a2528;
+
+  --md-typeset-a-color: #7d938a;
+  --md-typeset-mark-color: rgba(125, 147, 138, 0.15);
+}
+
+/* Dark scheme */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #1a1a1c;
+  --md-default-bg-color--light: #24242a;
+  --md-default-bg-color--lighter: rgba(36, 36, 42, 0.5);
+  --md-default-fg-color: #e7e2e2;
+  --md-default-fg-color--light: #d2cbcb;
+  --md-default-fg-color--lighter: #ada0a6;
+  --md-default-fg-color--lightest: #7d7a7c;
+
+  --md-code-bg-color: #24242a;
+  --md-code-fg-color: #e7e2e2;
+
+  --md-typeset-a-color: #a5b3ab;
+  --md-typeset-mark-color: rgba(165, 179, 171, 0.2);
+}
