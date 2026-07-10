@@ -33,3 +33,7 @@ lives in the public repo: [github.com/meetKazuki/homelab](https://github.com/mee
 
 The infrastructure this handbook documents is also the validation target for
 [Homelab StackDoc](https://stackdoc.kazuki.uk), a separate visualisation project.
+
+---
+
+_This handbook's structure and aesthetic are inspired by [Pydantic's docs](https://docs.pydantic.dev)._
