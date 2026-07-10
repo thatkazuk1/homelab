@@ -32,15 +32,16 @@ theme:
         name: Switch to system
   features:
     - announce.dismiss
+    - content.action.edit
     - content.code.annotate
     - content.code.copy
     - content.tabs.link
+    - navigation.indexes
     - navigation.instant
     - navigation.instant.prefetch
     - navigation.instant.progress
     - navigation.path
     - navigation.sections
-    - navigation.tabs
     - navigation.top
     - navigation.tracking
     - search.suggest
@@ -57,13 +58,39 @@ nav:
   - Getting Started:
       - SSH: getting-started/ssh.md
       - SOPS and age: getting-started/sops.md
+      - Local tools: getting-started/local-tools.md
   - Architecture:
       - Overview: architecture/overview.md
   - Operations:
       - Adopting a stack: operations/adopting-a-stack.md
+      - Deploying a new host: operations/deploying-a-new-host.md
       - Maintaining the handbook: operations/maintaining-handbook.md
+  - Stacks:
+      - Overview: stacks/index.md
+      - homepage: stacks/homepage.md
+      - uptime-kuma: stacks/uptime-kuma.md
+      - vaultwarden: stacks/vaultwarden.md
+      - ntfy: stacks/ntfy.md
+      - portainer-agent: stacks/portainer-agent.md
+      - portainer: stacks/portainer.md
+      - cloudflared: stacks/cloudflared.md
+      - sure: stacks/sure.md
+      - beszel: stacks/beszel.md
+      - garage: stacks/garage.md
+      - influxdb3: stacks/influxdb3.md
+      - speedtest-tracker: stacks/speedtest-tracker.md
+      - plane: stacks/plane.md
   - Conventions: conventions/index.md
-  - Decisions: decisions/index.md
+  - Decisions:
+      - Overview: decisions/index.md
+      - ADR-0001 Forgejo over Gitea: decisions/0001-forgejo-over-gitea.md
+      - ADR-0002 Komodo for Docker GitOps: decisions/0002-komodo-for-docker-gitops.md
+      - ADR-0003 MkDocs Material: decisions/0003-mkdocs-material.md
+      - ADR-0004 FerretDB over MongoDB: decisions/0004-ferretdb-over-mongodb.md
+      - ADR-0005 SOPS in Periphery: decisions/0005-sops-in-periphery.md
+      - ADR-0010 Per-stack SOPS secrets: decisions/0010-per-stack-sops-secrets.md
+      - ADR-0011 Flat stack layout: decisions/0011-flat-stack-layout.md
+      - ADR-0015 Handbook location: decisions/0015-handbook-location.md
 
 markdown_extensions:
   - tables
