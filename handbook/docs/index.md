@@ -1,20 +1,35 @@
 # Kazuki's Homelab Handbook
 
-This is a living reference for a self-hosted, GitOps-managed homelab running on Proxmox,
-Komodo, Forgejo, and Beszel. Infrastructure here is declared in Git and reconciled onto
-running hosts rather than configured by hand.
+This homelab runs on a two-node Proxmox cluster, a handful of bare-metal boxes (a Raspberry
+Pi, a NAS), and a personal workstation — all tied together by GitOps. Every deployable thing,
+from Docker Compose stacks to host configuration, is declared in a single monorepo. [Komodo](https://komo.do)
+reconciles what's actually running against what the repo says should be running. [Forgejo](https://forgejo.org),
+self-hosted, is the source of truth Git server behind all of it.
 
-Content is still being written. Sections planned:
+This handbook is the living reference for that setup — written alongside the infrastructure,
+not after the fact. It's meant to answer "how does this actually work" and "why is it built
+this way," for whoever's reading: a future version of the person running it, or someone else
+running something similar.
 
-- **Getting Started** — SSH access, SOPS/age secrets, local tooling
-- **Architecture** — fleet layout, network tiers, the GitOps pipeline, naming conventions
-- **Operations** — deploying a new stack, onboarding a new host, maintaining this handbook
-- **Stacks** — one page per deployed service
-- **Decisions** — a curated public subset of the project's architecture decisions
+## Where to go
 
-In the meantime, the full source — compose files, this handbook, and everything else meant
-to be shared — lives in the public repo:
+- **Getting Started** — SSH access and the SOPS/age secrets workflow, if you're setting up to work on this repo.
+- **Architecture** — the fleet, the GitOps pipeline, and what talks to what.
+- **Operations** — playbooks: adopting a stack into GitOps, maintaining this handbook.
+- **Conventions** — how hosts, users, buckets, and compose files are named, and why.
+- **Decisions** — the architecture decision records behind the choices above.
 
-[github.com/meetKazuki/homelab](https://github.com/meetKazuki/homelab)
+## Work in progress
 
-_Last built: 2026-07-10_
+This handbook grows as the homelab grows. Some sections (a per-stack catalog, deeper
+architecture diagrams) are deliberately thin right now and will fill in over future sprints.
+What's here is accurate as of the date it was written — that's the standard this handbook
+holds itself to over completeness.
+
+## Elsewhere
+
+The full source — compose files, this handbook, and everything else meant to be shared —
+lives in the public repo: [github.com/meetKazuki/homelab](https://github.com/meetKazuki/homelab).
+
+The infrastructure this handbook documents is also the validation target for
+[Homelab StackDoc](https://stackdoc.kazuki.uk), a separate visualisation project.

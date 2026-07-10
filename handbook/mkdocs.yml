@@ -1,5 +1,5 @@
 site_name: Kazuki's Homelab Handbook
-site_url: http://handbook.lan/
+site_url: http://handbook.lan:8092/
 repo_url: https://github.com/meetKazuki/homelab
 edit_uri: edit/master/handbook/docs/
 
@@ -33,6 +33,16 @@ theme:
 
 nav:
   - Home: index.md
+  - Getting Started:
+      - SSH: getting-started/ssh.md
+      - SOPS and age: getting-started/sops.md
+  - Architecture:
+      - Overview: architecture/overview.md
+  - Operations:
+      - Adopting a stack: operations/adopting-a-stack.md
+      - Maintaining the handbook: operations/maintaining-handbook.md
+  - Conventions: conventions/index.md
+  - Decisions: decisions/index.md
 
 markdown_extensions:
   - admonition
