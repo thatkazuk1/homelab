@@ -1,0 +1,91 @@
+# Meta-infrastructure — not Komodo-managed.
+# Deployed and updated manually on komodo-prod-01.
+# This file is documentation of the running config; not the deployment source of truth.
+# komodo.skip stacks in this repo commit a secrets.enc.env for documentation purposes,
+# but the running host still uses its own plaintext compose.env — no SOPS wrapper
+# is actually invoked at deploy time here (bootstrap circularity: Komodo can't manage
+# the compose that runs Komodo).
+
+services:
+  core:
+    image: ghcr.io/moghtech/komodo-core:${COMPOSE_KOMODO_IMAGE_TAG:-2}
+    init: true
+    restart: unless-stopped
+    labels:
+      komodo.skip:
+    depends_on:
+      - ferretdb
+    ports:
+      - 9120:9120
+    environment:
+      TZ:
+      KOMODO_HOST:
+      KOMODO_TITLE:
+      KOMODO_LOCAL_AUTH:
+      KOMODO_DISABLE_USER_REGISTRATION:
+      KOMODO_WEBHOOK_SECRET:
+      KOMODO_JWT_SECRET:
+      KOMODO_JWT_TTL:
+      KOMODO_DATABASE_USERNAME:
+      KOMODO_DATABASE_PASSWORD:
+      KOMODO_DATABASE_ADDRESS: ferretdb:27017
+    volumes:
+      - keys:/config/keys
+      - ${COMPOSE_KOMODO_BACKUPS_PATH}:/backups
+
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:${COMPOSE_KOMODO_IMAGE_TAG:-2}
+    init: true
+    restart: unless-stopped
+    labels:
+      komodo.skip:
+    depends_on:
+      - core
+    environment:
+      TZ:
+      KOMODO_HOST:
+      KOMODO_TITLE:
+      KOMODO_LOCAL_AUTH:
+      KOMODO_DISABLE_USER_REGISTRATION:
+      KOMODO_WEBHOOK_SECRET:
+      KOMODO_JWT_SECRET:
+      KOMODO_JWT_TTL:
+      KOMODO_DATABASE_USERNAME:
+      KOMODO_DATABASE_PASSWORD:
+    volumes:
+      - keys:/config/keys
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}:${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
+
+  postgres:
+    image: ghcr.io/ferretdb/postgres-documentdb:15-0.107.0-ferretdb-2.7.0
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${KOMODO_DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${KOMODO_DATABASE_PASSWORD}
+      POSTGRES_DB: postgres
+    labels:
+      komodo.skip:
+
+  ferretdb:
+    image: ghcr.io/ferretdb/ferretdb:2.7.0
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    volumes:
+      - ferretdb-state:/state
+    environment:
+      FERRETDB_POSTGRESQL_URL: postgres://${KOMODO_DATABASE_USERNAME}:${KOMODO_DATABASE_PASSWORD}@postgres:5432/postgres
+    labels:
+      komodo.skip:
+
+volumes:
+  postgres-data:
+    name: komodo-postgres-data
+  ferretdb-state:
+    name: komodo-ferretdb-state
+  keys:
+    name: komodo-keys
