@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "schedule": ["before 4am on Monday"],
-  "timezone": "Europe/London",
+  "timezone": "Africa/Lagos",
   "docker-compose": {
     "managerFilePatterns": ["/^stacks/[^/]+/compose\\.ya?ml$/"]
   },
