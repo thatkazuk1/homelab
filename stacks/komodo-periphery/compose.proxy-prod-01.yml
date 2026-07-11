@@ -1,0 +1,30 @@
+# Meta-infrastructure — not Komodo-managed.
+# Deployed and updated manually on proxy-prod-01.
+# This file is documentation of the running config; not the deployment source of truth.
+# Byte-identical (modulo volume order) to telemetry-prod-01 and plane-prod-01's
+# Periphery — a real cross-host duplication, tracked per-host per CLAUDE.md's
+# explicit-per-host convention rather than collapsed into one shared file.
+
+name: komodo-periphery
+
+services:
+  periphery:
+    image: forgejo.ts.kazuki.uk/shokunbi/komodo-periphery-sops:2
+    container_name: komodo-periphery
+    restart: unless-stopped
+    init: true
+    labels:
+      komodo.skip:
+    ports:
+      - "8120:8120"
+    environment:
+      - PERIPHERY_ROOT_DIRECTORY=/etc/komodo
+      - PERIPHERY_DISABLE_TERMINALS=false
+      - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
+      - SOPS_AGE_KEY_FILE=/config/age-keys.txt
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - /etc/komodo:/etc/komodo
+      - /home/kazuki/.config/sops/age/keys.txt:/config/age-keys.txt:ro
+      - ./keys:/config/keys

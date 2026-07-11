@@ -1,3 +1,12 @@
+# Meta-infrastructure — not Komodo-managed.
+# Deployed and updated manually on docker-prod-01.
+# This file is documentation of the running config; not the deployment source of truth.
+# docker-prod-01's Periphery diverges from the proxy/telemetry/plane/garage/core-01
+# variant: map-style `environment:` block, explicit `env_file: .env` container
+# injection (those hosts rely on compose's implicit `.env` substitution only), and
+# a PERIPHERY_DISABLE_CONTAINER_EXEC var the others don't set. Real drift, not
+# normalized here — see Sprint 3i status report.
+
 name: komodo-periphery
 
 services:
@@ -6,6 +15,8 @@ services:
     container_name: komodo-periphery
     init: true
     restart: unless-stopped
+    labels:
+      komodo.skip:
     ports:
       - 8120:8120
     env_file:
@@ -19,5 +30,5 @@ services:
       - ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}:${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
       - /proc:/proc
       - /var/run/docker.sock:/var/run/docker.sock
-      - /home/kazuki/.config/sops/age/keys.txt:/config/age-keys.txt:ro
       - ./keys:/config/keys
+      - /home/kazuki/.config/sops/age/keys.txt:/config/age-keys.txt:ro
