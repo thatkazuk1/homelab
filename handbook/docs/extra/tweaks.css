@@ -54,3 +54,74 @@
   --md-typeset-a-color: #a5b3ab;
   --md-typeset-mark-color: rgba(165, 179, 171, 0.2);
 }
+
+/*
+ * Typography — matched to pydantic.dev/docs (Sprint 3h)
+ * Ground truth pulled from the live site's compiled CSS, not guessed. Pydantic is Astro
+ * Starlight (self-hosted "ABC Diatype" body + "Dwight" headings, both commercial/foundry
+ * fonts with no public license for us to redistribute). Substituted with Inter (SIL OFL),
+ * differentiated by weight rather than by family — see /tmp scratch notes for the full
+ * extraction. "Roboto Mono" for code matches Pydantic exactly (Google's own font, no
+ * substitution needed). Both self-hosted below — theme.font: false in mkdocs.yml stops
+ * Material from also injecting its own default Google Fonts link.
+ *
+ * Sizes below are plain px, not rem: Material's own root chain (html at 125%, .md-typeset
+ * at a fractional rem multiplier) makes rem-based overrides compound unpredictably against
+ * Material's base. Absolute px keeps these pinned to the exact values read off Pydantic's
+ * site regardless of Material's internal scale.
+ */
+
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/inter-var.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("fonts/roboto-mono-var.woff2") format("woff2");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --md-text-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --md-code-font: "Roboto Mono", "SF Mono", Monaco, "Cascadia Code", monospace;
+}
+
+.md-typeset {
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.md-typeset h1 {
+  font-size: 42px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+.md-typeset h2 {
+  font-size: 35px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+.md-typeset h3 {
+  font-size: 29px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+.md-typeset code {
+  font-size: 0.875em;
+}
+
+.md-nav__link {
+  font-size: 14px;
+}
