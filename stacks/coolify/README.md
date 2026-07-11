@@ -11,15 +11,26 @@ its operational standard as ADR-0016. Coolify remains deliberately outside Komod
 - Platform containers: `coolify`, `coolify-db` (Postgres 15), `coolify-redis`, `coolify-realtime`,
   `coolify-proxy` (its own Traefik v3.6, `letsencrypt` cert resolver), `coolify-sentinel`
   (monitoring agent).
-- Tenants: one — `stackdoc`, deployed from `github.com/thatkazuk1/infra-stackdoc` (branch
-  `master`, Dockerfile build, `web` target — a static nginx-served SPA, no environment variables),
-  public at `https://stackdoc.kazuki.uk`. The prior install's other three tenants (two unnamed
-  applications, one standalone Postgres 18 database) were confirmed disposable by the operator
-  during Sprint 3j's discovery phase and destroyed in the teardown — not migrated, not backed up.
-- Admin UI: reachable directly at `coolify-prod-01`'s LAN IP, port 8000. **Not yet
-  Tailscale-scoped** (`coolify.ts.kazuki.uk`) — `coolify-prod-01` was never a Tailscale tailnet
-  member; this is open follow-up work, not implemented this sprint. Not publicly reachable either
-  way (no live Cloudflare Tunnel route or fleet Traefik route to it).
+- Tenants: two.
+  - `stackdoc`, deployed from `github.com/thatkazuk1/infra-stackdoc` (branch `master`,
+    Dockerfile build, `web` target — a static nginx-served SPA, no environment variables),
+    public at `https://stackdoc.kazuki.uk`. The prior install's other three tenants (two
+    unnamed applications, one standalone Postgres 18 database) were confirmed disposable by
+    the operator during Sprint 3j's discovery phase and destroyed in the teardown — not
+    migrated, not backed up.
+  - `handbook` (Sprint 3k), deployed from the fleet monorepo's GitHub mirror
+    (`github.com/meetKazuki/homelab`, branch `master`, `Base Directory: /handbook`, existing
+    `handbook/Dockerfile`), LAN-only at `http://handbook.lan/` — plain HTTP, no TLS, no port.
+    Source-of-truth stays in the fleet monorepo (a deliberate exception to "tenant
+    source-of-truth lives in the tenant's own repository" — handbook was already a
+    fleet-monorepo-tracked directory before Coolify existed as a serving option; see
+    ADR-0015). No auto-deploy webhook configured — pushes to `handbook/` need a manual Deploy
+    in Coolify's UI, same operational shape as the retired pipeline's manual-redeploy caveat.
+- Admin UI: `https://coolify.ts.kazuki.uk`, routed through fleet Traefik (`proxy-prod-01`) and
+  scoped to tailnet-reachable clients via DNS, matching the `komodo`/`forgejo` pattern
+  (Sprint 3k — see ADR-0016's Sprint 3k amendment). Direct LAN access at `coolify-prod-01`'s
+  IP, port 8000 still works as a fallback. Not publicly reachable either way (no live
+  Cloudflare Tunnel route or fleet Traefik route from the public internet).
 
 ## Why not Komodo-managed
 
@@ -62,9 +73,18 @@ No backup mechanism exists. `/data/coolify/backups/` is present but empty — co
 Sprint 3j discovery, before the teardown that would have made the question moot either way.
 Deferred to a future instrumentation-driven sprint per operator direction, not solved here.
 
+## LAN-only tenant routing
+
+Confirmed working (Sprint 3k, via the `handbook` tenant): an explicit `http://tenant.lan`
+domain scheme produces a plain-HTTP-only Traefik router with no TLS/ACME attempt. Needs, in
+order: (1) an AdGuard rewrite for the `.lan` hostname pointing at `coolify-prod-01` created
+*before* the Coolify app is deployed — Coolify validates DNS resolves before it will create any
+route; (2) `coolify-prod-01`'s Docker daemon DNS resolver (`/etc/docker/daemon.json`) must
+include AdGuard (`192.168.50.3`) so containers can resolve `.lan` names — it shipped pointed at
+a stale non-resolving IP plus `1.1.1.1`, fixed Sprint 3k; (3) the "Ports Exposes" field needs
+manual verification — it did not reliably auto-detect the port from the Dockerfile's `EXPOSE`
+line. See ADR-0016's Sprint 3k amendment for full detail.
+
 ## Future work
 
-- `coolify.ts.kazuki.uk` Tailscale-scoped admin access (needs Tailscale installed on
-  `coolify-prod-01`, node approval, DNS record) — see ADR-0016 Consequences.
-- Handbook migration to Coolify as a second tenant (Sprint 3k).
 - Coolify backup story (future instrumentation-driven sprint).
