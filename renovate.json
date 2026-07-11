@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["before 4am on Monday"],
+  "timezone": "Europe/London",
+  "docker-compose": {
+    "managerFilePatterns": ["/^stacks/[^/]+/compose\\.ya?ml$/"]
+  },
+  "dockerfile": {
+    "managerFilePatterns": ["/^handbook/Dockerfile$/"]
+  },
+  "ignorePaths": [
+    "stacks/komodo/**",
+    "stacks/komodo-periphery/**",
+    "stacks/forgejo/**",
+    "stacks/forgejo-runner/**"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["major"],
+      "labels": ["update:major"]
+    },
+    {
+      "groupName": "postgres",
+      "matchPackagePatterns": ["postgres"]
+    }
+  ]
+}
