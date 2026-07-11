@@ -100,10 +100,11 @@ A few things are deliberately outside this picture, by choice rather than oversi
   configuration UI is the natural way to manage it; forcing it through GitOps compose files
   would fight the tool rather than use it.
 - **Coolify (`coolify-prod-01`) runs a small set of tenants outside Komodo entirely**,
-  including this repo's own StackDoc visualisation project (`infra-stackdoc-web`). Coolify
-  self-upgrades and rewrites its own compose/env files independently of git — putting it
-  under Komodo/git reconciliation would mean the two fight over ownership of the same files.
-  Documented for the wiki goal, not migrated.
-- **This handbook itself is served without Traefik.** `handbook.lan` resolves straight to
-  `docker-prod-01:8092` via an AdGuard rewrite, bypassing Traefik — a deliberate exception,
-  not the fleet default. See ADR-0015 for why.
+  including this repo's own StackDoc visualisation project (`infra-stackdoc-web`) and this
+  handbook itself. Coolify self-upgrades and rewrites its own compose/env files independently
+  of git — putting it under Komodo/git reconciliation would mean the two fight over ownership
+  of the same files. Documented for the wiki goal, deliberately not Komodo-managed. See
+  **Architecture → Coolify**.
+- **This handbook is served by Coolify, not Komodo.** `handbook.lan` resolves to
+  `coolify-prod-01`, plain HTTP, no port, no Traefik in front of it (Coolify runs its own).
+  See **Architecture → Coolify** and ADR-0015 for why.

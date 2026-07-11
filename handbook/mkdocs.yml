@@ -62,6 +62,7 @@ nav:
       - Local tools: getting-started/local-tools.md
   - Architecture:
       - Overview: architecture/overview.md
+      - Coolify: architecture/coolify.md
   - Operations:
       - Adopting a stack: operations/adopting-a-stack.md
       - Deploying a new host: operations/deploying-a-new-host.md

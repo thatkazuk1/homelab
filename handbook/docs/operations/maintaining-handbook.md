@@ -1,38 +1,43 @@
 # Operations: Maintaining the handbook
 
-This handbook is itself a Komodo-managed stack, built through the same GitOps pipeline as
-everything else in the fleet. This page covers how to edit it, publish it, and keep it
-honest.
+This handbook is a Coolify tenant on `coolify-prod-01`, built directly from the fleet
+monorepo's `handbook/` subdirectory — see **Architecture → Coolify** for how that pipeline
+works in general. This page covers how to edit it, publish it, and keep it honest.
 
 ## Source location
 
 The handbook's source lives at `handbook/` in the monorepo (self-hosted at Forgejo, mirrored
-to GitHub as `kazuki/homelab`) — a sibling of `stacks/`, not nested inside it. It's tracked
+to GitHub as `meetKazuki/homelab`) — a sibling of `stacks/`, not nested inside it. It's tracked
 and public from the moment it's pushed, same as the rest of the shareable repo content.
 
 ## Authoring workflow
 
 1. Edit any `.md` file under `handbook/docs/`.
-2. `git commit`, `git push`.
-3. Forgejo Actions picks up the push, builds a new MkDocs Material site, packages it as an
-   nginx image, and pushes it to Forgejo's own container registry.
-4. Komodo pulls the new image and redeploys the running `handbook` container.
+2. `git commit`, `git push` (to the Forgejo origin — the canonical repo).
+3. Forgejo's push mirror syncs the change to the GitHub mirror. This is not instant — there's
+   a real, occasionally multi-commit lag window, not a push-triggered sync. If a change needs
+   to land immediately, trigger it manually: Forgejo → repo **Settings → Push Mirrors →
+   Synchronize Now**.
+4. In Coolify's UI, open the `handbook` application and click **Deploy**. Coolify pulls the
+   current GitHub mirror state, rebuilds the `Base Directory: /handbook` Dockerfile, and
+   rolls the new container out.
 
-Steps 3 and 4 are automated in principle — that's the whole point of the pipeline — but see
-the next section for the current honest state of step 4.
+Step 4 is manual — see the next section.
 
 ## Auto-trigger reality
 
-**As of writing, Komodo's automatic redeploy triggers are not reliable.** Both the webhook
-path and Komodo's own Auto Update polling have failed to redeploy a freshly-built image
-within a reasonable window in recent sprints. The working fallback: **Komodo UI → the
-`handbook` Stack → Deploy**, which applies the latest built image immediately. Treat this as
-the normal step after a push, not a break-glass fallback — a dedicated investigation into why
-the automatic triggers aren't firing is a known, not-yet-scheduled carryover.
+**Coolify has no auto-deploy webhook configured for this application.** A push (even after
+the mirror has synced) does not trigger a rebuild by itself; the **Deploy** button in Coolify's
+UI is the actual publish step, every time. Treat it as the normal step after a push, not a
+break-glass fallback. This is the same operational shape the pipeline had before the Sprint 3k
+migration to Coolify — a webhook could close this gap in the future, but it isn't configured
+today, and setting one up wasn't part of the migration itself.
 
-Step 3 (the Forgejo Actions build+push) has been fast and consistently automatic in practice
-(under a minute); it's specifically step 4 (Komodo picking up the new image) that currently
-needs a manual nudge.
+A full rebuild currently takes several minutes (the `mkdocs-material` pip install is the slow
+step; Docker layer caching should make it much faster on repeat deploys unless the Coolify
+build environment doesn't preserve cache between deploys — not yet confirmed either way).
+Content-only changes and layout/theme changes both go through the same rebuild; there's no
+separate fast path for one over the other.
 
 ## Local preview
 
