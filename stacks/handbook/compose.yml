@@ -1,9 +1,0 @@
-name: handbook
-
-services:
-  web:
-    image: forgejo.ts.kazuki.uk/shokunbi/handbook:main
-    container_name: handbook-web
-    restart: unless-stopped
-    ports:
-      - "8092:80"
