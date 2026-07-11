@@ -1,3 +1,7 @@
+# Meta-infrastructure — not Komodo-managed.
+# Deployed and updated manually on forgejo-prod-01.
+# This file is documentation of the running config; not the deployment source of truth.
+
 name: forgejo
 
 services:
@@ -5,6 +9,8 @@ services:
     image: codeberg.org/forgejo/forgejo:15
     container_name: forgejo
     restart: unless-stopped
+    labels:
+      komodo.skip:
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -14,6 +20,7 @@ services:
       - FORGEJO__server__SSH_PORT=2222
       - FORGEJO__service__DISABLE_REGISTRATION=true
       - FORGEJO__security__INSTALL_LOCK=true
+      - FORGEJO__webhook__ALLOWED_HOST_LIST=${FORGEJO_ALLOWED_HOST_LIST}
     volumes:
       - forgejo-data:/data
       - /etc/timezone:/etc/timezone:ro
