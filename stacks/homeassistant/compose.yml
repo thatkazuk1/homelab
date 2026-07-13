@@ -1,3 +1,4 @@
+# adoption marker: 2026-07-13
 services:
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:stable
