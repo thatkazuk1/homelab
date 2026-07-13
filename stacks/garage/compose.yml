@@ -1,3 +1,13 @@
+x-meta:
+  name: garage
+  host: garage-prod-01
+  category: storage
+  description: >
+    S3-compatible object storage backing the fleet's backup, media, and
+    attachment needs.
+  status: adopted
+  public_url: garage.ts.kazuki.uk
+
 services:
   garage:
     image: dxflrs/garage:v2.2.0

@@ -1,3 +1,12 @@
+x-meta:
+  name: influxdb3
+  host: telemetry-prod-01
+  category: monitoring
+  description: >
+    Time-series database (InfluxDB 3 Core + Explorer) backing the fleet's
+    telemetry data, such as speedtest history.
+  status: adopted
+
 services:
   influxdb3-core:
     image: influxdb:3-core

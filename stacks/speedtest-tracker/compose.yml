@@ -1,3 +1,14 @@
+x-meta:
+  name: speedtest-tracker
+  host: telemetry-prod-01
+  category: monitoring
+  description: >
+    Scheduled internet speed tests with historical tracking and an
+    optional public dashboard view.
+  status: adopted
+  adrs:
+    - 10
+
 services:
   speedtest-tracker:
     image: lscr.io/linuxserver/speedtest-tracker:latest

@@ -1,5 +1,17 @@
 name: plane-app
 
+x-meta:
+  name: plane
+  host: plane-prod-01
+  category: project-management
+  description: >
+    Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-style
+    tool, deployed as the vendor's own 12-service bundle.
+  status: adopted
+  adrs:
+    - 10
+  public_url: plane.kazuki.uk
+
 x-db-env: &db-env
   PGHOST: ${PGHOST:-plane-db}
   PGDATABASE: ${PGDATABASE:-plane}

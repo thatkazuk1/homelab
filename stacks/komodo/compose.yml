@@ -6,6 +6,19 @@
 # is actually invoked at deploy time here (bootstrap circularity: Komodo can't manage
 # the compose that runs Komodo).
 
+x-meta:
+  name: komodo
+  host: komodo-prod-01
+  category: meta-infra
+  description: >
+    Komodo Core, the GitOps reconciliation engine for the fleet's Docker
+    stacks, plus its FerretDB/Postgres backing store — the tool that turns
+    this repo into deployed reality.
+  status: meta-infra
+  adrs:
+    - 2
+  public_url: komodo.ts.kazuki.uk
+
 services:
   core:
     image: ghcr.io/moghtech/komodo-core:${COMPOSE_KOMODO_IMAGE_TAG:-2}

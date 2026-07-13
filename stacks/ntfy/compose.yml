@@ -1,3 +1,15 @@
+x-meta:
+  name: ntfy
+  host: core-01
+  category: notifications
+  description: >
+    Self-hosted push-notification service — the fleet's alerting transport,
+    including native Komodo deploy/failure alerts.
+  status: adopted
+  adrs:
+    - 2
+  public_url: ntfy.kazuki.uk
+
 services:
   ntfy:
     image: binwiederhier/ntfy

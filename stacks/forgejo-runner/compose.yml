@@ -1,5 +1,14 @@
 name: forgejo-runner
 
+x-meta:
+  name: forgejo-runner
+  host: forgejo-prod-01
+  category: meta-infra
+  description: >
+    Forgejo Actions runner — executes CI/CD jobs (Renovate, handbook checks)
+    registered against the Forgejo instance.
+  status: meta-infra
+
 services:
   runner:
     image: data.forgejo.org/forgejo/runner:12

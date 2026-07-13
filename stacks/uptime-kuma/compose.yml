@@ -1,3 +1,14 @@
+x-meta:
+  name: uptime-kuma
+  host: core-01
+  category: monitoring
+  description: >
+    Uptime and status monitoring for the fleet — HTTP/TCP/ping checks
+    across services with historical uptime data and alerting.
+  status: adopted
+  adrs:
+    - 2
+
 services:
   uptime-kuma:
     image: louislam/uptime-kuma:2

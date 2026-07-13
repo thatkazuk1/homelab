@@ -1,3 +1,12 @@
+x-meta:
+  name: portainer-agent
+  host: core-01
+  category: orchestration
+  description: >
+    The Portainer Agent — exposes this host's Docker environment to the
+    central Portainer instance for remote management.
+  status: adopted
+
 services:
   portainer-agent:
     image: portainer/agent:2.33.5

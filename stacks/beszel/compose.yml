@@ -1,3 +1,15 @@
+x-meta:
+  name: beszel
+  host: docker-prod-01
+  category: monitoring
+  description: >
+    Lightweight fleet-wide server monitoring — CPU, memory, disk, and Docker
+    container stats collected from agents across every host.
+  status: adopted
+  adrs:
+    - 10
+  public_url: beszel.ts.kazuki.uk
+
 services:
   beszel:
     image: henrygd/beszel:latest

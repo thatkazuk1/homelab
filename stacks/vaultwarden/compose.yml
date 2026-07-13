@@ -1,3 +1,14 @@
+x-meta:
+  name: vaultwarden
+  host: docker-prod-01
+  category: password-management
+  description: >
+    A self-hosted, Bitwarden-compatible password vault — holds the fleet's
+    actual password data.
+  status: adopted
+  adrs:
+    - 10
+
 services:
   vaultwarden:
     image: vaultwarden/server:latest

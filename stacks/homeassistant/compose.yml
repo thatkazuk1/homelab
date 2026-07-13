@@ -1,3 +1,13 @@
+x-meta:
+  name: homeassistant
+  host: core-01
+  category: home-automation
+  description: >
+    Home Assistant — home automation hub with Zigbee/Z-Wave and Bluetooth
+    device passthrough.
+  status: adopted
+  public_url: ha.ts.kazuki.uk
+
 services:
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:stable

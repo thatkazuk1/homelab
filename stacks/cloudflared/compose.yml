@@ -1,3 +1,14 @@
+x-meta:
+  name: cloudflared
+  host: docker-prod-01
+  category: networking
+  description: >
+    The Cloudflare Tunnel client — the on-ramp for every public kazuki.uk
+    route, reaching internal services without opening an inbound port.
+  status: adopted
+  adrs:
+    - 10
+
 services:
   cloudflared-tunnel:
     image: cloudflare/cloudflared:latest

@@ -4,6 +4,18 @@
 
 name: forgejo
 
+x-meta:
+  name: forgejo
+  host: forgejo-prod-01
+  category: meta-infra
+  description: >
+    Forgejo — the fleet's self-hosted git host and CI/CD Actions runner
+    target; canonical origin for this repo, mirrored to GitHub.
+  status: meta-infra
+  adrs:
+    - 1
+  public_url: forgejo.ts.kazuki.uk
+
 services:
   forgejo:
     image: codeberg.org/forgejo/forgejo:15
