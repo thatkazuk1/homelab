@@ -1,0 +1,13 @@
+#!/bin/bash
+# Regenerate handbook stack pages when compose files or notes change.
+
+set -e
+
+CHANGED_STACKS=$(git diff --cached --name-only | grep -E '^stacks/[^/]+/(compose\.yml|notes\.md)$' || true)
+
+if [ -n "$CHANGED_STACKS" ]; then
+    echo "Detected stack changes, regenerating handbook stack pages..."
+    python3 scripts/generate-stack-pages.py
+    git add handbook/docs/stacks/
+    echo "Regenerated pages added to commit."
+fi
