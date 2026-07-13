@@ -123,11 +123,13 @@ The operator registers a Forgejo webhook for the new Stack. Force a real redeplo
 small, harmless change — a marker environment variable is the standard choice, since it's
 easy to verify landed without being a real functional change.
 
-**Note the current caveat honestly:** Komodo's automatic redeploy triggers (webhook and Auto
-Update polling) have not reliably fired within a reasonable window in the most recent
-sprints. Budget for a manual redeploy click in the Komodo UI if the automatic trigger doesn't
-land within a few minutes — this is the current working pattern, not a failure specific to
-your stack.
+The webhook is the real, working mechanism: expect container recreation within seconds of the
+push landing (verified live at ~6s round trip, consistent since Sprint 2.1). If it doesn't land
+within a couple of minutes, don't assume this is normal — check Komodo Core's logs for the
+webhook delivery (`docker logs komodo-core-1`, note the `-1` container-name suffix) before
+falling back to a manual Deploy click in the Komodo UI. Auto Update / Poll for Updates is a
+separate feature (detects a new image at the same tag, not a git/compose change) and isn't
+enabled on any current Stack — don't expect it to fire for a compose-file-driven adoption.
 
 ## 9. Functional verification
 

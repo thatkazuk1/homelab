@@ -56,12 +56,14 @@ at deploy time without ever touching disk in plaintext. Each stack is a director
 `stacks/` in the monorepo; adopting a manually-run stack into this pipeline is a repeatable
 playbook (see **Operations → Adopting a stack**).
 
-**As of writing**, Komodo's automatic redeploy triggers — both the Forgejo webhook and
-Komodo's own Auto Update polling — have not reliably fired within a reasonable window across
-the two most recent sprints. A manual redeploy click in the Komodo UI is the current working
-fallback, and this handbook's own publishing loop (see **Operations → Maintaining the
-handbook**) uses it. A dedicated investigation into the automatic path is a standing,
-not-yet-scheduled carryover.
+**As of writing**, the Forgejo webhook is the real, working automatic redeploy trigger for
+every Komodo Stack — verified live at a ~6-10 second round trip. Komodo's separate "Auto
+Update" / "Poll for Updates" feature (which checks for a new image at the same tag, not a
+git/compose change) isn't enabled on any current Stack; it was tried once early on and hasn't
+been revisited since, not because it's broken. The handbook itself is no longer a Komodo Stack
+— it moved to being a Coolify tenant, which has no auto-deploy webhook of its own, so its
+publishing loop (see **Operations → Maintaining the handbook**) uses a manual Deploy click in
+Coolify's UI for an unrelated reason.
 
 ## DNS tiers
 
@@ -82,8 +84,9 @@ Anything not explicitly behind Cloudflare Tunnel or Tailscale uses `.lan`.
   registry.
 - **Forgejo Actions** (a self-hosted runner, not a hosted CI service) builds images from
   pushed commits and pushes them back to Forgejo's own registry.
-- **Komodo Core** watches the repo (webhook, and a poll-based Auto Update as a second path)
-  and dispatches deploy instructions to the relevant Periphery agent.
+- **Komodo Core** watches the repo via a per-Stack Forgejo webhook and dispatches deploy
+  instructions to the relevant Periphery agent. (Auto Update / Poll for Updates — a separate,
+  image-tag-based trigger — exists but isn't enabled on any current Stack.)
 - **Periphery agents** run on each Docker host, pull the target image from Forgejo's registry
   (using their own registry credentials — they don't inherit the SSH user's `docker login`),
   and run `docker compose` against the stack's committed compose file.
