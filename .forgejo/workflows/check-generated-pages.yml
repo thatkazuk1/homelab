@@ -1,0 +1,38 @@
+name: Check generated stack pages
+
+on:
+  push:
+    paths:
+      - 'stacks/**/compose.yml'
+      - 'stacks/**/notes.md'
+      - 'scripts/generate-stack-pages.py'
+      - 'scripts/templates/**'
+      - 'handbook/docs/stacks/**'
+
+jobs:
+  check-generation:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@${GITHUB_SERVER_URL#https://}/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth 1 origin "${GITHUB_SHA}"
+          git checkout -q FETCH_HEAD
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: apk add --no-cache python3 py3-pip && pip install --break-system-packages jinja2 pyyaml
+
+      - name: Regenerate pages
+        run: python3 scripts/generate-stack-pages.py
+
+      - name: Check for drift
+        run: |
+          if ! git diff --exit-code handbook/docs/stacks/; then
+            echo "ERROR: Generated pages are out of date with source."
+            echo "Run 'python3 scripts/generate-stack-pages.py' locally and commit."
+            exit 1
+          fi
+          echo "Generated pages match source."
