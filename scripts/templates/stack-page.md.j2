@@ -1,0 +1,78 @@
+# {{ meta.name }}
+
+{{ meta.description | trim }}
+
+## Reference
+
+| Field | Value |
+|---|---|
+| Host | `{{ meta.host }}` |
+| Category | {{ meta.category }} |
+| Status | {{ meta.status }} |
+{% if meta.public_url %}
+| Public URL | [{{ meta.public_url }}](https://{{ meta.public_url }}) |
+{% endif %}
+{% if meta.internal_url %}
+| Internal URL | {{ meta.internal_url }} |
+{% endif %}
+| Repo path | [`stacks/{{ meta.name }}/`](https://github.com/meetKazuki/homelab/tree/master/stacks/{{ meta.name }}) |
+
+## Services
+
+{% for service in services %}
+### `{{ service.name }}`
+
+- **Image:** `{{ service.image }}`
+{% if service.container_name %}
+- **Container:** `{{ service.container_name }}`
+{% endif %}
+{% if service.restart %}
+- **Restart policy:** `{{ service.restart }}`
+{% endif %}
+{% if service.network_mode %}
+- **Network mode:** `{{ service.network_mode }}`
+{% endif %}
+{% if service.ports %}
+- **Ports:** `{{ service.ports | join('`, `') }}`
+{% endif %}
+
+{% endfor %}
+{% if named_volumes %}
+## Named volumes
+
+{% for v in named_volumes %}
+- `{{ v }}`
+{% endfor %}
+{% endif %}
+
+## Secrets
+
+{% if has_sops %}
+This stack uses the [SOPS-encrypted secrets pattern](../decisions/0010-per-stack-sops-secrets.md). Encrypted values live in `stacks/{{ meta.name }}/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
+{% else %}
+No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
+{% endif %}
+
+{% if meta.adrs %}
+## Related decisions
+
+{% for adr in meta.adrs %}
+{% if adr in adr_pages %}
+- [ADR-{{ '%04d' | format(adr) }}](../decisions/{{ adr_pages[adr] }})
+{% else %}
+- ADR-{{ '%04d' | format(adr) }} (not yet published in the handbook — see `docs/adrs/` on disk)
+{% endif %}
+{% endfor %}
+{% endif %}
+
+## Operational notes
+
+{% if notes %}
+{{ notes }}
+{% else %}
+No operational notes have been added for this stack yet. To add operational context, quirks, or lessons learned, create `stacks/{{ meta.name }}/notes.md`. Content is composed into this section on regeneration.
+{% endif %}
+
+---
+
+*This page is auto-generated from `stacks/{{ meta.name }}/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/{{ meta.name }}/notes.md`.*

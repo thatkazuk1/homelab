@@ -33,6 +33,10 @@ Thumbs.db
 /scratch/
 /tmp/
 
+# Python
+__pycache__/
+*.pyc
+
 .claude/*
 !.claude/settings.json
 /docs/
