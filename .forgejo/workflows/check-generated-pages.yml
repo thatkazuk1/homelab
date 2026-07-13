@@ -23,7 +23,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
-        run: apk add --no-cache python3 py3-pip && pip install --break-system-packages jinja2 pyyaml
+        run: |
+          apk update
+          apk upgrade --no-cache
+          apk add --no-cache python3 py3-pip
+          pip install --break-system-packages jinja2 pyyaml
 
       - name: Regenerate pages
         run: python3 scripts/generate-stack-pages.py
