@@ -67,6 +67,7 @@ nav:
       - Adopting a stack: operations/adopting-a-stack.md
       - Deploying a new host: operations/deploying-a-new-host.md
       - Maintaining the handbook: operations/maintaining-handbook.md
+      - Renovate (dependency updates): operations/renovate.md
   - Stacks:
       - Overview: stacks/index.md
       - homepage: stacks/homepage.md
