@@ -89,9 +89,88 @@ these basics.
 Nav order in `mkdocs.yml` directly controls sidebar order — there's no separate ordering
 mechanism.
 
-## Generated stack pages (in progress, Sprint 3o)
+## Generated stack pages
 
-`handbook/docs/stacks/*.md` pages (except the hand-authored `index.md`) are moving to
-auto-generation from `stacks/*/compose.yml`, using an `x-meta:` metadata block per stack and an
-optional hand-written `stacks/<name>/notes.md` for operational content. This section will be
-filled in with the full workflow once the generator, pre-commit hook, and CI safety net all land.
+`handbook/docs/stacks/*.md` pages — except the hand-authored `index.md` — are auto-generated
+from `stacks/*/compose.yml` (Sprint 3o). This is the first piece of Goal 1's "living
+documentation" property: the compose file is the source of truth for a stack's reference
+content, not a hand-written page that can silently drift from it.
+
+### The `x-meta:` block
+
+Every stack with a single `stacks/<name>/compose.yml` carries an `x-meta:` key at the top —
+a Compose extension key (`x-*`), ignored by Compose itself at deploy time, that holds the
+generator's metadata:
+
+```yaml
+x-meta:
+  name: homepage
+  host: docker-prod-01
+  category: dashboard
+  description: >
+    A single-page dashboard showing the state of every service in the homelab.
+  status: adopted            # adopted | meta-infra | manual
+  adrs:
+    - 10
+  public_url: home.ts.kazuki.uk   # optional
+  internal_url:                   # optional
+```
+
+`adrs:` numbers that don't have a corresponding page under `handbook/docs/decisions/` render
+as plain text instead of a broken link — not every ADR in `docs/adrs/` is published to the
+public handbook.
+
+### Per-stack operational notes
+
+`stacks/<name>/notes.md` is optional, hand-written, and holds what the generator can't derive
+from the compose file: quirks, lessons learned, migration history, specific caveats. It's
+composed into the generated page's "Operational notes" section verbatim. Reference-level facts
+(host, image, ports, secrets pattern, category, ADRs) belong in the compose file or `x-meta:`,
+not here — if it's already on the reference table, it doesn't need repeating in notes.
+
+### Regenerating
+
+```bash
+python3 scripts/generate-stack-pages.py
+```
+
+Reads every `stacks/<name>/compose.yml`, renders `scripts/templates/stack-page.md.j2`, writes
+`handbook/docs/stacks/<name>.md`. Requires `jinja2` and `PyYAML` (`pip install jinja2 pyyaml`).
+**Never edit a generated page by hand** — the next regeneration overwrites it. Fix the compose
+file's `x-meta:`, the per-stack `notes.md`, or the template instead.
+
+Two stacks are currently out of scope for the generator, both deliberately: `coolify` has no
+single `compose.yml` (three separately-named compose files, and it's outside Komodo/git
+management by design — see **Architecture → Coolify**) and `komodo-periphery` uses per-host
+`compose.<host>.yml` files instead of one `compose.yml` (its config genuinely diverges per
+host). A future sprint could teach the generator to handle multi-file stacks; until then,
+`komodo-periphery` has no catalog page.
+
+### Pre-commit hook
+
+A git hook regenerates affected pages automatically when a staged commit touches a stack's
+`compose.yml` or `notes.md`, and stages the regenerated output alongside. Git hooks aren't
+tracked in the repo, so install it once after cloning:
+
+```bash
+./scripts/install-hooks.sh
+```
+
+This copies the tracked `scripts/hooks/pre-commit` into `.git/hooks/pre-commit`.
+
+### CI safety net
+
+`.forgejo/workflows/check-generated-pages.yml` runs on every push touching a stack's
+`compose.yml`/`notes.md`, the generator, its templates, or `handbook/docs/stacks/**`. It
+regenerates the pages and fails the build (`git diff --exit-code`) if the result doesn't match
+what was committed — a backstop for anyone who pushes without the pre-commit hook installed.
+The job's default container (`docker:27-cli`) has git but neither Python nor Node.js, so the
+workflow installs `python3`/`pip` via `apk` and does its own manual git checkout with the
+runner's injected `GITHUB_TOKEN` rather than the JS-based `actions/checkout` action.
+
+### Adding a new stack
+
+1. Create `stacks/<name>/compose.yml` with an `x-meta:` block.
+2. Optionally add `stacks/<name>/notes.md` for operational context.
+3. Run the generator (or just commit — the pre-commit hook does it for you) and add the new
+   page to `mkdocs.yml`'s `nav:` under **Stacks** (flat, alphabetical).
