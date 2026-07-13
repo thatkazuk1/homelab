@@ -83,6 +83,22 @@ should stay reachable by the fewest possible code paths; sharing its key with a 
 bucket would widen that blast radius for no benefit. Key names match their bucket
 (`sure-data` key → `sure-data` bucket).
 
+### Garage buckets
+
+Bucket names follow `<stack>-<descriptor>` where descriptor is one of:
+
+- **`data`** — application state the stack reads and writes (uploads,
+  generated files, operational data)
+- **`media`** — user-facing media served from S3; rare in this fleet, reserved
+  for cases where a stack specifically serves media from S3 rather than local
+  disk
+- **`backup`** — backup archives written by the stack or by external backup
+  tooling
+
+Each bucket has one dedicated scoped key per consumer, never shared across
+buckets. Every scoped key gets `read`, `write`, and `owner` on its bucket —
+verify with `garage key info <key-id>` after creation, never assume.
+
 ## Compose conventions
 
 A few rules apply to every stack's `compose.yml` once it's under GitOps management:
