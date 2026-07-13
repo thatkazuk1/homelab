@@ -3,7 +3,7 @@ x-meta:
   host: docker-prod-01
   category: dashboard
   description: >
-    A single-page dashboard showing the state of every service in the homelab,
+    CI-DRIFT-TEST — A single-page dashboard showing the state of every service in the homelab,
     aggregating live widget data from each service's own API.
   status: adopted
   adrs:
