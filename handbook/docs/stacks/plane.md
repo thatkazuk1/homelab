@@ -52,11 +52,11 @@ Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-styl
 
 ### `plane-redis`
 
-- **Image:** `valkey/valkey:7.2.11-alpine`
+- **Image:** `valkey/valkey:7.2.13-alpine`
 
 ### `plane-mq`
 
-- **Image:** `rabbitmq:3.13.6-management-alpine`
+- **Image:** `rabbitmq:3.13.7-management-alpine`
 
 ### `plane-minio`
 
