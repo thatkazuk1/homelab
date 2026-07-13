@@ -71,19 +71,23 @@ nav:
       - Renovate (dependency updates): operations/renovate.md
   - Stacks:
       - Overview: stacks/index.md
+      - beszel: stacks/beszel.md
+      - cloudflared: stacks/cloudflared.md
+      - forgejo: stacks/forgejo.md
+      - forgejo-runner: stacks/forgejo-runner.md
+      - garage: stacks/garage.md
+      - homeassistant: stacks/homeassistant.md
       - homepage: stacks/homepage.md
+      - influxdb3: stacks/influxdb3.md
+      - komodo: stacks/komodo.md
+      - ntfy: stacks/ntfy.md
+      - plane: stacks/plane.md
+      - portainer: stacks/portainer.md
+      - portainer-agent: stacks/portainer-agent.md
+      - speedtest-tracker: stacks/speedtest-tracker.md
+      - sure: stacks/sure.md
       - uptime-kuma: stacks/uptime-kuma.md
       - vaultwarden: stacks/vaultwarden.md
-      - ntfy: stacks/ntfy.md
-      - portainer-agent: stacks/portainer-agent.md
-      - portainer: stacks/portainer.md
-      - cloudflared: stacks/cloudflared.md
-      - sure: stacks/sure.md
-      - beszel: stacks/beszel.md
-      - garage: stacks/garage.md
-      - influxdb3: stacks/influxdb3.md
-      - speedtest-tracker: stacks/speedtest-tracker.md
-      - plane: stacks/plane.md
   - Conventions: conventions/index.md
   - Decisions:
       - Overview: decisions/index.md

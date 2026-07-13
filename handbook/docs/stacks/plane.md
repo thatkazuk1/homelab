@@ -1,37 +1,94 @@
 # plane
 
-Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-style tool.
+Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-style tool, deployed as the vendor's own 12-service bundle.
 
-**Host:** `plane-prod-01`
-**Access:** [`plane.kazuki.uk`](https://plane.kazuki.uk) (public, Cloudflare-fronted via
-Traefik on `proxy-prod-01`, forwarding to Plane's own bundled reverse proxy)
-**Repo:** [`stacks/plane/`](https://github.com/meetKazuki/homelab/tree/master/stacks/plane)
+## Reference
 
-## What it does
+| Field | Value |
+|---|---|
+| Host | `plane-prod-01` |
+| Category | project-management |
+| Status | adopted |
+| Public URL | [plane.kazuki.uk](https://plane.kazuki.uk) |
+| Repo path | [`stacks/plane/`](https://github.com/meetKazuki/homelab/tree/master/stacks/plane) |
 
-Plane is a full project-management suite, self-hosted as the vendor's own multi-container
-bundle rather than a single service. It's the largest stack in the catalog by service count.
+## Services
 
-## Topology
+### `web`
 
-12 services: `web`, `space`, `admin`, `live`, `api`, `worker`, `beat-worker`, `migrator`
-(one-shot DB migration runner), `plane-db` (Postgres), `plane-redis`, `plane-mq` (RabbitMQ),
-`plane-minio` (object storage), and a bundled `proxy` (Caddy) that terminates the app's own
-routing and binds host ports 80/443 directly — Traefik on `proxy-prod-01` forwards to this
-container rather than to individual services.
+- **Image:** `artifacts.plane.so/makeplane/plane-frontend:${APP_RELEASE:-v1.2.1}`
 
-## Configuration
+### `space`
 
-- **Compose:** vendor-supplied multi-service bundle, adopted with its structure intact per
-  the "don't reorganize a working topology mid-migration" discipline.
-- **Secrets:** full ADR-0010 pattern — fully env-based (no bind-mounted config files
-  involved), `secrets.enc.env` covers the app, database, Redis, MinIO/S3, RabbitMQ, and proxy
-  environment blocks.
-- **Data:** 10 named volumes (`pgdata`, `redisdata`, `uploads`, four `logs_*` volumes,
-  `rabbitmq_data`, `proxy_config`, `proxy_data`), no explicit `name:` fields — Docker's
-  project-prefixed auto-generated names, preserved.
+- **Image:** `artifacts.plane.so/makeplane/plane-space:${APP_RELEASE:-v1.2.1}`
 
-## Notable
+### `admin`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-admin:${APP_RELEASE:-v1.2.1}`
+
+### `live`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-live:${APP_RELEASE:-v1.2.1}`
+
+### `api`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.2.1}`
+
+### `worker`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.2.1}`
+
+### `beat-worker`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.2.1}`
+
+### `migrator`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.2.1}`
+
+### `plane-db`
+
+- **Image:** `postgres:15.7-alpine`
+
+### `plane-redis`
+
+- **Image:** `valkey/valkey:7.2.11-alpine`
+
+### `plane-mq`
+
+- **Image:** `rabbitmq:3.13.6-management-alpine`
+
+### `plane-minio`
+
+- **Image:** `minio/minio:latest`
+
+### `proxy`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-proxy:${APP_RELEASE:-v1.2.1}`
+- **Ports:** `${LISTEN_HTTP_PORT:-80}:80/tcp`, `${LISTEN_HTTPS_PORT:-443}:443/tcp`
+
+## Named volumes
+
+- `logs_api`
+- `logs_beat-worker`
+- `logs_migrator`
+- `logs_worker`
+- `pgdata`
+- `proxy_config`
+- `proxy_data`
+- `rabbitmq_data`
+- `redisdata`
+- `uploads`
+
+## Secrets
+
+This stack uses the [SOPS-encrypted secrets pattern](../decisions/0010-per-stack-sops-secrets.md). Encrypted values live in `stacks/plane/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
+
+## Related decisions
+
+- [ADR-0010](../decisions/0010-per-stack-sops-secrets.md)
+
+## Operational notes
 
 - The real deployment path (`/home/nexus-plane/plane/plane-app/`, compose project
   `plane-app`) diverged sharply from what was assumed going into its adoption — worth
@@ -47,8 +104,9 @@ container rather than to individual services.
   public installer default values — never rotated since install. Independent of any
   transcript-exposure concern; the operator has elected to handle this at their own
   convenience.
+- Adopted with its vendor-supplied multi-service topology intact, per the "don't reorganize a
+  working topology mid-migration" discipline.
 
-## See also
+---
 
-- [Adopting a stack](../operations/adopting-a-stack.md)
-- [ADR-0010 Per-stack SOPS secrets](../decisions/0010-per-stack-sops-secrets.md)
+*This page is auto-generated from `stacks/plane/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/plane/notes.md`.*

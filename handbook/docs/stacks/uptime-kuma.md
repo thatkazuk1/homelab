@@ -1,31 +1,43 @@
 # uptime-kuma
 
-Uptime and status monitoring for the fleet — the dashboard that shows what's up, what's
-down, and for how long.
+Uptime and status monitoring for the fleet — HTTP/TCP/ping checks across services with historical uptime data and alerting.
 
-**Host:** `core-01`
-**Access:** host networking on `core-01` (192.168.50.3), default Uptime Kuma port
-**Repo:** [`stacks/uptime-kuma/`](https://github.com/meetKazuki/homelab/tree/master/stacks/uptime-kuma)
+## Reference
 
-## What it does
+| Field | Value |
+|---|---|
+| Host | `core-01` |
+| Category | monitoring |
+| Status | adopted |
+| Repo path | [`stacks/uptime-kuma/`](https://github.com/meetKazuki/homelab/tree/master/stacks/uptime-kuma) |
 
-A self-hosted status page and monitor runner: HTTP/TCP/ping checks against services across
-the fleet, with historical uptime data and alerting. It's the fleet's reference case for
-"is anything actually broken right now," and the thing other stacks' redeploys are cross-checked
-against (e.g. confirming a container reappears healthy after a Komodo-triggered recreation).
+## Services
 
-## Configuration
+### `uptime-kuma`
 
-- **Compose:** single-service, `louislam/uptime-kuma:2`, `network_mode: host`
-- **Secrets:** none. `PUID`/`PGID`/`TZ` are the only env vars, inlined as literals — this is
-  the fleet's no-secrets reference stack (no `secrets.enc.env`, no wrapper)
-- **Data:** one named volume, `uptime-kuma-data`, declared `external: true` — deliberately,
-  not by oversight. It was live-migrated during adoption from Docker's original auto-derived
-  name (`uptime-kuma_uptime-kuma-data`) to the clean explicit name, verified byte-identical
-  before cutover, and marked external so Compose doesn't try to (re)create it.
+- **Image:** `louislam/uptime-kuma:2`
+- **Container:** `uptime-kuma`
+- **Restart policy:** `unless-stopped`
+- **Network mode:** `host`
 
-## Notable
+## Named volumes
 
+- `uptime-kuma-data`
+
+## Secrets
+
+No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
+
+## Related decisions
+
+- [ADR-0002](../decisions/0002-komodo-for-docker-gitops.md)
+
+## Operational notes
+
+- The named volume `uptime-kuma-data` is declared `external: true` — deliberately, not by
+  oversight. It was live-migrated during adoption from Docker's original auto-derived name
+  (`uptime-kuma_uptime-kuma-data`) to the clean explicit name, verified byte-identical before
+  cutover, and marked external so Compose doesn't try to (re)create it.
 - The fleet's first from-scratch Komodo adoption (Sprint 3b.1) — `uptime-kuma` was originally
   planned as the very first proof-of-loop stack (per ADR-0002) for exactly this reason: low
   risk, immediately visible if something breaks, and a chance to confirm Periphery runs
@@ -34,7 +46,6 @@ against (e.g. confirming a container reappears healthy after a Komodo-triggered 
   since an accidental `make up` could have silently reattached the old, un-migrated volume.
   Retired rather than reconciled.
 
-## See also
+---
 
-- [Adopting a stack](../operations/adopting-a-stack.md)
-- [ADR-0002 Komodo for Docker GitOps](../decisions/0002-komodo-for-docker-gitops.md)
+*This page is auto-generated from `stacks/uptime-kuma/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/uptime-kuma/notes.md`.*

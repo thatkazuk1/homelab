@@ -88,3 +88,10 @@ these basics.
 
 Nav order in `mkdocs.yml` directly controls sidebar order — there's no separate ordering
 mechanism.
+
+## Generated stack pages (in progress, Sprint 3o)
+
+`handbook/docs/stacks/*.md` pages (except the hand-authored `index.md`) are moving to
+auto-generation from `stacks/*/compose.yml`, using an `x-meta:` metadata block per stack and an
+optional hand-written `stacks/<name>/notes.md` for operational content. This section will be
+filled in with the full workflow once the generator, pre-commit hook, and CI safety net all land.

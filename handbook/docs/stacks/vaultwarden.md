@@ -1,31 +1,38 @@
 # vaultwarden
 
-A self-hosted, Bitwarden-compatible password vault.
+A self-hosted, Bitwarden-compatible password vault — holds the fleet's actual password data.
 
-**Host:** `docker-prod-01`
-**Access:** port `8000` on the host, domain configured via the secret `DOMAIN` var (not
-reproduced here)
-**Repo:** [`stacks/vaultwarden/`](https://github.com/meetKazuki/homelab/tree/master/stacks/vaultwarden)
+## Reference
 
-## What it does
+| Field | Value |
+|---|---|
+| Host | `docker-prod-01` |
+| Category | password-management |
+| Status | adopted |
+| Repo path | [`stacks/vaultwarden/`](https://github.com/meetKazuki/homelab/tree/master/stacks/vaultwarden) |
 
-Vaultwarden is a lightweight, unofficial Bitwarden server implementation — same client apps,
-same sync protocol, self-hosted backend. It holds the fleet's actual password data, which
-makes it one of the two or three highest-stakes stacks in the whole repo from a
-what-happens-if-this-goes-wrong standpoint (alongside `sure`, `garage`'s admin credentials).
+## Services
 
-## Configuration
+### `vaultwarden`
 
-- **Compose:** single-service, `vaultwarden/server:latest`
-- **Secrets:** ADR-0010 pattern — `secrets.enc.env` with 5 vars: `PUID`, `PGID`, `TZ`,
-  `DOMAIN`, `SIGNUPS_ALLOWED`. Notably, **no `ADMIN_TOKEN`** is present — whether that's
-  deliberate hardening (admin panel disabled entirely) or an oversight from the original
-  manual setup is an open question, not yet resolved.
-- **Data:** bind mount, `/opt/homelab/vaultwarden/data:/data` — the vault database itself.
-  No named Docker volume involved.
+- **Image:** `vaultwarden/server:latest`
+- **Container:** `vaultwarden`
+- **Restart policy:** `unless-stopped`
+- **Ports:** `8000:80`
 
-## Notable
+## Secrets
 
+This stack uses the [SOPS-encrypted secrets pattern](../decisions/0010-per-stack-sops-secrets.md). Encrypted values live in `stacks/vaultwarden/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
+
+## Related decisions
+
+- [ADR-0010](../decisions/0010-per-stack-sops-secrets.md)
+
+## Operational notes
+
+- Notably, **no `ADMIN_TOKEN`** is present in the secrets file — whether that's deliberate
+  hardening (admin panel disabled entirely) or an oversight from the original manual setup is
+  an open question, not yet resolved.
 - Adopted in Sprint 3b.1 with the strictest verification of that sprint's three stacks: a
   pre-adoption backup (both a tarball and an operator-captured native Vaultwarden export),
   and a forced redeploy confirmed via an authenticated vault-entry check rather than just a
@@ -38,7 +45,6 @@ what-happens-if-this-goes-wrong standpoint (alongside `sure`, `garage`'s admin c
   independent native export existed as a second artifact, but a real gap in that sprint's
   verification rigor worth naming honestly.
 
-## See also
+---
 
-- [Adopting a stack](../operations/adopting-a-stack.md)
-- [ADR-0010 Per-stack SOPS secrets](../decisions/0010-per-stack-sops-secrets.md)
+*This page is auto-generated from `stacks/vaultwarden/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/vaultwarden/notes.md`.*

@@ -1,45 +1,60 @@
 # garage
 
-S3-compatible object storage for the fleet.
+S3-compatible object storage backing the fleet's backup, media, and attachment needs.
 
-**Host:** `garage-prod-01`
-**Access:** web UI at [`garage.ts.kazuki.uk`](https://garage.ts.kazuki.uk); S3 API directly
-at `192.168.50.80:3900`
-**Repo:** [`stacks/garage/`](https://github.com/meetKazuki/homelab/tree/master/stacks/garage)
+## Reference
 
-## What it does
+| Field | Value |
+|---|---|
+| Host | `garage-prod-01` |
+| Category | storage |
+| Status | adopted |
+| Public URL | [garage.ts.kazuki.uk](https://garage.ts.kazuki.uk) |
+| Repo path | [`stacks/garage/`](https://github.com/meetKazuki/homelab/tree/master/stacks/garage) |
 
-[Garage](https://garage.deuxfleurs.fr/) is a lightweight, self-hosted, S3-API-compatible
-object store. It backs every other stack's need for object storage — backups
-([`beszel`](beszel.md)'s S3 backup target), file attachments ([`sure`](sure.md)'s
-`GENERIC_S3_*` vars), and Coolify's media bucket. Bucket and key naming follow the
-`<consumer>-<purpose>` convention described in [Conventions](../conventions/index.md).
+## Services
 
-## Configuration
+### `garage`
 
-- **Compose:** two services, `garage` (the server itself) and `webui` (an admin UI), both on
-  `network_mode: host`
-- **Secrets:** none in git at all — no `.env`, no `secrets.enc.env`. Garage's real
-  credentials (`rpc_secret`, `admin_token`, `metrics_token`) live in a bind-mounted
-  `garage.toml` (host mode `600`), the same host-side-config-file pattern
-  [`cloudflared`](cloudflared.md) uses. The file itself never enters git.
-- **Data:** two named volumes, `garage-meta` and `garage-data`, **with** explicit `name:`
-  fields — this stack follows the new-stack convention even though it was adopted from a
-  running deployment, because the original deployment already had them pinned.
+- **Image:** `dxflrs/garage:v2.2.0`
+- **Container:** `garage-server`
+- **Restart policy:** `unless-stopped`
+- **Network mode:** `host`
 
-## Notable
+### `webui`
 
+- **Image:** `khairul169/garage-webui:1.1.0`
+- **Container:** `garage-webui`
+- **Restart policy:** `unless-stopped`
+- **Network mode:** `host`
+
+## Named volumes
+
+- `garage-data`
+- `garage-meta`
+
+## Secrets
+
+No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
+
+## Operational notes
+
+- No secrets in git at all — no `.env`, no `secrets.enc.env`. Garage's real credentials
+  (`rpc_secret`, `admin_token`, `metrics_token`) live in a bind-mounted `garage.toml` (host
+  mode `600`), the same host-side-config-file pattern [cloudflared](cloudflared.md)
+  uses. The file itself never enters git.
+- The two named volumes **do** have explicit `name:` fields — this stack follows the
+  new-stack convention even though it was adopted from a running deployment, because the
+  original deployment already had them pinned.
 - Confirmed buckets in active use: `sure-media`, `beszel-media`, `beszel-backups`,
-  `coolify-media` — each with its own scoped access key, never shared across buckets, per the
-  [Conventions](../conventions/index.md) page's naming rule.
-- The S3 API correctly returns `403` on unauthenticated requests — verified as the expected
+  `coolify-media` — each with its own scoped access key, never shared across buckets.
+- The S3 API correctly returns `403` on unauthenticated requests — verified as expected
   behavior (API live and enforcing auth), not a fault.
 - Requests to `.ts.kazuki.uk`/`.lan` hosts from an executor session don't resolve directly;
   verification during adoption was routed through an on-network host instead. Worth knowing
   if you're scripting checks against this or any other Tailscale/LAN-only service from
   outside the tailnet.
 
-## See also
+---
 
-- [`beszel`](beszel.md), [`sure`](sure.md) — consumers of Garage buckets
-- [Conventions](../conventions/index.md) — bucket and S3 key naming rules
+*This page is auto-generated from `stacks/garage/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/garage/notes.md`.*

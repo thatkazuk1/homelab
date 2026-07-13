@@ -1,39 +1,50 @@
 # influxdb3
 
-Time-series database backing the fleet's telemetry (speedtest history, and future metrics
-sources).
+Time-series database (InfluxDB 3 Core + Explorer) backing the fleet's telemetry data, such as speedtest history.
 
-**Host:** `telemetry-prod-01`
-**Access:** Explorer admin UI on the host's bound ports (`8888`/`8889`); Core's own API on
-`8181` — no public or `.lan` domain currently assigned, reached directly via host IP
-**Repo:** [`stacks/influxdb3/`](https://github.com/meetKazuki/homelab/tree/master/stacks/influxdb3)
+## Reference
 
-## What it does
+| Field | Value |
+|---|---|
+| Host | `telemetry-prod-01` |
+| Category | monitoring |
+| Status | adopted |
+| Repo path | [`stacks/influxdb3/`](https://github.com/meetKazuki/homelab/tree/master/stacks/influxdb3) |
 
-InfluxDB 3 Core is the time-series database itself; InfluxDB 3 Explorer is its bundled admin
-UI, running as a second container in the same compose project. Together they're
-`telemetry-prod-01`'s data-storage half — [`speedtest-tracker`](speedtest-tracker.md) is the
-other stack on this host, and a separate compose project entirely (the two were originally
-assumed to possibly be one bundled stack; they're not).
+## Services
 
-## Configuration
+### `influxdb3-core`
 
-- **Compose:** two services, `influxdb3-core` and `influxdb3-explorer` (depends on core)
-- **Secrets:** none in git. The admin API token (`DEFAULT_API_TOKEN`) lives in a
-  bind-mounted `config/config.json` (Explorer's own config file), confirmed present by key
-  name only, never printed.
-- **Data:** plain bind-mounted directories under `/opt/homelab/influxdb3/` (`data`, `plugins`,
+- **Image:** `influxdb:3-core`
+- **Container:** `influxdb3-core`
+- **Restart policy:** `unless-stopped`
+- **Ports:** `8181:8181`
+
+### `influxdb3-explorer`
+
+- **Image:** `influxdata/influxdb3-ui:1.8.0`
+- **Container:** `influxdb3-explorer`
+- **Restart policy:** `unless-stopped`
+- **Ports:** `8888:8080`, `8889:8888`
+
+## Secrets
+
+No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
+
+## Operational notes
+
+- No secrets in git. The admin API token (`DEFAULT_API_TOKEN`) lives in a bind-mounted
+  `config/config.json` (Explorer's own config file), confirmed present by key name only,
+  never printed.
+- Plain bind-mounted directories under `/opt/homelab/influxdb3/` (`data`, `plugins`,
   `config`, `explorer-db`) — no named Docker volumes at all, simpler than most adopted
   stacks.
-
-## Notable
-
 - Core enforces authentication on every endpoint, including `/ping` — a `401` there is
   correct strict-auth behavior, not a fault.
 - Verification during adoption had to be routed through the host itself (`curl` run on
   `telemetry-prod-01`), since an executor session's own shell can't resolve internal
   hostnames or reach LAN-only ports directly.
 
-## See also
+---
 
-- [`speedtest-tracker`](speedtest-tracker.md) — the other stack on this host
+*This page is auto-generated from `stacks/influxdb3/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/influxdb3/notes.md`.*

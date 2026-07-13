@@ -1,36 +1,39 @@
 # portainer-agent
 
-The Portainer Agent — lets the central [`portainer`](portainer.md) instance manage this
-host's Docker environment remotely.
+The Portainer Agent — exposes this host's Docker environment to the central Portainer instance for remote management.
 
-**Host:** `core-01`
-**Access:** not user-facing; listens on `9001` for the central Portainer instance to connect to
-**Repo:** [`stacks/portainer-agent/`](https://github.com/meetKazuki/homelab/tree/master/stacks/portainer-agent)
+## Reference
 
-## What it does
+| Field | Value |
+|---|---|
+| Host | `core-01` |
+| Category | orchestration |
+| Status | adopted |
+| Repo path | [`stacks/portainer-agent/`](https://github.com/meetKazuki/homelab/tree/master/stacks/portainer-agent) |
 
-Portainer's central UI (see [`portainer`](portainer.md)) manages multiple Docker
-"environments" over the network rather than only the host it runs on itself. The Agent is
-what makes a remote host manageable that way — it exposes the host's Docker socket and
-filesystem to the central instance over its own protocol, authenticated by Portainer's edge
-mechanism.
+## Services
 
-## Configuration
+### `portainer-agent`
 
-- **Compose:** single-service, `portainer/agent:2.33.5`
-- **Secrets:** none. No `.env` reference at all in the current compose; a host-level `.env`
-  existed pre-adoption but was confirmed entirely dead — nothing in the container reads it.
-- **Data:** none of its own. Mounts `/`, `/var/run/docker.sock`, and
+- **Image:** `portainer/agent:2.33.5`
+- **Container:** `portainer-agent`
+- **Restart policy:** `unless-stopped`
+- **Ports:** `9001:9001`
+
+## Secrets
+
+No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
+
+## Operational notes
+
+- No secrets or config of its own. Mounts `/`, `/var/run/docker.sock`, and
   `/var/lib/docker/volumes` — broad host visibility by design, since this is exactly the
-  access Portainer's central UI needs to manage the host remotely.
+  access the central [portainer](portainer.md) instance needs to manage the host
+  remotely.
+- Adopted alongside `ntfy` in Sprint 3c.1, on the same host, in the same session.
+- A host-level `.env` existed pre-adoption but was confirmed entirely dead — nothing in the
+  container reads it. Retired anyway, for consistency with the fleet convention.
 
-## Notable
+---
 
-- Adopted alongside [`ntfy`](ntfy.md) in Sprint 3c.1, on the same host, in the same session.
-- The host `.env` was retired for consistency with the fleet convention even though it was
-  already functionally dead before adoption.
-
-## See also
-
-- [`portainer`](portainer.md) — the central instance this agent reports to
-- [Adopting a stack](../operations/adopting-a-stack.md)
+*This page is auto-generated from `stacks/portainer-agent/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/portainer-agent/notes.md`.*
