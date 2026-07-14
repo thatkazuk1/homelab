@@ -123,6 +123,7 @@ services:
     command: ./bin/docker-entrypoint-api.sh
     labels:
       - "sprint3s.test=true"
+      - "sprint3s.batch=true"
     deploy:
       replicas: ${API_REPLICAS:-1}
       restart_policy:
