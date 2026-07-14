@@ -65,6 +65,7 @@ nav:
       - Coolify: architecture/coolify.md
   - Operations:
       - Adopting a stack: operations/adopting-a-stack.md
+      - Deploy triggers: operations/deploy-triggers.md
       - Updating a stack's secrets: operations/updating-a-stacks-secrets.md
       - Deploying a new host: operations/deploying-a-new-host.md
       - Maintaining the handbook: operations/maintaining-handbook.md

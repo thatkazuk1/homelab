@@ -117,19 +117,23 @@ something in the adopted compose file doesn't match the running config. Deleting
 Stack does **not** stop or remove its containers, so it's safe to delete the Stack, fix the
 drift in the repo, and retry.
 
-## 8. Webhook and manual round-trip
+## 8. Deploy trigger and manual round-trip
 
-The operator registers a Forgejo webhook for the new Stack. Force a real redeploy by pushing a
-small, harmless change — a marker environment variable is the standard choice, since it's
-easy to verify landed without being a real functional change.
+No per-Stack webhook setup needed. A single repo-level Forgejo webhook fires the
+`deploy-all-changed` Komodo Procedure on every push to `master`; the Procedure runs
+`Batch Deploy Stack If Changed` against all Stacks (target `*`), so a newly created Stack is
+picked up automatically the next time anything pushes — nothing to register for it
+specifically. See [Deploy triggers](deploy-triggers.md) for how the mechanism works.
 
-The webhook is the real, working mechanism: expect container recreation within seconds of the
-push landing (verified live at ~6s round trip, consistent since Sprint 2.1). If it doesn't land
-within a couple of minutes, don't assume this is normal — check Komodo Core's logs for the
-webhook delivery (`docker logs komodo-core-1`, note the `-1` container-name suffix) before
-falling back to a manual Deploy click in the Komodo UI. Auto Update / Poll for Updates is a
-separate feature (detects a new image at the same tag, not a git/compose change) and isn't
-enabled on any current Stack — don't expect it to fire for a compose-file-driven adoption.
+To verify a new adoption's round trip, force a real redeploy by pushing a small, harmless
+change — a marker environment variable is the standard choice, since it's easy to verify
+landed without being a real functional change. Expect container recreation within a few
+seconds of the push landing. If it doesn't land within a couple of minutes, don't assume this
+is normal — check Komodo Core's logs for the webhook delivery and Procedure execution
+(`docker logs komodo-core-1`, note the `-1` container-name suffix) before falling back to a
+manual Deploy click in the Komodo UI. Auto Update / Poll for Updates is a separate feature
+(detects a new image at the same tag, not a git/compose change) and isn't enabled on any
+current Stack — don't expect it to fire for a compose-file-driven adoption.
 
 ## 9. Functional verification
 
