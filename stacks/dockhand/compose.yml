@@ -1,0 +1,28 @@
+x-meta:
+  name: dockhand
+  host: docker-prod-01
+  category: orchestration
+  description: >
+    Self-hosted Docker management platform. Replaces Portainer as the
+    fleet's container management UI. Manages remote hosts via Hawser
+    agents in Standard mode.
+  status: adopted
+  adrs:
+    - 14
+    - 16
+  public_url: dockhand.ts.kazuki.uk
+
+services:
+  dockhand:
+    image: fnsys/dockhand:latest
+    container_name: dockhand
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dockhand-data:/app/data
+
+volumes:
+  dockhand-data:
+    name: dockhand-data
