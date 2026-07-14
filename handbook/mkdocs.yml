@@ -73,6 +73,7 @@ nav:
       - Overview: stacks/index.md
       - beszel: stacks/beszel.md
       - cloudflared: stacks/cloudflared.md
+      - dockhand: stacks/dockhand.md
       - forgejo: stacks/forgejo.md
       - forgejo-runner: stacks/forgejo-runner.md
       - garage: stacks/garage.md
@@ -82,8 +83,6 @@ nav:
       - komodo: stacks/komodo.md
       - ntfy: stacks/ntfy.md
       - plane: stacks/plane.md
-      - portainer: stacks/portainer.md
-      - portainer-agent: stacks/portainer-agent.md
       - speedtest-tracker: stacks/speedtest-tracker.md
       - sure: stacks/sure.md
       - uptime-kuma: stacks/uptime-kuma.md
