@@ -30,9 +30,15 @@ This stack uses the [SOPS-encrypted secrets pattern](../decisions/0010-per-stack
 
 ## Operational notes
 
-- Notably, **no `ADMIN_TOKEN`** is present in the secrets file — whether that's deliberate
-  hardening (admin panel disabled entirely) or an oversight from the original manual setup is
-  an open question, not yet resolved.
+## Admin panel access
+
+Vaultwarden's `ADMIN_TOKEN` environment variable is deliberately unset.
+The `/admin` backend UI is not exposed on this instance. Rationale:
+the admin panel is a real attack surface, and this fleet does not
+require it for normal operation. If admin access is ever needed
+(user management, DB inspection, etc.), the token can be set
+temporarily and removed after use rather than left configured
+permanently.
 - Adopted in Sprint 3b.1 with the strictest verification of that sprint's three stacks: a
   pre-adoption backup (both a tarball and an operator-captured native Vaultwarden export),
   and a forced redeploy confirmed via an authenticated vault-entry check rather than just a
