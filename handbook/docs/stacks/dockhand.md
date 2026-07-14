@@ -74,6 +74,17 @@ should be enabled immediately after first access.
 Managed hosts run Hawser agents in Standard mode (see `stacks/hawser/`).
 Environments configured via Dockhand's UI (Settings → Environments).
 
+**Local socket is not auto-detected.** Unlike Portainer, Dockhand does not
+show `docker-prod-01`'s own containers by default — the handoff assumed it
+would ("local Docker socket appears as the default environment"), but that's
+wrong. It must be added explicitly under Settings → Environments → Add
+Environment, connection type "Local socket" (same-machine, socket already
+mounted — no host/port/token needed, unlike Standard Agent). Confirmed
+working 2026-07-14: 13 containers visible after adding it, matching
+`docker ps` count on `docker-prod-01` directly. Our container runs as root
+(confirmed via `docker exec dockhand id`), so the socket-permission-denied
+path the manual describes for non-root default users never applied here.
+
 ## Related decisions
 
 Portainer retirement decided during migration to Dockhand — no ADR
