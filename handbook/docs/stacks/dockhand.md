@@ -19,7 +19,7 @@ Self-hosted Docker management platform. Replaces Portainer as the fleet's contai
 - **Image:** `fnsys/dockhand:latest`
 - **Container:** `dockhand`
 - **Restart policy:** `unless-stopped`
-- **Ports:** `127.0.0.1:3000:3000`
+- **Ports:** `3050:3000`
 
 ## Named volumes
 
@@ -41,6 +41,16 @@ No SOPS-encrypted secrets file. Configuration lives in the compose file directly
 Dockhand replaces Portainer as the fleet's Docker management UI.
 Chosen for modern UX and Docker-focused feature set (Portainer's
 Kubernetes/Swarm capabilities are unused on this fleet).
+
+## Port
+
+Host port `3050`, not Dockhand's native `3000` — port 3000 on `docker-prod-01`
+is already bound by `homepage` (`0.0.0.0:3000`). Container-side port is still
+`3000`. Also note: the compose binds plainly (not `127.0.0.1`-scoped) — Traefik
+on `proxy-prod-01` reaches every tailnet-scoped admin UI on this fleet over the
+LAN by host IP, so a loopback-only bind would make it unreachable from Traefik.
+The handoff's original template used `127.0.0.1:3000:3000`, which would have
+hit both problems.
 
 ## Image
 

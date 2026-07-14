@@ -18,7 +18,7 @@ services:
     container_name: dockhand
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3050:3000"    # host 3000 already bound by homepage on docker-prod-01
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - dockhand-data:/app/data
