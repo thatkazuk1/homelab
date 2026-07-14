@@ -16,6 +16,8 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
+    labels:
+      - "sprint3s.test=true"
     ports:
       - "3000:3000"
     volumes:

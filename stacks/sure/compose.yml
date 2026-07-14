@@ -46,6 +46,8 @@ services:
   web:
     image: ghcr.io/we-promise/sure:latest
     restart: unless-stopped
+    labels:
+      - "sprint3s.test=true"
     ports:
       - "3001:3000"
     volumes:
