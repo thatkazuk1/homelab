@@ -1,0 +1,24 @@
+x-meta:
+  name: hawser-garage-prod-01
+  host: garage-prod-01
+  category: orchestration
+  description: >
+    Hawser agent for Dockhand remote management. Standard mode; listens
+    on port 2376, authenticated via TOKEN env var.
+  status: adopted
+  adrs:
+    - 10
+    - 14
+
+services:
+  hawser:
+    image: ghcr.io/finsys/hawser:latest
+    container_name: hawser
+    restart: unless-stopped
+    ports:
+      - "2376:2376"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TOKEN=${HAWSER_TOKEN_GARAGE_PROD_01}
+      - PORT=2376
