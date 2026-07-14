@@ -1,6 +1,5 @@
 name: plane-app
 
-# sprint-3s webhook test 2026-07-14
 x-meta:
   name: plane
   host: plane-prod-01
@@ -121,9 +120,6 @@ services:
   api:
     image: artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.2.1}
     command: ./bin/docker-entrypoint-api.sh
-    labels:
-      - "sprint3s.test=true"
-      - "sprint3s.batch=true"
     deploy:
       replicas: ${API_REPLICAS:-1}
       restart_policy:

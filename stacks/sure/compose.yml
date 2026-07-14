@@ -1,6 +1,5 @@
 name: sure
 
-# sprint-3s webhook test 2026-07-14
 x-meta:
   name: sure
   host: docker-prod-01
@@ -46,9 +45,6 @@ services:
   web:
     image: ghcr.io/we-promise/sure:latest
     restart: unless-stopped
-    labels:
-      - "sprint3s.test=true"
-      - "sprint3s.batch=true"
     ports:
       - "3001:3000"
     volumes:

@@ -1,4 +1,3 @@
-# sprint-3s webhook test 2026-07-14
 x-meta:
   name: homepage
   host: docker-prod-01
@@ -16,9 +15,6 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
-    labels:
-      - "sprint3s.test=true"
-      - "sprint3s.batch=true"
     ports:
       - "3000:3000"
     volumes:
