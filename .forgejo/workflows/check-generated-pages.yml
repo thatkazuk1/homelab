@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - 'stacks/**/compose.yml'
+      - 'stacks/**/compose.*.yml'
       - 'stacks/**/notes.md'
       - 'scripts/generate-stack-pages.py'
       - 'scripts/templates/**'
       - 'handbook/docs/stacks/**'
+      - 'handbook/mkdocs.yml'
 
 jobs:
   check-generation:
@@ -27,16 +29,16 @@ jobs:
           apk update
           apk upgrade --no-cache
           apk add --no-cache python3 py3-pip
-          pip install --break-system-packages jinja2 pyyaml
+          pip install --break-system-packages jinja2 pyyaml ruamel.yaml
 
       - name: Regenerate pages
         run: python3 scripts/generate-stack-pages.py
 
       - name: Check for drift
         run: |
-          if ! git diff --exit-code handbook/docs/stacks/; then
-            echo "ERROR: Generated pages are out of date with source."
+          if ! git diff --exit-code handbook/docs/stacks/ handbook/mkdocs.yml; then
+            echo "ERROR: Generated pages or nav are out of date with source."
             echo "Run 'python3 scripts/generate-stack-pages.py' locally and commit."
             exit 1
           fi
-          echo "Generated pages match source."
+          echo "Generated pages and nav match source."

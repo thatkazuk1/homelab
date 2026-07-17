@@ -78,10 +78,12 @@ nav:
       - forgejo: stacks/forgejo.md
       - forgejo-runner: stacks/forgejo-runner.md
       - garage: stacks/garage.md
+      - hawser: stacks/hawser.md
       - homeassistant: stacks/homeassistant.md
       - homepage: stacks/homepage.md
       - influxdb3: stacks/influxdb3.md
       - komodo: stacks/komodo.md
+      - komodo-periphery: stacks/komodo-periphery.md
       - ntfy: stacks/ntfy.md
       - plane: stacks/plane.md
       - speedtest-tracker: stacks/speedtest-tracker.md

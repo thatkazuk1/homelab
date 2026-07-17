@@ -5,6 +5,20 @@
 # Periphery — a real cross-host duplication, tracked per-host per CLAUDE.md's
 # explicit-per-host convention rather than collapsed into one shared file.
 
+x-meta:
+  name: komodo-periphery-proxy-prod-01
+  host: proxy-prod-01
+  category: meta-infra
+  description: >
+    Custom Komodo Periphery agent (sops + age baked in) enabling
+    `sops exec-env` secret decryption at deploy time. Deployed and
+    updated manually per host — not Komodo-managed itself (bootstrap
+    circularity: Komodo can't manage the agent that runs Komodo's
+    per-host connection).
+  status: meta-infra
+  adrs:
+    - 5
+
 name: komodo-periphery
 
 services:

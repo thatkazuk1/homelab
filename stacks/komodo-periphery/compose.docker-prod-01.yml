@@ -7,6 +7,20 @@
 # a PERIPHERY_DISABLE_CONTAINER_EXEC var the others don't set. Real drift, not
 # normalized here — see Sprint 3i status report.
 
+x-meta:
+  name: komodo-periphery-docker-prod-01
+  host: docker-prod-01
+  category: meta-infra
+  description: >
+    Custom Komodo Periphery agent (sops + age baked in) enabling
+    `sops exec-env` secret decryption at deploy time. Deployed and
+    updated manually per host — not Komodo-managed itself (bootstrap
+    circularity: Komodo can't manage the agent that runs Komodo's
+    per-host connection).
+  status: meta-infra
+  adrs:
+    - 5
+
 name: komodo-periphery
 
 services:

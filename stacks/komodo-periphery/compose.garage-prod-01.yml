@@ -6,6 +6,20 @@
 # .env — real drift, not normalized here. Not a credential: this is Komodo Core's
 # public verification key, meant to be shared, not a secret.
 
+x-meta:
+  name: komodo-periphery-garage-prod-01
+  host: garage-prod-01
+  category: meta-infra
+  description: >
+    Custom Komodo Periphery agent (sops + age baked in) enabling
+    `sops exec-env` secret decryption at deploy time. Deployed and
+    updated manually per host — not Komodo-managed itself (bootstrap
+    circularity: Komodo can't manage the agent that runs Komodo's
+    per-host connection).
+  status: meta-infra
+  adrs:
+    - 5
+
 name: komodo-periphery
 
 services:

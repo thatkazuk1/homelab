@@ -3,11 +3,11 @@
 
 set -e
 
-CHANGED_STACKS=$(git diff --cached --name-only | grep -E '^stacks/[^/]+/(compose\.yml|notes\.md)$' || true)
+CHANGED_STACKS=$(git diff --cached --name-only | grep -E '^stacks/[^/]+/(compose(\.[^/]+)?\.yml|notes\.md)$' || true)
 
 if [ -n "$CHANGED_STACKS" ]; then
     echo "Detected stack changes, regenerating handbook stack pages..."
     python3 scripts/generate-stack-pages.py
-    git add handbook/docs/stacks/
-    echo "Regenerated pages added to commit."
+    git add handbook/docs/stacks/ handbook/mkdocs.yml
+    echo "Regenerated pages (including any prunes) and nav added to commit."
 fi

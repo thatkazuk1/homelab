@@ -4,6 +4,20 @@
 # Same structural variant as proxy/telemetry/plane-prod-01, already carrying the
 # komodo.skip label on the host itself (the other hosts in that variant don't).
 
+x-meta:
+  name: komodo-periphery-core-01
+  host: core-01
+  category: meta-infra
+  description: >
+    Custom Komodo Periphery agent (sops + age baked in) enabling
+    `sops exec-env` secret decryption at deploy time. Deployed and
+    updated manually per host — not Komodo-managed itself (bootstrap
+    circularity: Komodo can't manage the agent that runs Komodo's
+    per-host connection).
+  status: meta-infra
+  adrs:
+    - 5
+
 name: komodo-periphery
 
 services:

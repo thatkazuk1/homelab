@@ -6,7 +6,9 @@
 
 | Field | Value |
 |---|---|
+{% if not is_multi %}
 | Host | `{{ meta.host }}` |
+{% endif %}
 | Category | {{ meta.category }} |
 | Status | {{ meta.status }} |
 {% if meta.public_url %}
@@ -17,6 +19,16 @@
 {% endif %}
 | Repo path | [`stacks/{{ meta.name }}/`](https://github.com/meetKazuki/homelab/tree/master/stacks/{{ meta.name }}) |
 
+{% if is_multi %}
+## Deployed on
+
+This stack runs a per-host instance on the following hosts:
+
+{% for h in hosts %}
+- `{{ h.host }}` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/{{ meta.name }}/{{ h.filename }})
+{% endfor %}
+
+{% endif %}
 ## Services
 
 {% for service in services %}
@@ -75,4 +87,8 @@ No operational notes have been added for this stack yet. To add operational cont
 
 ---
 
+{% if is_multi %}
+*This page is auto-generated from `stacks/{{ meta.name }}/compose.<host>.yml`. Reference-level content (services, images, secrets pattern) reflects the first compose file's current state ({{ hosts[0].filename }}); per-host divergence is not rendered — see the linked files under "Deployed on" for exact per-host config. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose files. To add operational context, edit `stacks/{{ meta.name }}/notes.md`.*
+{% else %}
 *This page is auto-generated from `stacks/{{ meta.name }}/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/{{ meta.name }}/notes.md`.*
+{% endif %}
