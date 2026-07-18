@@ -62,6 +62,7 @@ nav:
       - Local tools: getting-started/local-tools.md
   - Architecture:
       - Overview: architecture/overview.md
+      - Fleet Inventory: architecture/fleet.md
       - Coolify: architecture/coolify.md
   - Operations:
       - Adopting a stack: operations/adopting-a-stack.md

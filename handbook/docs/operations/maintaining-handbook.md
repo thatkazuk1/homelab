@@ -210,3 +210,48 @@ for you). The page and nav entry appear automatically; no `mkdocs.yml` editing n
 
 **Removing:** delete the `stacks/<name>/` directory, run the generator (or commit — the hook
 handles it). The page and nav entry disappear automatically.
+
+## Generated fleet inventory page
+
+`handbook/docs/architecture/fleet.md` is auto-generated from Komodo Core's `ListServers` API
+(Sprint 3u) — the second piece of Goal 1's "living documentation" property, alongside the stack
+catalog above. It lists every host Komodo Core has a registered Server entry for: name and
+address, nothing richer (no stacks-per-host, no versions, no reachability — deliberately
+minimal scope). `handbook/docs/architecture/overview.md`'s own fleet table is not replaced by
+this page — it carries VM/CT type, Proxmox node placement, and role information Komodo's API
+doesn't expose, so it stays hand-authored and links to `fleet.md` for the auto-generated view.
+
+### Regenerating
+
+```bash
+make fleet-inventory
+```
+
+Equivalent to `sops exec-env scripts/secrets.enc.env "python3 scripts/generate-fleet-inventory.py"`.
+Requires the age private key on the workstation (same as any other SOPS-encrypted secret in this
+repo) and `requests`/`jinja2` (`pip install requests jinja2`).
+
+### Not commit-triggered, deliberately
+
+Unlike the stack-page generator, this **does not** run on every commit via a pre-commit hook or
+CI check. Regeneration is a manual, explicit step — `make fleet-inventory` — run when the fleet
+actually changes (a host added to or removed from Komodo). A Komodo API call in a pre-commit
+hook is a fragile dependency for something that changes rarely; the trade-off is an accepted
+gap, not an oversight: if `fleet.md` drifts from live Komodo state, nothing catches it
+automatically. Manual regeneration plus operator diff review on the resulting commit is the
+safety net.
+
+### Credentials
+
+`scripts/secrets.enc.env` holds `KOMODO_API_KEY` / `KOMODO_API_SECRET` — a purpose-scoped Komodo
+API key, SOPS-encrypted with the same age key as every other stack's `secrets.enc.env` (ADR-0010
+pattern). Committing the encrypted file is safe; no plaintext copy exists anywhere in the repo.
+
+### Coverage gap
+
+`fleet.md` only lists hosts with a registered Komodo Server entry — as of Sprint 3u that's 8 of
+the fleet's 13 hosts. Not included: `pve-01`/`pve-02` (Proxmox nodes, no Periphery, not part of
+Komodo's data model), `komodo-prod-01` (Komodo Core doesn't self-register as a Server — the same
+bootstrap-circularity already documented for its Periphery setup), and `forgejo-prod-01`
+(Periphery still pending as of this sprint). `overview.md`'s hand-authored table is the complete
+picture; `fleet.md` is "hosts Komodo actively manages," not "every host."

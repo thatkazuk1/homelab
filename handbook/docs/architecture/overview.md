@@ -5,7 +5,10 @@ see **Getting Started** and **Operations** for hands-on material.
 
 ## The fleet
 
-Thirteen hosts, three tiers:
+Thirteen hosts, three tiers. For the auto-generated, always-current list of hosts under
+Komodo GitOps management (name and address, sourced live from Komodo Core's API), see
+[Fleet Inventory](fleet.md). The table below adds context Komodo's API doesn't carry — VM/CT
+type, which Proxmox node each guest runs on, and a human-readable role.
 
 **Proxmox cluster** — two nodes, `pve-01` and `pve-02`, hosting eight guests between them:
 
