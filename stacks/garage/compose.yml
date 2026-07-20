@@ -10,7 +10,7 @@ x-meta:
 
 services:
   garage:
-    image: dxflrs/garage:v2.2.0
+    image: dxflrs/garage:v2.3.0
     container_name: garage-server
     restart: unless-stopped
     network_mode: host
