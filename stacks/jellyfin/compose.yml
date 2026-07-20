@@ -1,0 +1,70 @@
+x-meta:
+  name: jellyfin
+  host: nas-01
+  category: media
+  description: >
+    Jellyfin media server with Jellystat watch-history tracking
+    (Postgres-backed), running as one compose project on nas-01.
+  status: adopted
+  adrs:
+    - 10
+
+name: jellyfin
+
+services:
+  jellyfin:
+    image: ghcr.io/jellyfin/jellyfin:12.0-rc2
+    container_name: jellyfin
+    restart: unless-stopped
+    user: "1006:997"
+    group_add:
+      - "109"
+    environment:
+      - TZ=Africa/Lagos
+    volumes:
+      - /Volume1/@apps/homelab/jellyfin/jellyfin/config:/config
+      - /Volume1/@apps/homelab/jellyfin/jellyfin/cache:/cache
+      - /Volume1/nexus-pve/media:/data/media
+    ports:
+      - 8096:8096
+    devices:
+      - /dev/dri:/dev/dri
+
+  jellystat:
+    image: 'cyfershepard/jellystat:latest'
+    container_name: jellystat
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_IP=jellystat-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SSL_ENABLED=false
+      - JWT_SECRET
+      - TZ=Africa/Lagos
+    volumes:
+      - /Volume1/@apps/homelab/jellyfin/jellystat/jellystat-backup-data:/app/backend/backup-data
+    ports:
+      - '3000:3000'
+    depends_on:
+      - jellystat-db
+    networks:
+      - jellystat-internal
+
+  jellystat-db:
+    image: 'postgres:15.2'
+    shm_size: 1gb
+    container_name: jellystat-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    volumes:
+      - /Volume1/@apps/homelab/jellyfin/jellystat/postgres-data:/var/lib/postgresql/data
+    networks:
+      - jellystat-internal
+
+networks:
+  jellystat-internal:
+    name: jellystat-internal

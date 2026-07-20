@@ -1,0 +1,66 @@
+x-meta:
+  name: qbittorrent
+  host: nas-01
+  category: download
+  description: >
+    qBittorrent torrent client routed entirely through Gluetun's VPN tunnel
+    (network_mode: service:gluetun) for IP isolation.
+  status: adopted
+  adrs:
+    - 10
+
+name: qbittorrent
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+      - 8000:8000/tcp
+      - 8080:8080
+      - 8388:8388/tcp
+      - 8388:8388/udp
+      - 8888:8888/tcp
+      - 8999:8999/tcp
+      - 8999:8999/udp
+    volumes:
+      - gluetun-data:/gluetun
+      - /Volume1/@apps/homelab/qBittorrent/config.toml:/gluetun/auth/config.toml:ro
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - TZ=Africa/Lagos
+      - VPN_TYPE=wireguard
+      - VPN_SERVICE_PROVIDER=protonvpn
+      - WIREGUARD_PRIVATE_KEY
+      - SERVER_COUNTRIES=Netherlands,Switzerland,Iceland
+      - UPDATER_PERIOD=24h
+      - VPN_PORT_FORWARDING=on
+      - VPN_PORT_FORWARDING_PROVIDER=protonvpn
+      - GLUETUN_API_KEY
+      - GLUETUN_USER
+      - GLUETUN_PASSWORD
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    volumes:
+      - /Volume1/nexus-pve/downloads:/downloads
+      - /Volume1/@apps/homelab/qBittorrent/qbittorrent/config:/config
+    environment:
+      - PUID=1006
+      - PGID=997
+      - TZ=Africa/Lagos
+      - WEBUI_PORT=8080
+      - DOCKER_MODS=ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
+      - GSP_MINIMAL_LOGS=false
+      - GSP_GTN_API_KEY
+
+volumes:
+  gluetun-data:

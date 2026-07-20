@@ -1,0 +1,27 @@
+x-meta:
+  name: beszel-agent
+  host: nas-01
+  category: monitoring
+  description: >
+    Beszel monitoring agent reporting nas-01 host and container metrics to
+    the fleet's Beszel hub.
+  status: adopted
+  adrs:
+    - 10
+
+name: beszel
+
+services:
+  beszel-agent:
+    image: henrygd/beszel-agent
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /Volume1/@apps/homelab/beszel/beszel_agent_data:/var/lib/beszel-agent
+    environment:
+      LISTEN: 45876
+      KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIdXBKe43tH/rPXhGVIen6W3bwYvCKcGTSQr8PWKuRP7"
+      HUB_URL: https://beszel.ts.kazuki.uk
+      TOKEN: ${TOKEN}

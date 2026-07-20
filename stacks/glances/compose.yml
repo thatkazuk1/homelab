@@ -1,0 +1,28 @@
+x-meta:
+  name: glances
+  host: nas-01
+  category: monitoring
+  description: >
+    System resource monitor for nas-01, exposing a web dashboard.
+  status: adopted
+  adrs:
+    - 10
+
+name: glances
+
+services:
+  glances:
+    image: nicolargo/glances:latest-full
+    container_name: glances
+    restart: always
+    pid: host
+    network_mode: host
+    privileged: true
+    volumes:
+      - /etc/os-release:/etc/os-release:ro
+      - /run/udev:/run/udev:ro
+      - /sys:/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=Africa/Lagos
+      - GLANCES_OPT=-w

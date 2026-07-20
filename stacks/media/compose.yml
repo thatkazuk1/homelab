@@ -1,0 +1,154 @@
+x-meta:
+  name: media
+  host: nas-01
+  category: media
+  description: >
+    Arr-stack media automation running as one compose project on nas-01:
+    Seerr, Aurral, FlareSolverr, Prowlarr, Radarr, Sonarr, Bazarr, Lidarr.
+  status: adopted
+  adrs:
+    - 10
+
+name: media
+
+services:
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: seerr
+    restart: unless-stopped
+    init: true
+    user: "1006:997"
+    volumes:
+      - /Volume1/@apps/homelab/media/seerr/config:/app/config
+    networks:
+      - media-internal
+    ports:
+      - "5055:5055"
+    environment:
+      - PUID=1006
+      - PGID=997
+      - LOG_LEVEL=debug
+      - TZ=Africa/Lagos
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+
+  aurral:
+    image: ghcr.io/lklynet/aurral:latest
+    container_name: aurral
+    restart: unless-stopped
+    volumes:
+      - /Volume1/nexus-pve/downloads:/app/downloads
+      - /Volume1/@apps/homelab/media/aurral/data:/app/backend/data
+    networks:
+      - media-internal
+    ports:
+      - "3001:3001"
+    environment:
+      - PUID=1006
+      - PGID=997
+      - TZ=Africa/Lagos
+      - SOULSEEK_USERNAME=${AURRAL_SLSK_USERNAME}
+      - SOULSEEK_PASSWORD=${AURRAL_SLSK_PASSWORD}
+      - DOWNLOAD_FOLDER=/app/downloads
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    restart: unless-stopped
+    ports:
+      - "8191:8191"
+    networks:
+      - media-internal
+    environment:
+      - LOG_LEVEL=info
+      - TZ=Africa/Lagos
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    restart: unless-stopped
+    ports:
+      - "9696:9696"
+    volumes:
+      - /Volume1/@apps/homelab/media/prowlarr/config:/config
+    networks:
+      - media-internal
+    environment:
+      - PUID=1006
+      - PGID=997
+      - TZ=Africa/Lagos
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    ports:
+      - "7878:7878"
+    volumes:
+      - /Volume1/nexus-pve/media:/media
+      - /Volume1/nexus-pve/downloads:/downloads
+      - /Volume1/@apps/homelab/media/radarr/config:/config
+    networks:
+      - media-internal
+    environment:
+      - PUID=1006
+      - PGID=997
+      - TZ=Africa/Lagos
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    ports:
+      - "8989:8989"
+    volumes:
+      - /Volume1/nexus-pve/media:/media
+      - /Volume1/nexus-pve/downloads:/downloads
+      - /Volume1/@apps/homelab/media/sonarr/config:/config
+    networks:
+      - media-internal
+    environment:
+      - PUID=1006
+      - PGID=997
+      - TZ=Africa/Lagos
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    ports:
+      - "6767:6767"
+    volumes:
+      - /Volume1/nexus-pve/media:/media
+      - /Volume1/@apps/homelab/media/bazarr/config:/config
+    networks:
+      - media-internal
+    environment:
+      - PUID=1006
+      - PGID=997
+      - TZ=Africa/Lagos
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:nightly
+    container_name: lidarr
+    restart: unless-stopped
+    ports:
+      - "8686:8686"
+    volumes:
+      - /Volume1/nexus-pve/media:/media
+      - /Volume1/nexus-pve/downloads:/downloads
+      - /Volume1/@apps/homelab/media/lidarr/config:/config
+    networks:
+      - media-internal
+    environment:
+      - PUID=1006
+      - PGID=997
+      - TZ=Africa/Lagos
+
+networks:
+  media-internal:
+    name: media-internal
