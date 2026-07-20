@@ -75,19 +75,25 @@ nav:
   - Stacks:
       - Overview: stacks/index.md
       - beszel: stacks/beszel.md
+      - beszel-agent: stacks/beszel-agent.md
       - cloudflared: stacks/cloudflared.md
       - dockhand: stacks/dockhand.md
       - forgejo: stacks/forgejo.md
       - forgejo-runner: stacks/forgejo-runner.md
       - garage: stacks/garage.md
+      - glances: stacks/glances.md
       - hawser: stacks/hawser.md
       - homeassistant: stacks/homeassistant.md
       - homepage: stacks/homepage.md
       - influxdb3: stacks/influxdb3.md
+      - jellyfin: stacks/jellyfin.md
       - komodo: stacks/komodo.md
       - komodo-periphery: stacks/komodo-periphery.md
+      - media: stacks/media.md
       - ntfy: stacks/ntfy.md
       - plane: stacks/plane.md
+      - qbittorrent: stacks/qbittorrent.md
+      - slskd: stacks/slskd.md
       - speedtest-tracker: stacks/speedtest-tracker.md
       - sure: stacks/sure.md
       - uptime-kuma: stacks/uptime-kuma.md
