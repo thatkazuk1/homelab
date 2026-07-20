@@ -18,6 +18,7 @@ This stack runs a per-host instance on the following hosts:
 - `core-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.core-01.yml)
 - `garage-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.garage-prod-01.yml)
 - `komodo-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.komodo-prod-01.yml)
+- `nas-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.nas-01.yml)
 - `plane-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.plane-prod-01.yml)
 - `proxy-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.proxy-prod-01.yml)
 - `telemetry-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.telemetry-prod-01.yml)
