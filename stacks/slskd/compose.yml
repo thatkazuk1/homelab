@@ -27,6 +27,8 @@ services:
       - SLSKD_SLSK_USERNAME=${SLSKD_USERNAME}
       - SLSKD_SLSK_PASSWORD=${SLSKD_PASSWORD}
       - SLSKD_API_KEY
+      - SLSKD_USERNAME
+      - SLSKD_PASSWORD
       - SLSKD_DOWNLOADS_DIR=/downloads/torrents
       - SLSKD_INCOMPLETE_DIR=/downloads/torrenting
       - SLSKD_SHARED_DIR=/media/music
