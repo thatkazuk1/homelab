@@ -42,6 +42,14 @@ No SOPS-encrypted secrets file. Configuration lives in the compose file directly
   `FORGEJO__webhook__ALLOWED_HOST_LIST`), caught and synced during Sprint 3i's meta-infra
   audit.
 
+## Backup and restore
+
+Forgejo's daily backup runs via a systemd timer on `forgejo-prod-01`
+(not Komodo, not the stack itself). Backup archives land in Garage
+bucket `forgejo-backup`, 7-day rolling retention.
+
+Restore procedure documented at [Restoring Forgejo](../operations/restoring-forgejo.md).
+
 ---
 
 *This page is auto-generated from `stacks/forgejo/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/forgejo/notes.md`.*

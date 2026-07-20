@@ -69,6 +69,7 @@ nav:
       - Deploy triggers: operations/deploy-triggers.md
       - Updating a stack's secrets: operations/updating-a-stacks-secrets.md
       - Deploying a new host: operations/deploying-a-new-host.md
+      - Restoring Forgejo: operations/restoring-forgejo.md
       - Maintaining the handbook: operations/maintaining-handbook.md
       - Renovate (dependency updates): operations/renovate.md
   - Stacks:
