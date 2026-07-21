@@ -18,6 +18,8 @@ x-meta:
   adrs:
     - 2
   public_url: komodo.ts.kazuki.uk
+  adr_exceptions:
+    10: "Bootstrap circularity — Komodo can't manage the compose that runs Komodo itself; host runs its own plaintext compose.env, no sops exec-env wrapper is actually invoked (see file header comment)."
 
 services:
   core:

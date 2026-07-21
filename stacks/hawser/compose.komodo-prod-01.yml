@@ -9,6 +9,8 @@ x-meta:
   adrs:
     - 10
     - 14
+  adr_exceptions:
+    10: "komodo-prod-01 has no registered Komodo Stack for Hawser — same bootstrap-circularity gap as stacks/komodo/compose.yml, tracked in CLAUDE.md's Docker-management coverage gap note."
 
 services:
   hawser:
