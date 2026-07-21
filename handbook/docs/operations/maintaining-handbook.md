@@ -255,3 +255,73 @@ Komodo's data model), `komodo-prod-01` (Komodo Core doesn't self-register as a S
 bootstrap-circularity already documented for its Periphery setup), and `forgejo-prod-01`
 (Periphery still pending as of this sprint). `overview.md`'s hand-authored table is the complete
 picture; `fleet.md` is "hosts Komodo actively manages," not "every host."
+
+## ADR consistency checks
+
+Sprint 3x added two automated checks that keep `docs/adrs/` (private, disk-only per ADR-0012)
+honest against the rest of the repo — the third piece of Goal 1's "living documentation"
+property, alongside the stack catalog and fleet inventory above.
+
+### Dimension A — reference validity (hard-fail, pre-commit only)
+
+`scripts/check-adr-references.py` scans `stacks/*/compose*.yml` (`x-meta.adrs` entries),
+`stacks/*/notes.md`, `handbook/docs/**/*.md`, and `docs/adrs/*.md` itself for any ADR reference
+— a markdown link or a bare `ADR-NNNN` mention — that points at a number with no corresponding
+`docs/adrs/NNNN-*.md` file. It exits non-zero on any failure.
+
+This runs in the pre-commit hook (`scripts/hooks/pre-commit`, installed via
+`scripts/install-hooks.sh`) and blocks the commit if it fails. **It does not run in CI.**
+`docs/adrs/` is `.gitignore`d per ADR-0012 — it has never been committed or pushed — so a CI
+checkout has no ADR files to validate against at all; running this check there would fail every
+single push touching `stacks/` with zero real ADR files to compare against. The pre-commit hook,
+running against the real local disk where `docs/adrs/` actually exists, is the only place this
+check can meaningfully run. See `docs/adr-audit-2026-07-21.md` for the full reasoning.
+
+A small hardcoded exception list at the top of the script covers one permanent, accepted case:
+`docs/adrs/0006-periphery-ip-anomaly.md`'s own H1 heading is numbered 0008, not 0006 like its
+filename (a pre-existing filename/heading mismatch, documented rather than renamed per Sprint
+3m) — without the exception, that file and the README section explaining it would fail this
+check forever.
+
+### Dimension B — content matches code (warn-only, CI only)
+
+`scripts/check-adr-content.py` checks that specific ADR claims still match live/repo state:
+
+- **ADR-0011** (flat stack layout) — pure git-tree check, no external dependency.
+- **ADR-0005** (custom Periphery image) — checks every `stacks/komodo-periphery/compose.*.yml`
+  uses the `komodo-periphery-sops` image.
+- **ADR-0010** (per-stack SOPS wrapper) — for every stack directory with a `secrets.enc.env`,
+  fetches the matching Komodo Stack via the API (`GetStack`, same auth pattern as the fleet
+  inventory generator) and checks its `compose_cmd_wrapper` includes `sops exec-env`. Handles
+  known stack-name drift (`sure` → `sure-finance`, `homeassistant` → `home-assistant`) and
+  multi-host stacks (`hawser`'s `compose.<host>.yml` files map to `hawser-<host>` Komodo Stacks).
+
+Always exits 0 — findings print but never block. Runs via
+`.forgejo/workflows/check-adr-content.yml` on every push touching `stacks/**`, using the same
+`KOMODO_API_KEY`/`KOMODO_API_SECRET` Forgejo Actions secrets as any Komodo-API-dependent CI step.
+
+Run locally: `sops exec-env scripts/secrets.enc.env "python3 scripts/check-adr-content.py"`.
+
+### Adding a legitimate deviation
+
+If a stack genuinely needs to deviate from ADR-0005, ADR-0010, or ADR-0011, add an
+`x-meta.adr_exceptions` block to its compose file with the ADR number and a real reason:
+
+```yaml
+x-meta:
+  name: komodo
+  adr_exceptions:
+    10: "Bootstrap circularity — Komodo can't manage the compose that runs Komodo itself."
+```
+
+Any matching warning is skipped for that stack. Exceptions document deviations, they don't hide
+them — write a real reason, not a placeholder. Two exist as of Sprint 3x, both for the
+`komodo-prod-01` self-management bootstrap-circularity gap (`stacks/komodo/compose.yml` and
+`stacks/hawser/compose.komodo-prod-01.yml`).
+
+### Adding a new ADR
+
+Write the file in `docs/adrs/` (`NNNN-slug.md`, next sequential number). No registration step —
+Dimension A picks up new ADR numbers automatically the next time it runs. If the ADR is
+public-worthy, also add it to `handbook/docs/decisions/` and `decisions/index.md` by hand (this
+is not automated, unlike the stack catalog).

@@ -1,0 +1,33 @@
+name: ADR content check (Dimension B, warn-only)
+
+on:
+  push:
+    paths:
+      - 'stacks/**'
+      - 'scripts/check-adr-content.py'
+
+jobs:
+  adr-content-check:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@${GITHUB_SERVER_URL#https://}/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth 1 origin "${GITHUB_SHA}"
+          git checkout -q FETCH_HEAD
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: |
+          apk update
+          apk upgrade --no-cache
+          apk add --no-cache python3 py3-pip
+          pip install --break-system-packages pyyaml requests
+
+      - name: Check ADR content (ADR-0005, ADR-0010, ADR-0011)
+        env:
+          KOMODO_API_KEY: ${{ secrets.KOMODO_API_KEY }}
+          KOMODO_API_SECRET: ${{ secrets.KOMODO_API_SECRET }}
+        run: python3 scripts/check-adr-content.py
