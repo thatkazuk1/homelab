@@ -1,4 +1,4 @@
-# Kazuki's Homelab Handbook (webhook test 2026-07-22)
+# Kazuki's Homelab Handbook
 
 This homelab runs on a two-node Proxmox cluster, a handful of bare-metal boxes (a Raspberry
 Pi, a NAS), and a personal workstation — all tied together by GitOps. Every deployable thing,
