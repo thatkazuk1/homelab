@@ -1,6 +1,6 @@
 # backrest
 
-Centralized restic backup orchestration — backs up docker-prod-01's own stack data to a local repo and to Google Drive. Remote-host backup (proxy-prod-01, telemetry-prod-01, core-01) is deferred pending an architecture decision — see the sprint status report.
+Centralized restic backup orchestration — backs up docker-prod-01's own stack data to Google Drive. Remote-host backup (proxy-prod-01, telemetry-prod-01, core-01) is deferred pending an architecture decision — see the sprint status report.
 
 ## Reference
 

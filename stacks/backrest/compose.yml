@@ -4,9 +4,9 @@ x-meta:
   category: backup
   description: >
     Centralized restic backup orchestration — backs up docker-prod-01's own
-    stack data to a local repo and to Google Drive. Remote-host backup
-    (proxy-prod-01, telemetry-prod-01, core-01) is deferred pending an
-    architecture decision — see the sprint status report.
+    stack data to Google Drive. Remote-host backup (proxy-prod-01,
+    telemetry-prod-01, core-01) is deferred pending an architecture
+    decision — see the sprint status report.
   status: adopted
   adrs:
     - 10
@@ -26,7 +26,6 @@ services:
       - ./cache:/cache
       - ./tmp:/tmp
       - ./rclone:/root/.config/rclone
-      - /opt/homelab/backrest-repos:/repos
       # === Backup source mounts (read-only), docker-prod-01 stacks ===
       - /opt/homelab/vaultwarden/data:/sources/vaultwarden/data:ro
       - /opt/homelab/homepage/config:/sources/homepage/config:ro
