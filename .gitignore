@@ -41,3 +41,4 @@ __pycache__/
 !.claude/settings.json
 /docs/
 CLAUDE.md
+credentials.json
