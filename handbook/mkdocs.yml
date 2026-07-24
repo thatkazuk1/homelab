@@ -74,6 +74,7 @@ nav:
       - Renovate (dependency updates): operations/renovate.md
   - Stacks:
       - Overview: stacks/index.md
+      - backrest: stacks/backrest.md
       - beszel: stacks/beszel.md
       - beszel-agent: stacks/beszel-agent.md
       - cloudflared: stacks/cloudflared.md

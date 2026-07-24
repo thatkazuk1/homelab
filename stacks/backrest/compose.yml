@@ -1,0 +1,54 @@
+x-meta:
+  name: backrest
+  host: docker-prod-01
+  category: backup
+  description: >
+    Centralized restic backup orchestration — backs up docker-prod-01's own
+    stack data to a local repo and to Google Drive. Remote-host backup
+    (proxy-prod-01, telemetry-prod-01, core-01) is deferred pending an
+    architecture decision — see the sprint status report.
+  status: adopted
+  adrs:
+    - 10
+  public_url: backrest.ts.kazuki.uk
+
+services:
+  backrest:
+    image: ghcr.io/garethgeorge/backrest:v1.14.1
+    container_name: backrest
+    hostname: backrest
+    restart: unless-stopped
+    ports:
+      - "9898:9898"
+    volumes:
+      - ./data:/data
+      - ./config:/config
+      - ./cache:/cache
+      - ./tmp:/tmp
+      - ./rclone:/root/.config/rclone
+      - /opt/homelab/backrest-repos:/repos
+      # === Backup source mounts (read-only), docker-prod-01 stacks ===
+      - /opt/homelab/vaultwarden/data:/sources/vaultwarden/data:ro
+      - /opt/homelab/homepage/config:/sources/homepage/config:ro
+      - /opt/homelab/homepage/assets:/sources/homepage/assets:ro
+      - /opt/homelab/cloudflared/config:/sources/cloudflared/config:ro
+      - sure_app_storage:/sources/sure/app-storage:ro
+      - sure_postgres_data:/sources/sure/postgres-data:ro
+      - beszel_data:/sources/beszel/beszel-data:ro
+    environment:
+      - BACKREST_DATA=/data
+      - BACKREST_CONFIG=/config/config.json
+      - XDG_CACHE_HOME=/cache
+      - TMPDIR=/tmp
+      - TZ=Africa/Lagos
+
+volumes:
+  sure_app_storage:
+    external: true
+    name: sure_app-storage
+  sure_postgres_data:
+    external: true
+    name: sure_postgres-data
+  beszel_data:
+    external: true
+    name: beszel_beszel-data
