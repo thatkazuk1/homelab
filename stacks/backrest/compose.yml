@@ -41,6 +41,11 @@ services:
       - XDG_CACHE_HOME=/cache
       - TMPDIR=/tmp
       - TZ=Africa/Lagos
+      - RCLONE_CONFIG_GDRIVE_TYPE
+      - RCLONE_CONFIG_GDRIVE_CLIENT_ID
+      - RCLONE_CONFIG_GDRIVE_CLIENT_SECRET
+      - RCLONE_CONFIG_GDRIVE_TOKEN
+      - RCLONE_TPSLIMIT
 
 volumes:
   sure_app_storage:
