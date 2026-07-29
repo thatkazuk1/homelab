@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Ansible
         run: |
-          apk add --no-cache python3 py3-pip
+          apk add --no-cache --upgrade libexpat python3 py3-pip
           pip install --break-system-packages ansible-core==2.21.2 ansible-lint==26.6.0
           ansible-galaxy collection install -r ansible/requirements.yml
 
