@@ -27,6 +27,25 @@
     dest: "{{ periphery_stack_dir }}/compose.yml"
     mode: "0644"
 
+- name: Look up Forgejo registry pull credential
+  ansible.builtin.set_fact:
+    periphery_registry_user: "{{ lookup('community.sops.sops',
+      playbook_dir + '/../../stacks/komodo-periphery/secrets.enc.env',
+      input_type='dotenv', output_type='dotenv',
+      extract='[\"FORGEJO_REGISTRY_USER\"]') }}"
+    periphery_registry_token: "{{ lookup('community.sops.sops',
+      playbook_dir + '/../../stacks/komodo-periphery/secrets.enc.env',
+      input_type='dotenv', output_type='dotenv',
+      extract='[\"FORGEJO_REGISTRY_TOKEN\"]') }}"
+  no_log: true
+
+- name: Log in to Forgejo container registry
+  community.docker.docker_login:
+    registry_url: forgejo.ts.kazuki.uk
+    username: "{{ periphery_registry_user }}"
+    password: "{{ periphery_registry_token }}"
+  no_log: true
+
 - name: Deploy Periphery via docker compose
   community.docker.docker_compose_v2:
     project_src: "{{ periphery_stack_dir }}"
