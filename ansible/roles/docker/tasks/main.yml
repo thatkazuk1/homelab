@@ -8,7 +8,7 @@
     state: present
     update_cache: true
 
-- name: Create apt keyrings directory
+- name: Create apt keyring directory
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
