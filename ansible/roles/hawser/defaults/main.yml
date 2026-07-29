@@ -1,0 +1,8 @@
+---
+hawser_image: ghcr.io/finsys/hawser:latest
+hawser_stack_dir: /opt/homelab/hawser
+hawser_port: 2376
+# hawser_token has no default — it's host-specific and secret. Supply it
+# via group_vars/host_vars (real fleet hosts, 4b, via the community.sops
+# lookup pattern documented in group_vars/scratch.yml) or -e at the CLI
+# (scratch/test guests).

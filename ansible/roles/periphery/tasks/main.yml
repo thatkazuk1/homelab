@@ -1,0 +1,33 @@
+---
+- name: Ensure Periphery stack directory exists
+  ansible.builtin.file:
+    path: "{{ periphery_stack_dir }}"
+    state: directory
+    owner: kazuki
+    mode: "0755"
+
+- name: Ensure age key directory exists
+  ansible.builtin.file:
+    path: "{{ periphery_age_key_dest | dirname }}"
+    state: directory
+    owner: kazuki
+    mode: "0700"
+
+- name: Copy fleet age private key to target
+  ansible.builtin.copy:
+    src: "{{ periphery_age_key_src }}"
+    dest: "{{ periphery_age_key_dest }}"
+    owner: kazuki
+    mode: "0600"
+  no_log: true
+
+- name: Template Periphery compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ periphery_stack_dir }}/compose.yml"
+    mode: "0644"
+
+- name: Deploy Periphery via docker compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ periphery_stack_dir }}"
+    state: present

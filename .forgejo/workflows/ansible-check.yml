@@ -1,0 +1,46 @@
+name: Ansible lint + syntax check
+
+on:
+  push:
+    paths:
+      - 'ansible/**'
+
+jobs:
+  ansible-check:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@${GITHUB_SERVER_URL#https://}/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth 1 origin "${GITHUB_SHA}"
+          git checkout -q FETCH_HEAD
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install sops and age (pinned, independent of any workstation's installed versions)
+        run: |
+          apk add --no-cache curl tar
+          curl -Lo /usr/local/bin/sops https://github.com/getsops/sops/releases/download/v3.13.1/sops-v3.13.1.linux.amd64
+          chmod +x /usr/local/bin/sops
+          curl -Lo /tmp/age.tar.gz https://github.com/FiloSottile/age/releases/download/v1.2.1/age-v1.2.1-linux-amd64.tar.gz
+          tar -xzf /tmp/age.tar.gz -C /tmp
+          mv /tmp/age/age /tmp/age/age-keygen /usr/local/bin/
+          sops --version
+          age --version
+
+      - name: Install Ansible
+        run: |
+          apk add --no-cache python3 py3-pip
+          pip install --break-system-packages ansible-core==2.21.2 ansible-lint==26.6.0
+          ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: ansible-lint
+        run: ansible-lint ansible/playbooks/provision-baseline.yml
+        env:
+          ANSIBLE_CONFIG: ansible/ansible.cfg
+
+      - name: ansible-playbook --syntax-check
+        run: ansible-playbook --syntax-check ansible/playbooks/provision-baseline.yml
+        env:
+          ANSIBLE_CONFIG: ansible/ansible.cfg

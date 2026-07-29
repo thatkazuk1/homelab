@@ -1,0 +1,22 @@
+name: komodo-periphery
+
+services:
+  periphery:
+    image: {{ periphery_image }}
+    container_name: komodo-periphery
+    restart: unless-stopped
+    init: true
+    labels:
+      komodo.skip:
+    ports:
+      - "8120:8120"
+    environment:
+      - PERIPHERY_ROOT_DIRECTORY={{ periphery_root_directory }}
+      - PERIPHERY_DISABLE_TERMINALS=false
+      - PERIPHERY_CORE_PUBLIC_KEYS={{ periphery_core_public_keys }}
+      - SOPS_AGE_KEY_FILE=/config/age-keys.txt
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - {{ periphery_root_directory }}:{{ periphery_root_directory }}
+      - {{ periphery_age_key_dest }}:/config/age-keys.txt:ro

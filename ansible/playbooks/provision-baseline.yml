@@ -1,0 +1,8 @@
+---
+- name: Provision baseline Docker host
+  hosts: scratch
+  become: true
+  roles:
+    - docker
+    - periphery
+    - hawser

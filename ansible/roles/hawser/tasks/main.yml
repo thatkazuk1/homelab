@@ -1,0 +1,20 @@
+---
+- name: Ensure Hawser stack directory exists
+  ansible.builtin.file:
+    path: "{{ hawser_stack_dir }}"
+    state: directory
+    owner: kazuki
+    mode: "0755"
+
+- name: Template Hawser compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ hawser_stack_dir }}/compose.yml"
+    mode: "0644"
+  no_log: true
+
+- name: Deploy Hawser via docker compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ hawser_stack_dir }}"
+    state: present
+  no_log: true

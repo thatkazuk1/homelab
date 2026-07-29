@@ -1,0 +1,12 @@
+services:
+  hawser:
+    image: {{ hawser_image }}
+    container_name: hawser
+    restart: unless-stopped
+    ports:
+      - "{{ hawser_port }}:2376"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TOKEN={{ hawser_token }}
+      - PORT=2376

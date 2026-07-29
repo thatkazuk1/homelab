@@ -1,0 +1,18 @@
+---
+periphery_image: forgejo.ts.kazuki.uk/shokunbi/komodo-periphery-sops:2
+periphery_root_directory: /etc/komodo
+periphery_stack_dir: /opt/homelab/komodo-periphery
+# Komodo Core's public verification key. Not a credential (see
+# stacks/komodo-periphery/compose.garage-prod-01.yml, which hardcodes
+# the same value for the same reason) — safe to commit.
+periphery_core_public_keys: MCowBQYDK2VuAyEAIAM4kk8DRPlx2wTihDDYYRgD64lBmz+I/OPOAtcikR0=
+# The fleet's global age *private* key. This is the real secret this
+# role handles — it can't be sops-encrypted at rest in the repo
+# (it's the key that decrypts everything else), so it's never stored
+# in git. It's copied from the control node's own filesystem, over the
+# same SSH channel Ansible already uses to reach the target — this
+# just automates the manual step documented in
+# handbook/docs/operations/deploying-a-new-host.md ("place the fleet's
+# global age key at ~/.config/sops/age/keys.txt").
+periphery_age_key_src: "{{ lookup('env', 'HOME') }}/.config/sops/age/keys.txt"
+periphery_age_key_dest: /home/kazuki/.config/sops/age/keys.txt
