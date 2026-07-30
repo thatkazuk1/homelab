@@ -18,6 +18,7 @@ ADR_DIR = Path("docs/adrs")
 KNOWN_EXCEPTIONS = {
     (str(Path("docs/adrs/0006-periphery-ip-anomaly.md")), 8),
     (str(Path("docs/adrs/README.md")), 8),
+    (str(Path("docs/adrs/0018-ansible-komodo-ownership-boundary.md")), 8),
 }
 
 
