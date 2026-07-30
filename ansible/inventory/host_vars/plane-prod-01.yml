@@ -1,0 +1,10 @@
+---
+# Real, audited mode for /opt/homelab/komodo-periphery — differs from
+# the 02775 default (no setgid bit). See periphery role defaults for
+# why this isn't normalized.
+periphery_stack_dir_mode: "0775"
+
+# Files inside the stack dir are group-owned by kazuki's own primary
+# group, not svc-docker (the directory itself is svc-docker). See
+# periphery role defaults.
+periphery_files_group: kazuki

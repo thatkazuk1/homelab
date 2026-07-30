@@ -1,0 +1,22 @@
+---
+# komodo-prod-01 is the Komodo orchestrator itself. Its Periphery is the
+# vanilla ghcr.io/moghtech/komodo-periphery image bundled inside the
+# `komodo` stack's own compose (container komodo-periphery-1, project
+# `komodo`) — not the -sops image, not at /opt/homelab/komodo-periphery,
+# keys on a Docker-managed volume rather than a bind mount. It is a
+# fundamentally different deployment shape than every other host, not a
+# parameterization of the standard one (bootstrap circularity: Komodo
+# can't manage the Periphery that lets it manage this host, same class
+# as the docker-prod-01 exception documented in CLAUDE.md).
+#
+# The periphery role is skipped for this host entirely rather than
+# templated with an image override — confirmed via Phase 0 audit
+# (2026-07-30) that even with periphery_image swapped, the role's
+# mounts/env/project-name would not match live reality. Adopting this
+# host means leaving its Periphery untouched.
+periphery_managed: false
+
+# Hawser is out of scope fleet-wide for Sprint 4b (see status report) —
+# noted here for when that's revisited: this host has no Hawser
+# container regardless, confirmed by audit.
+hawser_enabled: false

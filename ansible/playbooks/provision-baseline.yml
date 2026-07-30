@@ -1,5 +1,13 @@
 ---
 - name: Provision baseline Docker host
+  hosts: docker_hosts
+  become: true
+  roles:
+    - docker
+    - periphery
+
+- name: Provision scratch/test guest (4a path — hawser included for the
+    end-to-end scratch proof; not run against real fleet hosts)
   hosts: scratch
   become: true
   roles:

@@ -1,52 +1,85 @@
 ---
-- name: Ensure Periphery stack directory exists
-  ansible.builtin.file:
-    path: "{{ periphery_stack_dir }}"
-    state: directory
-    owner: kazuki
-    mode: "0755"
+- name: Manage Periphery
+  when: periphery_managed
+  block:
+    - name: Ensure Periphery stack directory exists
+      ansible.builtin.file:
+        path: "{{ periphery_stack_dir }}"
+        state: directory
+        owner: kazuki
+        group: svc-docker
+        mode: "{{ periphery_stack_dir_mode }}"
 
-- name: Ensure age key directory exists
-  ansible.builtin.file:
-    path: "{{ periphery_age_key_dest | dirname }}"
-    state: directory
-    owner: kazuki
-    mode: "0700"
+    - name: Ensure age key directory exists
+      ansible.builtin.file:
+        path: "{{ periphery_age_key_dest | dirname }}"
+        state: directory
+        owner: kazuki
+        mode: "0700"
 
-- name: Copy fleet age private key to target
-  ansible.builtin.copy:
-    src: "{{ periphery_age_key_src }}"
-    dest: "{{ periphery_age_key_dest }}"
-    owner: kazuki
-    mode: "0600"
-  no_log: true
+    - name: Copy fleet age private key to target
+      ansible.builtin.copy:
+        src: "{{ periphery_age_key_src }}"
+        dest: "{{ periphery_age_key_dest }}"
+        owner: kazuki
+        mode: "0600"
+      no_log: true
 
-- name: Template Periphery compose file
-  ansible.builtin.template:
-    src: compose.yml.j2
-    dest: "{{ periphery_stack_dir }}/compose.yml"
-    mode: "0644"
+    - name: Template Periphery .env file (compose ${VAR} substitution only)
+      # Every standard host resolves PERIPHERY_CORE_PUBLIC_KEYS in
+      # compose.yml via Compose's implicit project-directory .env
+      # loading, not a hardcoded value in the file. docker-prod-01 is
+      # the exception: its .env additionally injects real per-host
+      # credentials (PERIPHERY_PASSKEYS etc.) via an explicit env_file:
+      # directive that Ansible has no source of truth for — left
+      # entirely alone there.
+      ansible.builtin.template:
+        src: env.j2
+        dest: "{{ periphery_stack_dir }}/.env"
+        owner: kazuki
+        group: "{{ periphery_files_group }}"
+        mode: "0664"
+      when: not periphery_env_file
 
-- name: Look up Forgejo registry pull credential
-  ansible.builtin.set_fact:
-    periphery_registry_user: "{{ lookup('community.sops.sops',
-      playbook_dir + '/../../stacks/komodo-periphery/secrets.enc.env',
-      input_type='dotenv', output_type='dotenv',
-      extract='[\"FORGEJO_REGISTRY_USER\"]') }}"
-    periphery_registry_token: "{{ lookup('community.sops.sops',
-      playbook_dir + '/../../stacks/komodo-periphery/secrets.enc.env',
-      input_type='dotenv', output_type='dotenv',
-      extract='[\"FORGEJO_REGISTRY_TOKEN\"]') }}"
-  no_log: true
+    - name: Template Periphery compose file
+      ansible.builtin.template:
+        src: compose.yml.j2
+        dest: "{{ periphery_stack_dir }}/compose.yml"
+        owner: kazuki
+        group: "{{ periphery_files_group }}"
+        mode: "0664"
 
-- name: Log in to Forgejo container registry
-  community.docker.docker_login:
-    registry_url: forgejo.ts.kazuki.uk
-    username: "{{ periphery_registry_user }}"
-    password: "{{ periphery_registry_token }}"
-  no_log: true
+    - name: Look up Forgejo registry pull credential
+      ansible.builtin.set_fact:
+        periphery_registry_user: "{{ lookup('community.sops.sops',
+          playbook_dir + '/../../stacks/komodo-periphery/secrets.enc.env',
+          input_type='dotenv', output_type='dotenv',
+          extract='[\"FORGEJO_REGISTRY_USER\"]') }}"
+        periphery_registry_token: "{{ lookup('community.sops.sops',
+          playbook_dir + '/../../stacks/komodo-periphery/secrets.enc.env',
+          input_type='dotenv', output_type='dotenv',
+          extract='[\"FORGEJO_REGISTRY_TOKEN\"]') }}"
+      no_log: true
 
-- name: Deploy Periphery via docker compose
-  community.docker.docker_compose_v2:
-    project_src: "{{ periphery_stack_dir }}"
-    state: present
+    - name: Log in to Forgejo container registry
+      # kazuki (docker-group member) already holds this credential on
+      # every audited host — /root/.docker/config.json doesn't exist
+      # anywhere. become: false here so this matches the real, existing
+      # bootstrap convention instead of writing a new, redundant root
+      # credential store.
+      become: false
+      community.docker.docker_login:
+        registry_url: forgejo.ts.kazuki.uk
+        username: "{{ periphery_registry_user }}"
+        password: "{{ periphery_registry_token }}"
+      no_log: true
+
+    - name: Deploy Periphery via docker compose
+      # Same reasoning as the login task above: kazuki (docker-group
+      # member) is who actually holds the pull credential; running this
+      # as root fails a real (first) pull with "no basic auth
+      # credentials" on a host where the image isn't already cached.
+      become: false
+      community.docker.docker_compose_v2:
+        project_src: "{{ periphery_stack_dir }}"
+        state: present

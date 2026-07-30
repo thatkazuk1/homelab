@@ -1,0 +1,26 @@
+---
+# docker-prod-01 runs Dockhand itself (manages its own host via the
+# local socket) — no Hawser sidecar needed.
+hawser_enabled: false
+
+# Confirmed real, documented drift (Sprint 3i status report, and this
+# host's stacks/komodo-periphery/compose.docker-prod-01.yml x-meta
+# comment): this Periphery gets PERIPHERY_CORE_PUBLIC_KEYS,
+# KOMODO_CORE_ADDRESS, and PERIPHERY_PASSKEYS via a host-local .env
+# (env_file:), and adds PERIPHERY_DISABLE_CONTAINER_EXEC=false — the
+# other 5 standard hosts have none of this. Ansible does not manage or
+# regenerate that .env file (PERIPHERY_PASSKEYS is a real credential
+# with no tracked source — it lives only on the host); the role just
+# needs to reproduce the compose shape that already consumes it.
+periphery_env_file: true
+periphery_disable_container_exec: false
+
+# Real, audited mode for /opt/homelab/komodo-periphery — differs from
+# the 02775 default (setgid, but no group-write). See periphery role
+# defaults for why this isn't normalized.
+periphery_stack_dir_mode: "02755"
+
+# Sole fleet host already on the newer DEB822 apt-source format for
+# Docker's repo (every other host uses the legacy one-line format —
+# see docker role defaults).
+docker_apt_deb822: true

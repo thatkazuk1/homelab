@@ -1,0 +1,6 @@
+---
+# Cosmetic-only: this host's compose.yml has the age-key and ./keys
+# volume lines in the opposite order from every other host. No
+# functional difference; kept to reach a byte-identical check-mode
+# diff. See periphery role defaults.
+periphery_keys_volume_last: false

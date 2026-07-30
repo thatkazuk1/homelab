@@ -6,17 +6,34 @@ services:
     container_name: komodo-periphery
     restart: unless-stopped
     init: true
-    labels:
-      komodo.skip:
     ports:
       - "8120:8120"
+{% if periphery_env_file %}
+    env_file:
+      - .env
+{% endif %}
     environment:
       - PERIPHERY_ROOT_DIRECTORY={{ periphery_root_directory }}
       - PERIPHERY_DISABLE_TERMINALS=false
+{% if periphery_disable_container_exec is not none %}
+      - PERIPHERY_DISABLE_CONTAINER_EXEC={{ periphery_disable_container_exec | lower }}
+{% endif %}
+{% if not periphery_env_file %}
+{% if periphery_core_public_keys_inline %}
       - PERIPHERY_CORE_PUBLIC_KEYS={{ periphery_core_public_keys }}
+{% else %}
+      - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
+{% endif %}
+{% endif %}
       - SOPS_AGE_KEY_FILE=/config/age-keys.txt
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/proc
       - {{ periphery_root_directory }}:{{ periphery_root_directory }}
+{% if periphery_keys_volume_last %}
+      - ./keys:/config/keys
       - {{ periphery_age_key_dest }}:/config/age-keys.txt:ro
+{% else %}
+      - {{ periphery_age_key_dest }}:/config/age-keys.txt:ro
+      - ./keys:/config/keys
+{% endif %}

@@ -2,6 +2,33 @@
 periphery_image: forgejo.ts.kazuki.uk/shokunbi/komodo-periphery-sops:2
 periphery_root_directory: /etc/komodo
 periphery_stack_dir: /opt/homelab/komodo-periphery
+# Confirmed via Phase 0 audit (2026-07-30): this directory's mode is
+# NOT uniform across the existing fleet (2775 on telemetry/proxy, 775
+# on plane/coolify/garage, 2755 on docker-prod-01) — unexplained
+# historical drift, not a deliberate per-host setting. 02775 (setgid +
+# group-write for svc-docker) is the default for new installs
+# (forgejo-prod-01) and the canary; hosts that differ keep their real
+# mode via host_vars rather than being silently normalized.
+periphery_stack_dir_mode: "02775"
+
+# Also confirmed via Phase 0 audit: on plane-prod-01, coolify-prod-01,
+# and garage-prod-01, the *directory* is svc-docker-owned but the
+# files inside it (compose.yml, .env) are owned by kazuki's own
+# primary group, not svc-docker — real, consistent per-host drift, not
+# normalized. See their host_vars.
+periphery_files_group: svc-docker
+
+# Cosmetic-only line-order difference (proxy-prod-01 is the outlier —
+# see its host_vars): purely to reach a byte-identical check-mode
+# diff, no functional effect either way.
+periphery_keys_volume_last: true
+
+# garage-prod-01 hardcodes PERIPHERY_CORE_PUBLIC_KEYS directly in
+# compose.yml instead of using the ${VAR} + .env pattern every other
+# standard host uses (real, pre-existing divergence — see its
+# host_vars). The .env file is still templated everywhere regardless
+# (harmless if the value goes unreferenced).
+periphery_core_public_keys_inline: false
 # Komodo Core's public verification key. Not a credential (see
 # stacks/komodo-periphery/compose.garage-prod-01.yml, which hardcodes
 # the same value for the same reason) — safe to commit.
@@ -16,3 +43,16 @@ periphery_core_public_keys: MCowBQYDK2VuAyEAIAM4kk8DRPlx2wTihDDYYRgD64lBmz+I/OPO
 # global age key at ~/.config/sops/age/keys.txt").
 periphery_age_key_src: "{{ lookup('env', 'HOME') }}/.config/sops/age/keys.txt"
 periphery_age_key_dest: /home/kazuki/.config/sops/age/keys.txt
+
+# Whether this role manages Periphery on the host at all. False for
+# komodo-prod-01 (see its host_vars) — a fundamentally different
+# deployment shape, not a parameterization of the standard one.
+periphery_managed: true
+
+# docker-prod-01-only exception (confirmed via Phase 0 audit,
+# 2026-07-30): PERIPHERY_CORE_PUBLIC_KEYS/KOMODO_CORE_ADDRESS/
+# PERIPHERY_PASSKEYS are supplied via a host-local .env (env_file:)
+# instead of being templated inline. See its host_vars for the real
+# per-host values.
+periphery_env_file: false
+periphery_disable_container_exec: ~

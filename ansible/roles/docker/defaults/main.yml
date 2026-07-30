@@ -1,0 +1,7 @@
+---
+# Confirmed via Phase 0 audit (2026-07-30): 7 of 8 fleet hosts have
+# Docker's apt repo defined via the legacy one-line
+# /etc/apt/sources.list.d/docker.list format. docker-prod-01 is the
+# sole exception, already on the newer DEB822 docker.sources format.
+# Default to what's actually there; override per-host where it isn't.
+docker_apt_deb822: false
