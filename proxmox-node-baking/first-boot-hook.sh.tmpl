@@ -1,0 +1,86 @@
+#!/bin/sh
+# Proxmox auto-installer --on-first-boot hook — Sprint 4c.
+#
+# Runs once, ordering=fully-up (see answer.toml.tmpl's [first-boot]
+# section), on a freshly-installed node. Its ONLY job is to make the node
+# reachable by Ansible the fleet-standard way: create kazuki, install the
+# node's designated SSH public key, make sure sshd/python3 are present.
+# Real configuration (repo pinning, Netdata/Beszel, cluster join) is the
+# proxmox_node Ansible role's job, not this hook's — see
+# ansible/roles/proxmox_node/.
+#
+# The assistant embeds this via `prepare-iso --on-first-boot
+# first-boot-hook.sh` (1 MiB max, must be a single executable file — no
+# separate assets). It runs as root, on the installed system, without a
+# network guarantee beyond what "fully-up" implies (interfaces up,
+# default route present).
+#
+# Written and shellcheck-reviewed (Sprint 4c). NOT executed against real
+# hardware — no node exists to run it against this sprint. Idempotence
+# unproven; see status report's honesty-boundary section.
+
+set -eu
+
+# The pubkey content itself is supplied by the auto-installer's own
+# mechanism: this script expects it baked in below at render time by
+# render-answer.sh's caller, OR (simpler, chosen here) reads it from a
+# second small file the prepare-iso step embeds alongside — Proxmox's
+# --on-first-boot only accepts a single executable, so the pubkey is
+# inlined directly into this script per render, not fetched separately.
+SSH_PUBKEY='{{ SSH_PUBKEY }}'
+
+NEW_USER="kazuki"
+
+log() {
+	printf '[first-boot-hook] %s\n' "$1"
+}
+
+if id "$NEW_USER" >/dev/null 2>&1; then
+	log "user $NEW_USER already exists, skipping useradd"
+else
+	log "creating user $NEW_USER"
+	# --uid 1001 matches the fleet's documented Users standard
+	# (docs/conventions/naming-convention-v1.7.md). This is a DELIBERATE
+	# divergence from pve-01/pve-02, where kazuki is UID 1000 — that's
+	# documented drift from before standardization, not the target
+	# shape for new hardware. Flagged for operator confirmation in the
+	# Sprint 4c status report; if the operator wants new PVE nodes to
+	# instead match pve-01/pve-02's existing UID 1000 for consistency
+	# within the hypervisor tier specifically, drop --uid here.
+	useradd --create-home --uid 1001 --shell /bin/bash --groups sudo "$NEW_USER"
+fi
+
+USER_SSH_DIR="/home/${NEW_USER}/.ssh"
+AUTH_KEYS="${USER_SSH_DIR}/authorized_keys"
+
+mkdir -p "$USER_SSH_DIR"
+chmod 700 "$USER_SSH_DIR"
+
+if [ -f "$AUTH_KEYS" ] && grep -qF "$SSH_PUBKEY" "$AUTH_KEYS"; then
+	log "authorized_keys already contains the target key, skipping"
+else
+	log "installing SSH public key for $NEW_USER"
+	printf '%s\n' "$SSH_PUBKEY" >>"$AUTH_KEYS"
+fi
+
+chmod 600 "$AUTH_KEYS"
+chown -R "${NEW_USER}:${NEW_USER}" "$USER_SSH_DIR"
+
+# Proxmox's ISO ships both already, but assert rather than assume —
+# per §5 of the handoff, this hook's job includes making that explicit,
+# not silently relying on image defaults.
+if ! dpkg -s openssh-server >/dev/null 2>&1; then
+	log "openssh-server missing, installing"
+	apt-get update -qq
+	apt-get install -y -qq openssh-server
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+	log "python3 missing, installing"
+	apt-get update -qq
+	apt-get install -y -qq python3
+fi
+
+systemctl enable --now ssh
+
+log "done — node should now be Ansible-reachable as ${NEW_USER}"

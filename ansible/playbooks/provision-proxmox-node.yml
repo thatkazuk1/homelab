@@ -1,0 +1,15 @@
+---
+# Post-install baseline for a freshly auto-installed Proxmox node
+# (Sprint 4c). Written and statically validated (ansible-lint,
+# --syntax-check) only — deliberately NOT run against any host. No
+# `proxmox_nodes` inventory group is populated; pve-01/pve-02 are live
+# production and don't match this role's fresh-node assumptions (see
+# handbook's "Adopting an existing guest" discipline — this role is the
+# install-shaped mirror image of that risk, not a candidate for the
+# same adoption treatment this sprint). First real run is first real
+# hardware, per a future sprint.
+- name: Provision baseline Proxmox node
+  hosts: proxmox_nodes
+  become: true
+  roles:
+    - proxmox_node

@@ -1,0 +1,61 @@
+---
+# Repo config — matches pve-01/pve-02 exactly (confirmed live, Sprint 4c
+# Phase 0 audit). A stock PVE ISO install ships pve-enterprise.sources
+# enabled and no no-subscription repo at all; both existing nodes have
+# been through the standard "disable enterprise, enable
+# no-subscription" post-install step by hand. This role automates that,
+# not a fleet-specific customization.
+proxmox_node_debian_suite: trixie
+proxmox_node_pve_repo_uri: http://download.proxmox.com/debian/pve
+proxmox_node_pve_keyring: /usr/share/keyrings/proxmox-archive-keyring.gpg
+
+# Netdata — native apt package (repository.netdata.cloud's own DEB822
+# repo), matching pve-01/pve-02's installed shape (netdata 2.10.3 +
+# full plugin suite via the metapackage, confirmed live). Installed via
+# Netdata's own official kickstart script, which sets up its repo file
+# itself — reproducing repository.netdata.cloud's signing key by hand
+# here would drift the moment Netdata rotates it.
+proxmox_node_netdata_install: true
+proxmox_node_netdata_kickstart_url: https://get.netdata.cloud/kickstart.sh
+
+# Beszel agent — native binary + systemd service (NOT the Docker-based
+# stacks/beszel-agent/ used on Docker guests; PVE hosts don't run
+# Docker). Installed via Beszel's own official install script.
+#
+# beszel_key/beszel_token are PER-NODE operator-issued credentials from
+# the Beszel hub UI (confirmed: sha256 of pve-01's vs pve-02's live
+# KEY+TOKEN env values differ — NOT a shared fleet secret like
+# Periphery's registry token). Same model as Hawser's token (see
+# ansible/roles/hawser/defaults). Must be supplied per-host via
+# host_vars (sops-encrypted) or -e — left empty here deliberately so a
+# missing value fails loudly rather than silently deploying an
+# unregistered agent.
+proxmox_node_beszel_install: true
+proxmox_node_beszel_install_url: https://get.beszel.dev
+proxmox_node_beszel_port: 45876
+proxmox_node_beszel_hub_url: https://beszel.ts.kazuki.uk
+proxmox_node_beszel_key: ""
+proxmox_node_beszel_token: ""
+
+# kazuki finalization. The first-boot hook already creates kazuki at
+# UID 1001 with sudo-group membership (see
+# proxmox-node-baking/first-boot-hook.sh.tmpl) — this role's job is
+# just the NOPASSWD sudoers drop-in, matching the fleet's documented
+# Users standard. pve-01/pve-02 do NOT have this today (sudo prompts
+# for a password on pve-01, no sudo binary at all on pve-02) — that's
+# pre-standardization drift the naming-convention doc itself flags as
+# inaccurate (see CLAUDE.md, Sprint 3i carryover), not the target shape
+# for new nodes. This does not touch pve-01/pve-02 (not in scope this
+# sprint — no target host exists to run this role against at all).
+proxmox_node_kazuki_nopasswd_sudo: true
+
+# Cluster join. Default true — skippable for a standalone node. The
+# 2-node "nexus-homelab" cluster (pve-01 nodeid 1, pve-02 nodeid 2, no
+# QDevice, no HA — confirmed live via /etc/corosync/corosync.conf) is a
+# deliberate topology; adding a 3rd node changes quorum math (majority
+# becomes achievable without both original nodes) — a real decision,
+# not a silent side effect of running this role. `pvecm add` runs
+# against an existing cluster member's address.
+proxmox_node_cluster_join: true
+proxmox_node_cluster_join_target: 192.168.50.10
+proxmox_node_cluster_name: nexus-homelab

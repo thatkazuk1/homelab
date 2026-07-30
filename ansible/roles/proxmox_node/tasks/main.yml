@@ -1,0 +1,131 @@
+---
+# fleet-standard repo config
+- name: Disable pve-enterprise repo
+  ansible.builtin.template:
+    src: pve-enterprise.sources.j2
+    dest: /etc/apt/sources.list.d/pve-enterprise.sources
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Refresh apt cache
+
+- name: Enable pve-no-subscription repo
+  ansible.builtin.template:
+    src: proxmox.sources.j2
+    dest: /etc/apt/sources.list.d/proxmox.sources
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Refresh apt cache
+
+# Netdata (PVE-nodes-only documented exception — see CLAUDE.md)
+- name: Check whether Netdata is already installed
+  ansible.builtin.command: dpkg-query -W -f='${Status}' netdata
+  register: proxmox_node_netdata_check
+  failed_when: false
+  changed_when: false
+  when: proxmox_node_netdata_install
+
+- name: Install Netdata via official kickstart script
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -fsSL {{ proxmox_node_netdata_kickstart_url }} | sh -s -- --non-interactive
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when:
+    - proxmox_node_netdata_install
+    - proxmox_node_netdata_check.rc != 0 or 'install ok installed' not in proxmox_node_netdata_check.stdout
+
+- name: Ensure Netdata service is enabled and running
+  ansible.builtin.systemd_service:
+    name: netdata
+    enabled: true
+    state: started
+  when: proxmox_node_netdata_install
+
+# Beszel agent (native binary, PVE hosts — not the Docker-based
+# stacks/beszel-agent/ used on Docker guests)
+- name: Fail loudly if Beszel install requested without per-node credentials
+  ansible.builtin.fail:
+    msg: >-
+      proxmox_node_beszel_install is true but beszel_key/beszel_token
+      are empty. These are per-node credentials issued by the Beszel
+      hub UI when adding a new system (operator/UI action per
+      ADR-0013) — supply via host_vars (sops-encrypted), not a
+      fleet-shared default.
+  when:
+    - proxmox_node_beszel_install
+    - (proxmox_node_beszel_key | length == 0) or (proxmox_node_beszel_token | length == 0)
+
+- name: Check whether beszel-agent is already installed
+  ansible.builtin.stat:
+    path: /opt/beszel-agent/beszel-agent
+  register: proxmox_node_beszel_check
+  when: proxmox_node_beszel_install
+
+- name: Install Beszel agent via official install script
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -fsSL {{ proxmox_node_beszel_install_url }} -o /tmp/install-agent.sh
+    chmod +x /tmp/install-agent.sh
+    /tmp/install-agent.sh -k "{{ proxmox_node_beszel_key }}" \
+      -p {{ proxmox_node_beszel_port }} \
+      -t "{{ proxmox_node_beszel_token }}" \
+      -url {{ proxmox_node_beszel_hub_url }} \
+      --auto-update
+  args:
+    executable: /bin/bash
+  no_log: true
+  changed_when: true
+  when:
+    - proxmox_node_beszel_install
+    - not proxmox_node_beszel_check.stat.exists
+
+- name: Ensure beszel-agent service is enabled and running
+  ansible.builtin.systemd_service:
+    name: beszel-agent
+    enabled: true
+    state: started
+  when: proxmox_node_beszel_install
+
+# kazuki finalization — NOPASSWD sudo, matching the fleet's documented
+# Users standard (see defaults/main.yml for why pve-01/pve-02 diverge
+# and are left untouched)
+- name: Grant kazuki NOPASSWD sudo
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/kazuki
+    content: "kazuki ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: visudo -cf %s
+  when: proxmox_node_kazuki_nopasswd_sudo
+
+# Cluster join — deliberate, parameterized, off by default for a
+# standalone node
+- name: Check current cluster membership
+  ansible.builtin.stat:
+    path: /etc/pve/corosync.conf
+  register: proxmox_node_corosync_conf
+  when: proxmox_node_cluster_join
+
+- name: Join existing cluster via pvecm
+  ansible.builtin.command:
+    cmd: >-
+      pvecm add {{ proxmox_node_cluster_join_target }}
+      --use_ssh
+  changed_when: true
+  when:
+    - proxmox_node_cluster_join
+    - not proxmox_node_corosync_conf.stat.exists
+  register: proxmox_node_cluster_join_result
+
+- name: Report cluster join result
+  ansible.builtin.debug:
+    msg: >-
+      Joined cluster {{ proxmox_node_cluster_name }} via
+      {{ proxmox_node_cluster_join_target }}.
+  when:
+    - proxmox_node_cluster_join
+    - proxmox_node_cluster_join_result is changed

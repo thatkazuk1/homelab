@@ -21,6 +21,14 @@ Thumbs.db
 *.retry
 .vault_pass
 
+# Proxmox node baking (Sprint 4c) — rendered answer files carry a real
+# root password; only the .tmpl and the placeholder-values example.toml
+# are ever committed.
+proxmox-node-baking/answer.*.toml
+!proxmox-node-baking/answer.example.toml
+proxmox-node-baking/*.iso
+proxmox-node-baking/*.first-boot-hook.sh
+
 # OpenTofu / Terraform (Sprint 7+, conditional)
 .terraform/
 *.tfstate

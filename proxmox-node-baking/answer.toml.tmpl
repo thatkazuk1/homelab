@@ -1,0 +1,37 @@
+# Parameterized Proxmox VE auto-installer answer file — Sprint 4c.
+#
+# This is a template, not a usable answer file: {{ VARIABLE }} placeholders
+# get substituted by render-answer.sh before validate-answer/prepare-iso
+# ever see it. Never fill this in and commit the result — see README.md.
+#
+# Values below that are NOT {{ placeholders }} are fixed-to-fleet, derived
+# from a live audit of pve-01/pve-02 (Sprint 4c, Phase 0) — not generic
+# Proxmox defaults. See README.md's "Fleet reality this template encodes"
+# section for the reasoning behind each one.
+
+[global]
+keyboard = "en-us"
+country = "ng"
+fqdn = "{{ HOSTNAME }}.{{ FQDN_DOMAIN }}"
+mailto = "kukiito219@gmail.com"
+timezone = "Africa/Lagos"
+root-password = "{{ ROOT_PASSWORD }}"
+root-ssh-keys = ["{{ SSH_PUBKEY }}"]
+reboot-on-error = false
+
+[network]
+source = "from-answer"
+cidr = "{{ MGMT_CIDR }}"
+gateway = "192.168.50.1"
+dns = "192.168.50.3"
+
+[disk-setup]
+filesystem = "ext4"
+filter.ID_MODEL = "{{ DISK_FILTER }}"
+
+[disk-setup.lvm]
+swapsize = 8
+
+[first-boot]
+source = "from-iso"
+ordering = "fully-up"

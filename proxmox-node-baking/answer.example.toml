@@ -1,0 +1,33 @@
+# Filled EXAMPLE answer file — placeholder host values only, for
+# validate-answer / prepare-iso dry-proof (Sprint 4c). Not a real node,
+# not a real password. Never treat this file as containing a live
+# credential; the "changeme" value below is a schema-validation fixture,
+# not the fleet's actual root-password mechanism (see README.md — real
+# fills go through render-answer.sh and are never committed).
+
+[global]
+keyboard = "en-us"
+country = "ng"
+fqdn = "node-example.pve.home"
+mailto = "kukiito219@gmail.com"
+timezone = "Africa/Lagos"
+root-password = "validate-answer-example-only-changeme"
+root-ssh-keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGV4YW1wbGVrZXlub3RyZWFsMDAwMDAwMDAwMDAwMDAw kazuki@nexus-v -> node-example"]
+reboot-on-error = false
+
+[network]
+source = "from-answer"
+cidr = "192.168.50.99/24"
+gateway = "192.168.50.1"
+dns = "192.168.50.3"
+
+[disk-setup]
+filesystem = "ext4"
+filter.ID_MODEL = "Samsung*"
+
+[disk-setup.lvm]
+swapsize = 8
+
+[first-boot]
+source = "from-iso"
+ordering = "fully-up"
