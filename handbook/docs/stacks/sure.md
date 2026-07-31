@@ -15,7 +15,7 @@ Self-hosted personal finance / budgeting app (Rails, formerly known as "Maybe Fi
 
 ### `web`
 
-- **Image:** `ghcr.io/we-promise/sure:latest`
+- **Image:** `ghcr.io/we-promise/sure:stable`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `3001:3000`
 

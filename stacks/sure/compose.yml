@@ -43,7 +43,7 @@ x-rails-env: &rails_env
 
 services:
   web:
-    image: ghcr.io/we-promise/sure:latest
+    image: ghcr.io/we-promise/sure:stable
     restart: unless-stopped
     ports:
       - "3001:3000"
