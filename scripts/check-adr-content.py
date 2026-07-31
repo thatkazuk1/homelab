@@ -67,7 +67,7 @@ def adr_exceptions(data: dict) -> set:
     return set(exceptions.keys())
 
 
-def check_adr_0011_flat_layout() -> list:
+def check_adr_0009_flat_layout() -> list:
     """Every stack directory should contain compose files directly, no nesting."""
     warnings = []
     for stack_dir in sorted(Path("stacks").iterdir()):
@@ -105,7 +105,7 @@ def check_adr_0005_periphery_image() -> list:
     return warnings
 
 
-def check_adr_0010_sops_wrapper(headers: dict) -> list:
+def check_adr_0008_sops_wrapper(headers: dict) -> list:
     """Every stack with secrets.enc.env should use sops exec-env in its Komodo wrapper."""
     warnings = []
 
@@ -130,7 +130,7 @@ def check_adr_0010_sops_wrapper(headers: dict) -> list:
             if "__parse_error__" in data:
                 warnings.append(f"ADR-0008 check: {compose_file}: parse error: {data['__parse_error__']}")
                 continue
-            if 10 in adr_exceptions(data):
+            if 8 in adr_exceptions(data):
                 continue
 
             # Determine the Komodo Stack name this compose file corresponds to.
@@ -170,9 +170,9 @@ def main() -> None:
     headers = komodo_headers()
 
     all_warnings = []
-    all_warnings.extend(check_adr_0011_flat_layout())
+    all_warnings.extend(check_adr_0009_flat_layout())
     all_warnings.extend(check_adr_0005_periphery_image())
-    all_warnings.extend(check_adr_0010_sops_wrapper(headers))
+    all_warnings.extend(check_adr_0008_sops_wrapper(headers))
 
     if all_warnings:
         print("ADR content check found deviations (warn-only, not blocking):")
