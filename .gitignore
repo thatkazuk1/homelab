@@ -45,8 +45,7 @@ proxmox-node-baking/*.first-boot-hook.sh
 __pycache__/
 *.pyc
 
-.claude/*
-!.claude/settings.json
+.claude/
 /docs/
 CLAUDE.md
 credentials.json
