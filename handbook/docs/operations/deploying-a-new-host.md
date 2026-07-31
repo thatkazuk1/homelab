@@ -6,6 +6,12 @@ rollout, plus `docker-prod-01`, `core-01`, and `nas-01` individually). This page
 common path; `core-01` (Raspberry Pi) and `nas-01` (TerraMaster NAS) diverge at a few specific
 steps, called out inline.
 
+Steps 2 and 4 below are now driven by Ansible (`ansible/roles/docker` and
+`ansible/roles/periphery`, against the `docker_hosts` inventory group) rather than done by
+hand — see `ansible/README.md`. The manual sequence is still documented here because it's
+what the roles automate and what `core-01`/`nas-01` (outside the `docker_hosts` group) and
+any not-yet-adopted host still need by hand.
+
 ## 1. Provisioning
 
 Most of the fleet is a Proxmox CT or VM, cloned from a Debian 13 template. For an unprivileged
@@ -90,7 +96,12 @@ sufficient.
 
 ## What this doesn't cover yet
 
-This playbook is currently a manual, per-host sequence — there's no L1/L2 automation
-(OpenTofu/Ansible) driving it end-to-end. Each step above has been executed by hand at least
-once; none of it is scripted yet. Treat this page as the checklist, not as a promise that any
-part of it runs itself.
+Steps 2 (baseline config) and 4 (Periphery) are automated by Ansible for hosts in the
+`docker_hosts` inventory group — live-verified on 7 of 8 real hosts (see `ansible/README.md`
+for current status and exceptions). Steps 1, 3, 5, and 6 (provisioning, Beszel registration,
+Komodo Server registration, exposing services), and the whole sequence for hosts outside
+`docker_hosts` (`core-01`, `nas-01`), remain manual — there's no L1 automation (OpenTofu)
+provisioning the host itself yet, and no automation drives Beszel/Komodo registration.
+Bare-metal Proxmox node baking (`proxmox-node-baking/`, Sprint 4c) is a separate, earlier-stage
+effort — config-validated only, no node has booted from it yet. Treat this page as the
+checklist for what's still manual, not as a promise that all of it runs itself.
