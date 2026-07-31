@@ -26,7 +26,7 @@ This stack uses the [SOPS-encrypted secrets pattern](../decisions/0010-per-stack
 
 ## Related decisions
 
-- [ADR-0010](../decisions/0010-per-stack-sops-secrets.md)
+- ADR-0010 (not yet published in the handbook — see `docs/adrs/` on disk)
 
 ## Operational notes
 

@@ -1,4 +1,4 @@
-# ADR-0011: Flat stack layout — `stacks/<name>/`, not `stacks/<host>/<name>/`
+# ADR-0009: Flat stack layout — `stacks/<name>/`, not `stacks/<host>/<name>/`
 
 ## Status
 
@@ -36,7 +36,7 @@ history noise that would come with it.
 - No existing stacks needed retroactive restructuring — this formalized what was already in
   place.
 - Every subsequent stack adoption inherited this convention as one of its settled patterns,
-  alongside [ADR-0010](0010-per-stack-sops-secrets.md)'s secrets standard.
+  alongside [ADR-0008](0008-per-stack-sops-secrets.md)'s secrets standard.
 
 ## Alternatives considered
 

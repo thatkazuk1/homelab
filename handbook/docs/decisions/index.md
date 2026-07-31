@@ -24,9 +24,9 @@ to a stranger (or a future self) than one that only shows the final state.
 | [0003](0003-mkdocs-material.md) | MkDocs Material for the wiki, despite entering maintenance mode — aesthetic target confirmed, risk judged bounded and revisitable |
 | [0004](0004-ferretdb-over-mongodb.md) | FerretDB over MongoDB as Komodo's database backend — licensing (SSPL avoidance) and standardisation with existing Postgres use |
 | [0005](0005-sops-in-periphery.md) | Custom Komodo Periphery image with SOPS + age baked in — enables at-deploy-time secret decryption without a separate secrets store |
-| [0010](0010-per-stack-sops-secrets.md) | Per-stack SOPS-encrypted secrets, decrypted at deploy time — one `secrets.enc.env` per stack, uniform wrapper, no plaintext on disk |
-| [0011](0011-flat-stack-layout.md) | Flat stack layout (`stacks/<name>/`, not `stacks/<host>/<name>/`) — host binding lives in Komodo's own data model, not the git path |
-| [0015](0015-handbook-location.md) | Handbook source location and serving — source is public and tracked from day one; serving stays LAN-internal until a public-presentation decision is made |
+| [0010](0008-per-stack-sops-secrets.md) | Per-stack SOPS-encrypted secrets, decrypted at deploy time — one `secrets.enc.env` per stack, uniform wrapper, no plaintext on disk |
+| [0011](0009-flat-stack-layout.md) | Flat stack layout (`stacks/<name>/`, not `stacks/<host>/<name>/`) — host binding lives in Komodo's own data model, not the git path |
+| [0015](0013-handbook-location.md) | Handbook source location and serving — source is public and tracked from day one; serving stays LAN-internal until a public-presentation decision is made |
 
 ## Which ones are public
 

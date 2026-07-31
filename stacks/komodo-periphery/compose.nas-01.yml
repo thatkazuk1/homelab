@@ -2,7 +2,7 @@
 # Deployed and updated manually on nas-01 (TerraMaster TOS 7).
 # This file is documentation of the running config; not the deployment source of truth.
 # Own path convention (/Volume1/@apps/komodo) and age-key mount per ADR-0006's
-# TOS exception — pre-existing (ADR-0009), not re-verified against live state
+# TOS exception — pre-existing (ADR-0007), not re-verified against live state
 # since Sprint 3i (no TOS browser terminal session available that day).
 
 x-meta:

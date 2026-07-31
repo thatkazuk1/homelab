@@ -40,7 +40,7 @@ misrepresent most of the fleet:
   Core's public verification key)
 - `compose.core-01.yml` — same variant, already `komodo.skip`-labeled on the
   host itself
-- `compose.nas-01.yml` — pre-existing (ADR-0009), own path convention
+- `compose.nas-01.yml` — pre-existing (ADR-0007), own path convention
   (`/Volume1/@apps/komodo`) and age-key mount per ADR-0006's TOS exception;
   **not re-verified against live state in Sprint 3i** (no TOS browser terminal
   session available that day — re-verify next time nas-01 is touched)

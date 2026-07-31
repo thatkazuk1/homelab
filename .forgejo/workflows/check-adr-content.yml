@@ -26,7 +26,7 @@ jobs:
           apk add --no-cache python3 py3-pip
           pip install --break-system-packages pyyaml requests
 
-      - name: Check ADR content (ADR-0005, ADR-0010, ADR-0011)
+      - name: Check ADR content (ADR-0005, ADR-0008, ADR-0009)
         env:
           KOMODO_API_KEY: ${{ secrets.KOMODO_API_KEY }}
           KOMODO_API_SECRET: ${{ secrets.KOMODO_API_SECRET }}

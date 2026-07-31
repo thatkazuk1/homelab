@@ -3,7 +3,7 @@
 Applies when you need to change environment-variable values a stack consumes
 at deploy time — credential rotation, service migration (like a bucket
 rename), or fixing a mistake. This page covers stacks that use the
-[SOPS-encrypted `secrets.enc.env` pattern](../decisions/0010-per-stack-sops-secrets.md).
+[SOPS-encrypted `secrets.enc.env` pattern](../decisions/0008-per-stack-sops-secrets.md).
 
 ## How secrets travel from repo to running container
 

@@ -48,5 +48,5 @@ as the final check before pushing.
 
 No Komodo API key, no Forgejo access token — day-to-day work on this repo doesn't require
 either. Komodo Stack creation and Forgejo webhook registration are operator-performed UI
-actions (see [ADR-0013](../decisions/index.md)), not something a workstation's own tooling
+actions (see [ADR-0011](../decisions/index.md)), not something a workstation's own tooling
 needs credentials for.

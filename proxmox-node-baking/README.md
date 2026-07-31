@@ -27,7 +27,7 @@ can be provisioned end-to-end; that proof doesn't exist yet.
 - `secrets.enc.env` — SOPS-encrypted `PROXMOX_ROOT_PASSWORD`, the real
   value `render-answer.sh` injects at fill time. Same `community.sops`/
   `sops` CLI pattern as every other `secrets.enc.env` in this repo
-  (ADR-0010), even though this directory isn't a `stacks/` entry.
+  (ADR-0008), even though this directory isn't a `stacks/` entry.
 - `render-answer.sh` — fills the template (network/host values as CLI
   args, password from `secrets.enc.env`) and writes the result to
   `/tmp/answer.<hostname>.toml` (gitignored pattern, mode 600). Also

@@ -16,7 +16,7 @@ the two fight over ownership of the same files, or Coolify's auto-upgrade has to
 a real behavior change, not a free abstraction. So Coolify stays a deliberate operational
 island: excluded from Komodo, its own upgrade mechanism authoritative for itself, its tenants'
 secrets living in its own UI/database rather than this repo's SOPS pattern. See ADR-0002 (why
-Komodo exists) and ADR-0016 (Coolify's own operational standard) for the full reasoning.
+Komodo exists) and ADR-0014 (Coolify's own operational standard) for the full reasoning.
 
 The two systems aren't in tension day to day — they answer different questions. Komodo asks
 "does the fleet match git?" Coolify asks "is this tenant's app running the version I told it
@@ -35,7 +35,7 @@ Through Coolify's own UI, not a pull request against this repo:
    fleet Traefik on `proxy-prod-01` entirely.
 4. Deploy. Coolify builds the image, runs it, and wires up the Traefik labels itself.
 
-No fleet-side change is required to add a tenant — that's the property ADR-0016 is built
+No fleet-side change is required to add a tenant — that's the property ADR-0014 is built
 around. The only thing that ever touches fleet Traefik is the Coolify **admin** URL itself
 (`coolify.ts.kazuki.uk`), which routes through `proxy-prod-01` the same way `komodo.ts.kazuki.uk`
 and `forgejo.ts.kazuki.uk` do.
@@ -64,7 +64,7 @@ version, worth checking for explicitly rather than assuming they're fixed:
 This handbook is a live example of the pattern above: deployed from the fleet monorepo's
 GitHub mirror, `Base Directory` set to `/handbook` so Coolify builds only that subdirectory
 against the existing `handbook/Dockerfile`, served at `http://handbook.lan/` — plain HTTP, no
-port, no TLS. It replaced an earlier Komodo-Stack-plus-port-exposure setup (see ADR-0015) once
+port, no TLS. It replaced an earlier Komodo-Stack-plus-port-exposure setup (see ADR-0013) once
 Coolify's LAN-only serving was confirmed to work cleanly.
 
 One caveat carried over from the old pipeline: Coolify has no auto-deploy webhook configured

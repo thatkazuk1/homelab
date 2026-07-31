@@ -5,7 +5,7 @@
 # real fleet secret pulled via community.sops.
 #
 # Real fleet hosts (4b) get a real token generated in the Dockhand UI
-# (operator action, per ADR-0013) and stored in
+# (operator action, per ADR-0011) and stored in
 # stacks/hawser/secrets.enc.env as HAWSER_TOKEN_<HOST>, looked up like:
 #
 #   hawser_token: "{{ lookup('community.sops.sops',

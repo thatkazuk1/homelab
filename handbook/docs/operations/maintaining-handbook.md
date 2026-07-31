@@ -107,7 +107,7 @@ A stack directory is one of two shapes:
 - **Single-file:** `stacks/<name>/compose.yml`. One host, one page.
 - **Multi-file:** `stacks/<name>/compose.<host>.yml`, one or more, no `compose.yml`. Used
   where the same logical stack has real per-host divergence (`komodo-periphery`, `hawser`) —
-  see ADR-0011 and Sprint 3i's periphery audit. Still one page per stack, not per host: the
+  see ADR-0009 and Sprint 3i's periphery audit. Still one page per stack, not per host: the
   page carries a "Deployed on" section listing every host with a link to its own compose
   file, and the "Services" reference content is sourced from the alphabetically-first file
   (per-host drift in fields the template doesn't render, like environment variables, is
@@ -244,7 +244,7 @@ safety net.
 ### Credentials
 
 `scripts/secrets.enc.env` holds `KOMODO_API_KEY` / `KOMODO_API_SECRET` — a purpose-scoped Komodo
-API key, SOPS-encrypted with the same age key as every other stack's `secrets.enc.env` (ADR-0010
+API key, SOPS-encrypted with the same age key as every other stack's `secrets.enc.env` (ADR-0008
 pattern). Committing the encrypted file is safe; no plaintext copy exists anywhere in the repo.
 
 ### Coverage gap
@@ -258,7 +258,7 @@ picture; `fleet.md` is "hosts Komodo actively manages," not "every host."
 
 ## ADR consistency checks
 
-Sprint 3x added two automated checks that keep `docs/adrs/` (private, disk-only per ADR-0012)
+Sprint 3x added two automated checks that keep `docs/adrs/` (private, disk-only per ADR-0010)
 honest against the rest of the repo — the third piece of Goal 1's "living documentation"
 property, alongside the stack catalog and fleet inventory above.
 
@@ -271,7 +271,7 @@ property, alongside the stack catalog and fleet inventory above.
 
 This runs in the pre-commit hook (`scripts/hooks/pre-commit`, installed via
 `scripts/install-hooks.sh`) and blocks the commit if it fails. **It does not run in CI.**
-`docs/adrs/` is `.gitignore`d per ADR-0012 — it has never been committed or pushed — so a CI
+`docs/adrs/` is `.gitignore`d per ADR-0010 — it has never been committed or pushed — so a CI
 checkout has no ADR files to validate against at all; running this check there would fail every
 single push touching `stacks/` with zero real ADR files to compare against. The pre-commit hook,
 running against the real local disk where `docs/adrs/` actually exists, is the only place this
@@ -287,10 +287,10 @@ check forever.
 
 `scripts/check-adr-content.py` checks that specific ADR claims still match live/repo state:
 
-- **ADR-0011** (flat stack layout) — pure git-tree check, no external dependency.
+- **ADR-0009** (flat stack layout) — pure git-tree check, no external dependency.
 - **ADR-0005** (custom Periphery image) — checks every `stacks/komodo-periphery/compose.*.yml`
   uses the `komodo-periphery-sops` image.
-- **ADR-0010** (per-stack SOPS wrapper) — for every stack directory with a `secrets.enc.env`,
+- **ADR-0008** (per-stack SOPS wrapper) — for every stack directory with a `secrets.enc.env`,
   fetches the matching Komodo Stack via the API (`GetStack`, same auth pattern as the fleet
   inventory generator) and checks its `compose_cmd_wrapper` includes `sops exec-env`. Handles
   known stack-name drift (`sure` → `sure-finance`, `homeassistant` → `home-assistant`) and
@@ -304,7 +304,7 @@ Run locally: `sops exec-env scripts/secrets.enc.env "python3 scripts/check-adr-c
 
 ### Adding a legitimate deviation
 
-If a stack genuinely needs to deviate from ADR-0005, ADR-0010, or ADR-0011, add an
+If a stack genuinely needs to deviate from ADR-0005, ADR-0008, or ADR-0009, add an
 `x-meta.adr_exceptions` block to its compose file with the ADR number and a real reason:
 
 ```yaml

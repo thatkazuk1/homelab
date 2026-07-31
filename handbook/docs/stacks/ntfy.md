@@ -35,7 +35,7 @@ No SOPS-encrypted secrets file. Configuration lives in the compose file directly
   configured, per the live compose file.
 - Adopted in Sprint 3c.1 — the first stack adoption executed by a Claude Code session rather
   than the earlier paste-relay model, and the one that established the operator-drives-UI /
-  executor-drives-shell division of labor later formalized as ADR-0013.
+  executor-drives-shell division of labor later formalized as ADR-0011.
 - `PUID`/`PGID` are carried in the compose file but are inert — the `binwiederhier/ntfy` image
   doesn't do linuxserver-style UID/GID remapping, and nothing in the container actually reads
   them. Preserved anyway, for exact config parity with the pre-adoption state.

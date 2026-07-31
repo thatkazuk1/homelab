@@ -113,4 +113,4 @@ A few things are deliberately outside this picture, by choice rather than oversi
   **Architecture → Coolify**.
 - **This handbook is served by Coolify, not Komodo.** `handbook.lan` resolves to
   `coolify-prod-01`, plain HTTP, no port, no Traefik in front of it (Coolify runs its own).
-  See **Architecture → Coolify** and ADR-0015 for why.
+  See **Architecture → Coolify** and ADR-0013 for why.

@@ -36,12 +36,12 @@ excluded via `ignorePaths` — `stacks/komodo/`, `stacks/komodo-periphery/`, `st
 `stacks/forgejo-runner/` — since these are the fleet's own control-plane services, not
 application workloads, and their update cadence gets deliberate human judgment rather than
 automated PRs. Coolify tenants are out of scope by design (see **Architecture → Coolify** and
-ADR-0016) — Coolify manages its own tenant updates.
+ADR-0014) — Coolify manages its own tenant updates.
 
 ## No-auto-merge posture
 
 Every Renovate PR is operator-reviewed and manually merged, same as any other PR against this
-repo (ADR-0013: the operator drives UI actions, including merges). There's no automerge rule
+repo (ADR-0011: the operator drives UI actions, including merges). There's no automerge rule
 configured, deliberately — image bumps can carry breaking changes even at minor/patch
 versions, and this fleet doesn't yet have the automated test coverage that would make
 unattended merges safe.

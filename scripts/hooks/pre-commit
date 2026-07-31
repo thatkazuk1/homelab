@@ -13,7 +13,7 @@ if [ -n "$CHANGED_STACKS" ]; then
 fi
 
 # Dimension A: ADR reference validity (hard-fail). Runs against the local working
-# tree, not the git-staged/tracked tree — docs/adrs/ is disk-only (ADR-0012) and
+# tree, not the git-staged/tracked tree — docs/adrs/ is disk-only (ADR-0010) and
 # never committed, so this check only works here, not in CI. See
 # docs/adr-audit-2026-07-21.md for why CI enforcement of this dimension was dropped.
 if ! python3 scripts/check-adr-references.py; then

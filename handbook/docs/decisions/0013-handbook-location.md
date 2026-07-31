@@ -1,4 +1,4 @@
-# ADR-0015: Handbook source location and internal-only serving
+# ADR-0013: Handbook source location and internal-only serving
 
 ## Status
 

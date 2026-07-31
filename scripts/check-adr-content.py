@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Warn-only checks that specific ADR content still matches live/repo state.
 
-Covers ADR-0011 (flat stack layout, pure git-tree check), ADR-0010 (SOPS wrapper
+Covers ADR-0009 (flat stack layout, pure git-tree check), ADR-0008 (SOPS wrapper
 for stacks with secrets, requires Komodo API), and ADR-0005 (custom Periphery
 image, git-tree check against per-host compose files). Always exits 0 — findings
 are printed for the operator to review, never block a build.
@@ -76,7 +76,7 @@ def check_adr_0011_flat_layout() -> list:
         for nested in stack_dir.rglob("compose*.yml"):
             if nested.parent != stack_dir:
                 warnings.append(
-                    f"ADR-0011 deviation: {nested} — nested compose file "
+                    f"ADR-0009 deviation: {nested} — nested compose file "
                     f"(expected all composes directly in stacks/<name>/)"
                 )
     return warnings
@@ -112,7 +112,7 @@ def check_adr_0010_sops_wrapper(headers: dict) -> list:
     try:
         all_stacks = komodo_read("ListStacks", {}, headers)
     except requests.RequestException as e:
-        return [f"ADR-0010 check: could not reach Komodo API (ListStacks): {e}"]
+        return [f"ADR-0008 check: could not reach Komodo API (ListStacks): {e}"]
     known_names = {s["name"] for s in all_stacks}
 
     for stack_dir in sorted(Path("stacks").iterdir()):
@@ -128,7 +128,7 @@ def check_adr_0010_sops_wrapper(headers: dict) -> list:
         for compose_file in compose_files:
             data = load_compose(compose_file)
             if "__parse_error__" in data:
-                warnings.append(f"ADR-0010 check: {compose_file}: parse error: {data['__parse_error__']}")
+                warnings.append(f"ADR-0008 check: {compose_file}: parse error: {data['__parse_error__']}")
                 continue
             if 10 in adr_exceptions(data):
                 continue
@@ -144,7 +144,7 @@ def check_adr_0010_sops_wrapper(headers: dict) -> list:
 
             if komodo_name not in known_names:
                 warnings.append(
-                    f"ADR-0010 check: {compose_file} has secrets.enc.env but no matching "
+                    f"ADR-0008 check: {compose_file} has secrets.enc.env but no matching "
                     f"Komodo Stack found (tried '{komodo_name}') — name-drift mapping may be "
                     f"missing, or the stack isn't registered in Komodo"
                 )
@@ -153,13 +153,13 @@ def check_adr_0010_sops_wrapper(headers: dict) -> list:
             try:
                 stack = komodo_read("GetStack", {"stack": komodo_name}, headers)
             except requests.RequestException as e:
-                warnings.append(f"ADR-0010 check: could not fetch Komodo Stack '{komodo_name}': {e}")
+                warnings.append(f"ADR-0008 check: could not fetch Komodo Stack '{komodo_name}': {e}")
                 continue
 
             wrapper = (stack.get("config", {}) or {}).get("compose_cmd_wrapper", "") or ""
             if "sops exec-env" not in wrapper:
                 warnings.append(
-                    f"ADR-0010 deviation: stack '{stack_dir.name}' ({compose_file.name}) has "
+                    f"ADR-0008 deviation: stack '{stack_dir.name}' ({compose_file.name}) has "
                     f"secrets.enc.env but Komodo Stack '{komodo_name}' wrapper doesn't include "
                     f"'sops exec-env': got {wrapper!r}"
                 )
@@ -179,7 +179,7 @@ def main() -> None:
         for warning in all_warnings:
             print(f"  {warning}")
     else:
-        print("ADR content check passed — no deviations found (ADR-0005, ADR-0010, ADR-0011).")
+        print("ADR content check passed — no deviations found (ADR-0005, ADR-0008, ADR-0009).")
 
     sys.exit(0)
 

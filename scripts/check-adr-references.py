@@ -10,16 +10,10 @@ import yaml
 ADR_DIR = Path("docs/adrs")
 
 # Known, accepted, permanent exceptions: (file, referenced-but-missing ADR number).
-# docs/adrs/0006-periphery-ip-anomaly.md's own H1 heading reads "ADR-0008" (a pre-existing
-# labeling typo — the file was never renamed, per Sprint 3m and the operator's Sprint 3x
-# decision to document rather than renumber). docs/adrs/README.md's "Known numbering gap"
-# section explains that same typo by quoting it. Neither is real drift; both will always
-# trip the inline-mention pattern otherwise. See docs/adr-audit-2026-07-21.md.
-KNOWN_EXCEPTIONS = {
-    (str(Path("docs/adrs/0006-periphery-ip-anomaly.md")), 8),
-    (str(Path("docs/adrs/README.md")), 8),
-    (str(Path("docs/adrs/0018-ansible-komodo-ownership-boundary.md")), 8),
-}
+# Empty after the 2026-07-31 gapless renumbering pass closed the 0006/0008 heading
+# mismatch and the 0007/0008 numbering gap. If a future mismatch needs an exception here,
+# that's a real signal something drifted — fix the drift, don't paper over it by default.
+KNOWN_EXCEPTIONS = set()
 
 
 def load_existing_adrs() -> set:
@@ -30,6 +24,31 @@ def load_existing_adrs() -> set:
         if match:
             adrs.add(int(match.group(1)))
     return adrs
+
+
+def check_filename_matches_heading() -> list:
+    """Fail if any docs/adrs/NNNN-*.md file's H1 heading number != its filename number."""
+    failures = []
+    heading_pattern = re.compile(r"^#\s*ADR-(\d{4})\b")
+    for adr_file in sorted(ADR_DIR.glob("*.md")):
+        match = re.match(r"^(\d{4})-", adr_file.name)
+        if not match:
+            continue
+        filename_num = int(match.group(1))
+        heading_num = None
+        for line in adr_file.read_text().splitlines():
+            heading_match = heading_pattern.match(line)
+            if heading_match:
+                heading_num = int(heading_match.group(1))
+                break
+        if heading_num is None:
+            failures.append(f"{adr_file}: no '# ADR-NNNN' H1 heading found")
+        elif heading_num != filename_num:
+            failures.append(
+                f"{adr_file}: filename number {filename_num:04d} != "
+                f"heading number {heading_num:04d}"
+            )
+    return failures
 
 
 def check_compose_files(existing_adrs: set) -> list:
@@ -89,6 +108,7 @@ def main() -> None:
     existing_adrs = load_existing_adrs()
 
     all_failures = []
+    all_failures.extend(check_filename_matches_heading())
     all_failures.extend(check_compose_files(existing_adrs))
 
     md_paths = list(Path("handbook/docs").rglob("*.md"))

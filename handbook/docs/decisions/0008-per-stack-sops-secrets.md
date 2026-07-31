@@ -1,4 +1,4 @@
-# ADR-0010: Per-stack SOPS-encrypted secrets, decrypted at deploy time
+# ADR-0008: Per-stack SOPS-encrypted secrets, decrypted at deploy time
 
 ## Status
 

@@ -19,7 +19,7 @@ MKDOCS_PATH = Path("handbook/mkdocs.yml")
 # generator's model can represent — excluded deliberately (Sprint 3o), not an
 # oversight:
 #   - coolify: three separately-named compose files (proxy/source/source.prod),
-#     deliberately outside Komodo/git reconciliation (ADR-0016); already
+#     deliberately outside Komodo/git reconciliation (ADR-0014); already
 #     documented at handbook/docs/architecture/coolify.md.
 EXCLUDED_STACKS = {"coolify"}
 

@@ -52,7 +52,7 @@
       proxmox_node_beszel_install is true but beszel_key/beszel_token
       are empty. These are per-node credentials issued by the Beszel
       hub UI when adding a new system (operator/UI action per
-      ADR-0013) — supply via host_vars (sops-encrypted), not a
+      ADR-0011) — supply via host_vars (sops-encrypted), not a
       fleet-shared default.
   when:
     - proxmox_node_beszel_install

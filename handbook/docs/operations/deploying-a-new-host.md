@@ -69,7 +69,7 @@ reporting have drifted apart before on this fleet, so don't assume one implies t
 
 ## 5. Register the server in Komodo Core
 
-Operator-performed UI step, per [ADR-0013](../decisions/index.md) — the executor supplies the
+Operator-performed UI step, per [ADR-0011](../decisions/index.md) — the executor supplies the
 exact values (host name, registration address), the operator clicks it into Komodo, the
 executor verifies the result over SSH afterward.
 

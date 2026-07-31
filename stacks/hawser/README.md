@@ -42,7 +42,7 @@ Periphery is upgraded to the `-sops` variant for unrelated reasons.
 ## Secrets
 
 `secrets.enc.env` holds one `HAWSER_TOKEN_<HOST>` per host, SOPS-encrypted
-per ADR-0010. Each per-host compose file references only its own token var.
+per ADR-0008. Each per-host compose file references only its own token var.
 Komodo Stack's `compose_cmd_wrapper` is `sops exec-env secrets.enc.env`.
 
 ## Project name

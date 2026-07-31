@@ -1,8 +1,8 @@
 # Coolify (`coolify-prod-01`) — documented, not Komodo-managed
 
 Sprint 3j (2026-07-11) tore down the prior Coolify install and rebuilt it greenfield, formalizing
-its operational standard as ADR-0016. Coolify remains deliberately outside Komodo/git management
-— see ADR-0016 and ADR-0002's amendment for the full reasoning.
+its operational standard as ADR-0014. Coolify remains deliberately outside Komodo/git management
+— see ADR-0014 and ADR-0002's amendment for the full reasoning.
 
 ## Current state
 
@@ -24,11 +24,11 @@ its operational standard as ADR-0016. Coolify remains deliberately outside Komod
     Source-of-truth stays in the fleet monorepo (a deliberate exception to "tenant
     source-of-truth lives in the tenant's own repository" — handbook was already a
     fleet-monorepo-tracked directory before Coolify existed as a serving option; see
-    ADR-0015). No auto-deploy webhook configured — pushes to `handbook/` need a manual Deploy
+    ADR-0013). No auto-deploy webhook configured — pushes to `handbook/` need a manual Deploy
     in Coolify's UI, same operational shape as the retired pipeline's manual-redeploy caveat.
 - Admin UI: `https://coolify.ts.kazuki.uk`, routed through fleet Traefik (`proxy-prod-01`) and
   scoped to tailnet-reachable clients via DNS, matching the `komodo`/`forgejo` pattern
-  (Sprint 3k — see ADR-0016's Sprint 3k amendment). Direct LAN access at `coolify-prod-01`'s
+  (Sprint 3k — see ADR-0014's Sprint 3k amendment). Direct LAN access at `coolify-prod-01`'s
   IP, port 8000 still works as a fallback. Not publicly reachable either way (no live
   Cloudflare Tunnel route or fleet Traefik route from the public internet).
 
@@ -39,7 +39,7 @@ Coolify self-upgrades independently of git — its own mechanism rewrites `docke
 Putting this under Komodo/git reconciliation the same way as a static stack (`plane`, `sure`,
 etc.) means either the two fight over ownership of these files, or Coolify's own auto-upgrade has
 to be disabled — a real behavior change to how the operator upgrades Coolify, not a decision to
-make implicitly. ADR-0016 formalizes: leave Coolify's own upgrade mechanism untouched, no Komodo
+make implicitly. ADR-0014 formalizes: leave Coolify's own upgrade mechanism untouched, no Komodo
 Stack, ever.
 
 ## Public tenant routing
@@ -48,7 +48,7 @@ Coolify's own Traefik handles TLS and routing for public tenants directly — fl
 `proxy-prod-01` Traefik does **not** front Coolify tenants (a real change from the prior install,
 which had `coolify.kazuki.uk` and `stackdoc.kazuki.uk` both live-routed through `proxy-prod-01`).
 The shared Cloudflare Tunnel's ingress rule for each public Coolify tenant hostname points
-directly at `coolify-prod-01`, bypassing fleet Traefik entirely. See ADR-0016 for the full
+directly at `coolify-prod-01`, bypassing fleet Traefik entirely. See ADR-0014 for the full
 reasoning, including two Coolify-specific quirks worth knowing before adding another tenant
 (domain field needs an explicit scheme; DNS must resolve to Coolify *before* it will generate any
 route at all, not just before TLS will validate).
@@ -83,7 +83,7 @@ route; (2) `coolify-prod-01`'s Docker daemon DNS resolver (`/etc/docker/daemon.j
 include AdGuard (`192.168.50.3`) so containers can resolve `.lan` names — it shipped pointed at
 a stale non-resolving IP plus `1.1.1.1`, fixed Sprint 3k; (3) the "Ports Exposes" field needs
 manual verification — it did not reliably auto-detect the port from the Dockerfile's `EXPOSE`
-line. See ADR-0016's Sprint 3k amendment for full detail.
+line. See ADR-0014's Sprint 3k amendment for full detail.
 
 ## Future work
 
