@@ -9,7 +9,7 @@ x-meta:
     tool, deployed as the vendor's own 12-service bundle.
   status: adopted
   adrs:
-    - 10
+    - 8
   public_url: plane.kazuki.uk
 
 x-db-env: &db-env

@@ -7,7 +7,7 @@ x-meta:
     the fleet's Beszel hub.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 name: beszel
 

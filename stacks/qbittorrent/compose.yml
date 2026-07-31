@@ -7,7 +7,7 @@ x-meta:
     (network_mode: service:gluetun) for IP isolation.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 name: qbittorrent
 

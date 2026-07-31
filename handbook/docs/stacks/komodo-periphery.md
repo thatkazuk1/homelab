@@ -33,7 +33,7 @@ This stack runs a per-host instance on the following hosts:
 
 ## Secrets
 
-This stack uses the [SOPS-encrypted secrets pattern](../decisions/0010-per-stack-sops-secrets.md). Encrypted values live in `stacks/komodo-periphery/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
+This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack-sops-secrets.md). Encrypted values live in `stacks/komodo-periphery/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
 
 ## Related decisions
 

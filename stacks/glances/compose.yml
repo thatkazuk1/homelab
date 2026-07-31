@@ -6,7 +6,7 @@ x-meta:
     System resource monitor for nas-01, exposing a web dashboard.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 name: glances
 

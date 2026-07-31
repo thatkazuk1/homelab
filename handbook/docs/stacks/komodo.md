@@ -43,7 +43,7 @@ Komodo Core, the GitOps reconciliation engine for the fleet's Docker stacks, plu
 
 ## Secrets
 
-This stack uses the [SOPS-encrypted secrets pattern](../decisions/0010-per-stack-sops-secrets.md). Encrypted values live in `stacks/komodo/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
+This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack-sops-secrets.md). Encrypted values live in `stacks/komodo/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
 
 ## Related decisions
 

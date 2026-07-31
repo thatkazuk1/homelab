@@ -8,8 +8,8 @@ x-meta:
     agents in Standard mode.
   status: adopted
   adrs:
+    - 12
     - 14
-    - 16
   public_url: dockhand.ts.kazuki.uk
 
 services:

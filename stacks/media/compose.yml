@@ -7,7 +7,7 @@ x-meta:
     Seerr, Aurral, FlareSolverr, Prowlarr, Radarr, Sonarr, Bazarr, Lidarr.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 name: media
 

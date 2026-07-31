@@ -7,7 +7,7 @@ x-meta:
     (Postgres-backed), running as one compose project on nas-01.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 name: jellyfin
 

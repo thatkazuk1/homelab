@@ -26,7 +26,7 @@ No SOPS-encrypted secrets file. Configuration lives in the compose file directly
 
 ## Related decisions
 
-- ADR-0010 (not yet published in the handbook — see `docs/adrs/` on disk)
+- [ADR-0008](../decisions/0008-per-stack-sops-secrets.md)
 
 ## Operational notes
 

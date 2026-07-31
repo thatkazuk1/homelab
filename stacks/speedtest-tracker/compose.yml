@@ -7,7 +7,7 @@ x-meta:
     optional public dashboard view.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 services:
   speedtest-tracker:

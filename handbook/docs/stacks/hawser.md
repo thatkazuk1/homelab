@@ -34,12 +34,12 @@ This stack runs a per-host instance on the following hosts:
 
 ## Secrets
 
-This stack uses the [SOPS-encrypted secrets pattern](../decisions/0010-per-stack-sops-secrets.md). Encrypted values live in `stacks/hawser/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
+This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack-sops-secrets.md). Encrypted values live in `stacks/hawser/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
 
 ## Related decisions
 
-- ADR-0010 (not yet published in the handbook — see `docs/adrs/` on disk)
-- ADR-0014 (not yet published in the handbook — see `docs/adrs/` on disk)
+- [ADR-0008](../decisions/0008-per-stack-sops-secrets.md)
+- ADR-0012 (not yet published in the handbook — see `docs/adrs/` on disk)
 
 ## Operational notes
 

@@ -6,7 +6,7 @@ x-meta:
     Soulseek client with a web UI and remote-configurable API.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 name: slskd
 

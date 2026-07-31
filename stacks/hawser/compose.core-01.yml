@@ -7,8 +7,8 @@ x-meta:
     on port 2376, authenticated via TOKEN env var.
   status: adopted
   adrs:
-    - 10
-    - 14
+    - 8
+    - 12
 
 services:
   hawser:

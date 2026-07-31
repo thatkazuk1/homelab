@@ -7,7 +7,7 @@ x-meta:
     route, reaching internal services without opening an inbound port.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 services:
   cloudflared-tunnel:

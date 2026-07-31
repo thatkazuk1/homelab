@@ -7,7 +7,7 @@ x-meta:
     actual password data.
   status: adopted
   adrs:
-    - 10
+    - 8
 
 services:
   vaultwarden:

@@ -7,8 +7,8 @@ x-meta:
     on port 2376, authenticated via TOKEN env var.
   status: adopted
   adrs:
-    - 10
-    - 14
+    - 8
+    - 12
   adr_exceptions:
     10: "komodo-prod-01 has no registered Komodo Stack for Hawser — same bootstrap-circularity gap as stacks/komodo/compose.yml, tracked in CLAUDE.md's Docker-management coverage gap note."
 

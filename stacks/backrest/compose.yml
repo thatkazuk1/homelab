@@ -9,7 +9,7 @@ x-meta:
     decision — see the sprint status report.
   status: adopted
   adrs:
-    - 10
+    - 8
   public_url: backrest.ts.kazuki.uk
 
 services:
