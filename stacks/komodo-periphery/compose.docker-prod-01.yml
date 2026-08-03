@@ -36,12 +36,12 @@ services:
     env_file:
       - .env
     environment:
-      PERIPHERY_ROOT_DIRECTORY: ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
+      PERIPHERY_ROOT_DIRECTORY: /etc/komodo
       PERIPHERY_DISABLE_TERMINALS: false
       PERIPHERY_DISABLE_CONTAINER_EXEC: false
       SOPS_AGE_KEY_FILE: /config/age-keys.txt
     volumes:
-      - ${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}:${PERIPHERY_ROOT_DIRECTORY:-/etc/komodo}
+      - /etc/komodo:/etc/komodo
       - /proc:/proc
       - /var/run/docker.sock:/var/run/docker.sock
       - ./keys:/config/keys
