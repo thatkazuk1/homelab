@@ -1,0 +1,582 @@
+[[server]]
+name = "coolify-prod-01"
+[server.config]
+address = "https://192.168.50.30:8120"
+enabled = true
+
+##
+
+[[server]]
+name = "core-01"
+[server.config]
+address = "https://192.168.50.3:8120"
+enabled = true
+
+##
+
+[[server]]
+name = "docker-prod-01"
+[server.config]
+address = "https://192.168.50.105:8120"
+enabled = true
+
+##
+
+[[server]]
+name = "garage-prod-01"
+[server.config]
+address = "https://192.168.50.80:8120"
+enabled = true
+
+##
+
+[[server]]
+name = "nas-01"
+[server.config]
+address = "https://192.168.50.163:8120"
+enabled = true
+
+##
+
+[[server]]
+name = "plane-prod-01"
+[server.config]
+address = "https://192.168.50.50:8120"
+enabled = true
+
+##
+
+[[server]]
+name = "proxy-prod-01"
+[server.config]
+address = "https://192.168.50.107:8120"
+enabled = true
+
+##
+
+[[server]]
+name = "telemetry-prod-01"
+[server.config]
+address = "https://192.168.50.106:8120"
+enabled = true
+
+##
+
+[[stack]]
+name = "backrest"
+tags = ["docker-prod-01"]
+[stack.config]
+server = "docker-prod-01"
+project_name = "backrest"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/backrest"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "beszel"
+tags = ["docker-prod-01"]
+[stack.config]
+server = "docker-prod-01"
+project_name = "beszel"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/beszel"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "beszel-agent"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "beszel"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/beszel-agent"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "cloudflared"
+tags = ["docker-prod-01"]
+[stack.config]
+server = "docker-prod-01"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/cloudflared"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "dockhand"
+tags = ["docker-prod-01"]
+[stack.config]
+server = "docker-prod-01"
+project_name = "dockhand"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/dockhand"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
+name = "garage"
+tags = ["garage-prod-01"]
+[stack.config]
+server = "garage-prod-01"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/garage"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
+name = "glances"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = " glances"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/glances"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
+name = "hawser-coolify-prod-01"
+tags = ["coolify-prod-01"]
+[stack.config]
+server = "coolify-prod-01"
+project_name = "hawser"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/hawser"
+file_paths = ["compose.coolify-prod-01.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "hawser-core-01"
+tags = ["core-01"]
+[stack.config]
+server = "core-01"
+project_name = "hawser"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/hawser"
+file_paths = ["compose.core-01.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+
+##
+
+[[stack]]
+name = "hawser-garage-prod-01"
+tags = ["garage-prod-01"]
+[stack.config]
+server = "garage-prod-01"
+project_name = "hawser"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/hawser"
+file_paths = ["compose.garage-prod-01.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "hawser-nas-01"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "hawser"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/hawser"
+file_paths = ["compose.nas-01.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "hawser-plane-prod-01"
+tags = ["plane-prod-01"]
+[stack.config]
+server = "plane-prod-01"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/hawser"
+file_paths = ["compose.plane-prod-01.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "hawser-proxy-prod-01"
+tags = ["proxy-prod-01"]
+[stack.config]
+server = "proxy-prod-01"
+project_name = "hawser"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/hawser"
+file_paths = ["compose.proxy-prod-01.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "hawser-telemetry-prod-01"
+tags = ["telemetry-prod-01"]
+[stack.config]
+server = "telemetry-prod-01"
+project_name = "hawser"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/hawser"
+file_paths = [
+  "compose.telemetry-prod-01.yml"
+]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "home-assistant"
+tags = ["core-01"]
+[stack.config]
+server = "core-01"
+project_name = "homeassistant"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/homeassistant"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
+name = "homepage"
+tags = ["docker-prod-01"]
+[stack.config]
+server = "docker-prod-01"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/homepage"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+environment = """
+PUID=1000
+PGID=1000
+TZ=Africa/Lagos
+HOMEPAGE_VAR_ALLOWED_HOSTS=home.ts.kazuki.uk
+"""
+
+##
+
+[[stack]]
+name = "influxdb3"
+tags = ["telemetry-prod-01"]
+[stack.config]
+server = "telemetry-prod-01"
+project_name = "influxdb3"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/influxdb3"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
+name = "jellyfin"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "jellyfin"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/jellyfin"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "media"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "media"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/media"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+
+##
+
+[[stack]]
+name = "ntfy"
+tags = ["core-01"]
+[stack.config]
+server = "core-01"
+project_name = "ntfy"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/ntfy"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
+name = "plane"
+tags = ["plane-prod-01"]
+[stack.config]
+server = "plane-prod-01"
+project_name = "plane-app"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/plane"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+
+##
+
+[[stack]]
+name = "qbittorrent"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "qbittorrent"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/qbittorrent"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "slskd"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "slskd"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/slskd"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "speedtest-tracker"
+tags = ["telemetry-prod-01"]
+[stack.config]
+server = "telemetry-prod-01"
+project_name = "speedtest-tracker"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/speedtest-tracker"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "sure-finance"
+tags = ["docker-prod-01"]
+[stack.config]
+server = "docker-prod-01"
+project_name = "sure"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/sure"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "uptime-kuma"
+tags = ["core-01"]
+[stack.config]
+server = "core-01"
+project_name = "uptime-kuma"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/uptime-kuma"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
+name = "vaultwarden"
+tags = ["docker-prod-01"]
+[stack.config]
+server = "docker-prod-01"
+project_name = "vaultwarden"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/vaultwarden"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[repo]]
+name = "kazuki/homelab"
+[repo.config]
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+
+##
+
+[[procedure]]
+name = "Backup Core Database"
+description = "Triggers the Core database backup at the scheduled time."
+tags = ["system"]
+config.schedule = "Every day at 01:00"
+
+[[procedure.config.stage]]
+name = "Stage 1"
+enabled = true
+executions = [
+  { execution.type = "BackupCoreDatabase", execution.params = {}, enabled = true }
+]
+
+##
+
+[[procedure]]
+name = "Global Auto Update"
+description = "Pulls and auto updates Stacks and Deployments using 'poll_for_updates' or 'auto_update'."
+tags = ["system"]
+config.schedule = "Every day at 03:00"
+
+[[procedure.config.stage]]
+name = "Stage 1"
+enabled = true
+executions = [
+  { execution.type = "GlobalAutoUpdate", execution.params.skip_auto_update = false, enabled = true }
+]
+
+##
+
+[[procedure]]
+name = "Rotate Server Keys"
+description = "Rotates all currently connected Server keys."
+tags = ["system"]
+config.schedule = "Every day at 06:00"
+
+[[procedure.config.stage]]
+name = "Stage 1"
+enabled = true
+executions = [
+  { execution.type = "RotateAllServerKeys", execution.params = {}, enabled = true }
+]
+
+##
+
+[[procedure]]
+name = "deploy-all-changed"
+description = "Batch redeploys stacks whose compose changed. Triggered by Forgejo webhook on push to master."
+
+[[procedure.config.stage]]
+name = "Stage 1"
+enabled = true
+executions = [
+  { execution.type = "BatchDeployStackIfChanged", execution.params.pattern = "*", enabled = true }
+]
