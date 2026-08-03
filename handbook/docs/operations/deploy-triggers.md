@@ -50,10 +50,17 @@ else.
 
 - **`plane`'s `deploy.replicas: ${VAR:-default}` compose syntax** trips Komodo's internal
   config parser on every deploy attempt (`failed to extract stack services... invalid digit
-  found in string`), logged as a WARN. This is cosmetic — the deploy proceeds and completes
-  correctly despite the WARN, confirmed both via the old per-Stack webhook and the new
-  Procedure path (Sprint 3p, re-confirmed Sprint 3s). Not fixed; would require touching
-  `plane`'s replica-count secrets, judgment work rather than a quick change.
+  found in string`), logged as a WARN. **This is not confirmed cosmetic.** It was believed
+  cosmetic (Sprint 3p, re-confirmed Sprint 3s) because the deploy always proceeded and
+  completed. The Plane diagnostic (2026-08-03) observed the WARN coincide with a secret
+  change **failing to materialize on the host** on one deploy, and materializing fine on
+  another — inconsistent, and not yet root-caused. Until that materialization behavior is
+  understood, **verify materialization** (sha256/mtime of the deployed file vs. the
+  committed one, on the host) after any deploy that changes a secret — do not assume a push
+  succeeded just because it completed without error. The root cause is a separate,
+  not-yet-scheduled investigation into Komodo's sync/parser internals; this WARN is flagged
+  here as a candidate contributor, not a solved question. Not fixed; would also require
+  touching `plane`'s replica-count secrets, judgment work rather than a quick change.
 - **Upstream issue [#1209](https://github.com/moghtech/komodo/issues/1209)** describes env
   vars configured in Komodo's own UI "Environment" field cross-contaminating between Stacks
   during batch/procedure deploys. This fleet doesn't use that mechanism — secrets are injected
