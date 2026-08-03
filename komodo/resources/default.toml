@@ -575,8 +575,26 @@ name = "deploy-all-changed"
 description = "Batch redeploys stacks whose compose changed. Triggered by Forgejo webhook on push to master."
 
 [[procedure.config.stage]]
+name = "Sync Resources"
+enabled = true
+executions = [
+  { execution.type = "RunSync", execution.params.sync = "homelab-resources", enabled = true }
+]
+
+[[procedure.config.stage]]
 name = "Stage 1"
 enabled = true
 executions = [
   { execution.type = "BatchDeployStackIfChanged", execution.params.pattern = "*", enabled = true }
+]
+
+##
+
+[[resource_sync]]
+name = "homelab-resources"
+[resource_sync.config]
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+resource_path = [
+  "komodo/resources/default.toml"
 ]
