@@ -599,3 +599,4 @@ webhook_enabled = false
 resource_path = [
   "komodo/resources/default.toml"
 ]
+managed = true
