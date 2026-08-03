@@ -1,4 +1,4 @@
-# proxmox-node-baking/
+# proxmox/
 
 A reusable, parameterized process for baking a fleet-standard Proxmox node
 from the official ISO auto-installer (`answer.toml` + `prepare-iso`), plus

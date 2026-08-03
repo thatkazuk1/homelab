@@ -17,8 +17,8 @@ rejection of Docker Swarm mode among them):
 | Configuration | Bring a booted host to "ready for workloads" | Users, packages, sshd, Docker, base directory layout |
 | Deployment | Reconcile running Docker stacks against what's declared in Git | Containers matching `compose.yml` definitions in the monorepo |
 
-This ADR concerns deployment only. Provisioning (OpenTofu, conditional, deferred) and
-configuration (Ansible) are separate decisions.
+This ADR concerns deployment only. Provisioning (dropped — no driver without Talos, which
+is itself deferred) and configuration (Ansible) are separate decisions.
 
 The homelab's actual topology at the time of this decision: no Docker Swarm, no Kubernetes —
 multiple independent Docker hosts, each running its own Compose stacks.

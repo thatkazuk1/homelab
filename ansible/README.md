@@ -15,8 +15,9 @@ untouched rather than parameterized. `scratch` remains a throwaway group for pro
 work end-to-end (including `hawser`, which is out of real-fleet scope for now, per operator
 decision — see the Sprint 4b status report) before touching real hosts. Proxmox node baking
 (`roles/proxmox_node`, Sprint 4c) is config-validated only — `ansible-lint`/`--syntax-check`
-pass, but no node has ever booted from it; see `proxmox-node-baking/README.md`. Provisioning
-guests via OpenTofu is a separate, later phase (`tofu/` stays empty until then).
+pass, but no node has ever booted from it; see `proxmox/README.md`. Guest provisioning
+automation (OpenTofu) is dropped — it only ever entered the plan for Talos resource
+management, and Talos itself is deferred with no active driver.
 
 ## Structure
 
@@ -41,7 +42,7 @@ guests via OpenTofu is a separate, later phase (`tofu/` stays empty until then).
   Not currently run against any real fleet host (see Status above).
 - `roles/proxmox_node` — post-install baseline for a freshly auto-installed Proxmox node
   (repo config, Netdata, Beszel agent, `kazuki` NOPASSWD sudo finalization, cluster join).
-  Written and statically validated only; see `proxmox-node-baking/README.md` for the honest
+  Written and statically validated only; see `proxmox/README.md` for the honest
   proven-vs-not boundary. No `proxmox_nodes` inventory group exists yet — `pve-01`/`pve-02`
   are live production and don't match this role's fresh-node assumptions.
 - `playbooks/provision-baseline.yml` — two plays: `docker` + `periphery` against

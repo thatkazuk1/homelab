@@ -100,8 +100,8 @@ Steps 2 (baseline config) and 4 (Periphery) are automated by Ansible for hosts i
 `docker_hosts` inventory group — live-verified on 7 of 8 real hosts (see `ansible/README.md`
 for current status and exceptions). Steps 1, 3, 5, and 6 (provisioning, Beszel registration,
 Komodo Server registration, exposing services), and the whole sequence for hosts outside
-`docker_hosts` (`core-01`, `nas-01`), remain manual — there's no L1 automation (OpenTofu)
-provisioning the host itself yet, and no automation drives Beszel/Komodo registration.
-Bare-metal Proxmox node baking (`proxmox-node-baking/`, Sprint 4c) is a separate, earlier-stage
+`docker_hosts` (`core-01`, `nas-01`), remain manual — there's no L1 automation provisioning
+the host itself yet, and no automation drives Beszel/Komodo registration.
+Bare-metal Proxmox node baking (`proxmox/`, Sprint 4c) is a separate, earlier-stage
 effort — config-validated only, no node has booted from it yet. Treat this page as the
 checklist for what's still manual, not as a promise that all of it runs itself.

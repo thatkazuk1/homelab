@@ -39,7 +39,7 @@ proxmox_node_beszel_token: ""
 
 # kazuki finalization. The first-boot hook already creates kazuki at
 # UID 1001 with sudo-group membership (see
-# proxmox-node-baking/first-boot-hook.sh.tmpl) — this role's job is
+# proxmox/first-boot-hook.sh.tmpl) — this role's job is
 # just the NOPASSWD sudoers drop-in, matching the fleet's documented
 # Users standard. pve-01/pve-02 do NOT have this today (sudo prompts
 # for a password on pve-01, no sudo binary at all on pve-02) — that's
