@@ -592,6 +592,7 @@ executions = [
 
 [[resource_sync]]
 name = "homelab-resources"
+tags = ["config-as-code"]
 [resource_sync.config]
 linked_repo = "kazuki/homelab"
 webhook_enabled = false
