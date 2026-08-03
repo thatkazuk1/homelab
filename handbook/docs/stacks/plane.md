@@ -14,6 +14,22 @@ Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-styl
 
 ## Services
 
+### `web`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-frontend:${APP_RELEASE:-v1.2.1}`
+
+### `space`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-space:${APP_RELEASE:-v1.2.1}`
+
+### `admin`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-admin:${APP_RELEASE:-v1.2.1}`
+
+### `live`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-live:${APP_RELEASE:-v1.2.1}`
+
 ### `api`
 
 - **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.2.1}`
@@ -42,6 +58,15 @@ Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-styl
 
 - **Image:** `rabbitmq:3.13.7-management-alpine`
 
+### `plane-minio`
+
+- **Image:** `minio/minio:latest`
+
+### `proxy`
+
+- **Image:** `artifacts.plane.so/makeplane/plane-proxy:${APP_RELEASE:-v1.2.1}`
+- **Ports:** `${LISTEN_HTTP_PORT:-80}:80/tcp`, `${LISTEN_HTTPS_PORT:-443}:443/tcp`
+
 ## Named volumes
 
 - `logs_api`
@@ -49,8 +74,11 @@ Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-styl
 - `logs_migrator`
 - `logs_worker`
 - `pgdata`
+- `proxy_config`
+- `proxy_data`
 - `rabbitmq_data`
 - `redisdata`
+- `uploads`
 
 ## Secrets
 
