@@ -585,7 +585,7 @@ executions = [
 name = "Stage 1"
 enabled = true
 executions = [
-  { execution.type = "BatchDeployStackIfChanged", execution.params.pattern = "*", enabled = true }
+  { execution.type = "BatchDeployStack", execution.params.pattern = "*", enabled = true }
 ]
 
 ##
