@@ -9,6 +9,18 @@ jobs:
   renovate:
     runs-on: docker
     steps:
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@${GITHUB_SERVER_URL#https://}/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth 1 origin "${GITHUB_SHA}"
+          git checkout -q FETCH_HEAD
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Renovate image with doc-generation deps
+        run: docker build -t homelab-renovate:local -f .forgejo/renovate.Dockerfile .forgejo
+
       - name: Run Renovate
         run: |
           docker run --rm \
@@ -18,7 +30,8 @@ jobs:
             -e RENOVATE_REPOSITORIES=kazuki/homelab \
             -e RENOVATE_AUTODISCOVER=false \
             -e RENOVATE_GITHUB_COM_TOKEN="${RENOVATE_GITHUB_COM_TOKEN}" \
-            renovate/renovate:latest
+            -e RENOVATE_ALLOWED_COMMANDS='["^python3 scripts/generate-stack-pages\.py$"]' \
+            homelab-renovate:local
         env:
           RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
           RENOVATE_GITHUB_COM_TOKEN: ${{ secrets.RENOVATE_GITHUB_COM_TOKEN }}
