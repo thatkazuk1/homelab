@@ -16,7 +16,7 @@ S3-compatible object storage backing the fleet's backup, media, and attachment n
 
 ### `garage`
 
-- **Image:** `dxflrs/garage:v2.2.0`
+- **Image:** `dxflrs/garage:v2.3.0`
 - **Container:** `garage-server`
 - **Restart policy:** `unless-stopped`
 - **Network mode:** `host`
