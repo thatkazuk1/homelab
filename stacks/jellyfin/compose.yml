@@ -13,7 +13,7 @@ name: jellyfin
 
 services:
   jellyfin:
-    image: ghcr.io/jellyfin/jellyfin:12.0-rc4
+    image: ghcr.io/jellyfin/jellyfin:12.0-rc5
     container_name: jellyfin
     restart: unless-stopped
     user: "1006:997"
