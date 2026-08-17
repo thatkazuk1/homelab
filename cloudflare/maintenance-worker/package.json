@@ -1,0 +1,15 @@
+{
+  "name": "maintenance-worker",
+  "version": "1.0.0",
+  "description": "A Cloudflare Worker that intercepts requests before they reach the origin (via a Worker Route) and returns a static \"Under Maintenance\" page if the origin fetch throws or returns a 5xx. Runs at Cloudflare's edge, independent of the fleet's Cloudflare Tunnel — so it covers both failure modes a Traefik-level fallback can't:",
+  "main": "worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "wrangler": "^4.122.0"
+  }
+}

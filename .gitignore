@@ -37,6 +37,9 @@ proxmox/*.first-boot-hook.sh
 __pycache__/
 *.pyc
 
+# Node
+node_modules/
+
 .claude/
 /docs/
 CLAUDE.md

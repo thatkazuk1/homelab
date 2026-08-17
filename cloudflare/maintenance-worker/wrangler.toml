@@ -1,0 +1,12 @@
+name = "kazuki-uk-maintenance-fallback"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+# Fleet-wide as of 2026-08-13, widened from a stackdoc.kazuki.uk-only pilot after
+# live validation. NOTE: this wildcard pattern can match any depth of subdomain,
+# including ts.kazuki.uk and its children (komodo.ts.kazuki.uk, etc.) IF those
+# records are proxied through Cloudflare rather than DNS-only — verify in the
+# Cloudflare dashboard before/after deploying. See README.md's Scope section.
+routes = [
+  { pattern = "*.kazuki.uk/*", zone_name = "kazuki.uk" }
+]
