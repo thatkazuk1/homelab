@@ -22,7 +22,7 @@ Time-series database (InfluxDB 3 Core + Explorer) backing the fleet's telemetry 
 
 ### `influxdb3-explorer`
 
-- **Image:** `influxdata/influxdb3-ui:1.8.0`
+- **Image:** `influxdata/influxdb3-ui:1.9.0`
 - **Container:** `influxdb3-explorer`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `8888:8080`, `8889:8888`
