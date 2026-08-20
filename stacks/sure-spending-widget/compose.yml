@@ -30,7 +30,6 @@ services:
     command: >
       "set -e &&
        apk add --no-cache curl jq tzdata >/dev/null &&
-       chmod +x /generate.sh &&
-       /generate.sh &&
-       echo '*/15 * * * * /generate.sh >>/proc/1/fd/1 2>>/proc/1/fd/2' | crontab - &&
+       sh /generate.sh &&
+       echo '*/15 * * * * sh /generate.sh >>/proc/1/fd/1 2>>/proc/1/fd/2' | crontab - &&
        crond -f -l 2"
