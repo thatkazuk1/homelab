@@ -23,6 +23,12 @@ services:
       SURE_URL: https://sure.ts.kazuki.uk
       MCP_API_TOKEN: ${MCP_API_TOKEN}
       MCP_USER_EMAIL: ${MCP_USER_EMAIL}
+      # Komodo's "If Changed" diffs resolved `docker compose config`, not the
+      # bind-mounted generate.sh's bytes - a script-only edit is otherwise
+      # invisible to it and never triggers a redeploy or even a repo re-pull.
+      # Bump this whenever generate.sh changes so the resolved config actually
+      # differs and Komodo picks the new script up.
+      GENERATE_SH_VERSION: "2"
     volumes:
       - ./generate.sh:/generate.sh:ro
       - /opt/homelab/homepage/assets/data:/output

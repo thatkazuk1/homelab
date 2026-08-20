@@ -40,3 +40,14 @@
   carries both `expense.total` and `income.total` for a given period, so this
   reuses the month period's existing MCP call rather than adding a second one.
   Week income wasn't requested and isn't tracked.
+- **`generate.sh` edits need a `GENERATE_SH_VERSION` bump in `compose.yml` or
+  they silently never deploy.** Discovered live shipping the income-tracking
+  change above: Komodo's `If Changed` diffs resolved `docker compose config`
+  output, and `generate.sh` is a bind-mounted file, not inlined into
+  `compose.yml` - so a script-only edit doesn't change the resolved config,
+  and Komodo doesn't even re-pull the host-side git checkout for a stack it
+  judges unchanged. The running container kept executing the old script
+  indefinitely; a manual `docker exec ... sh /generate.sh` even re-wrote the
+  output file with the *old*, income-less format, overwriting the field this
+  same fix was supposed to add. Bump `GENERATE_SH_VERSION` in `compose.yml`
+  every time `generate.sh` changes, so Komodo's diff actually fires.
