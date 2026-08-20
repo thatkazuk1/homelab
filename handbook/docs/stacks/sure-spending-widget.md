@@ -65,6 +65,11 @@ This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack
   option, because it would silently drift from Sure's own numbers for anyone
   with transfers, credit-card payments, or investment contributions - accuracy
   against Sure's own dashboard was weighted over credential elegance here.
+- Also tracks income earned in the current month (`month.income_total`,
+  operator request, 2026-08-20) - `get_income_statement`'s response already
+  carries both `expense.total` and `income.total` for a given period, so this
+  reuses the month period's existing MCP call rather than adding a second one.
+  Week income wasn't requested and isn't tracked.
 
 ---
 
