@@ -20,6 +20,7 @@ services:
     volumes:
       - /opt/homelab/homepage/assets/icons:/app/public/icons
       - /opt/homelab/homepage/assets/images:/app/public/images
+      - /opt/homelab/homepage/assets/data:/app/public/data
       - /opt/homelab/homepage/config:/app/config
     networks:
       - private

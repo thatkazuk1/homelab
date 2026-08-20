@@ -1,0 +1,36 @@
+name: sure-spending-widget
+
+x-meta:
+  name: sure-spending-widget
+  host: docker-prod-01
+  category: automation
+  description: >
+    Cron job that calls Sure Finance's MCP endpoint for the current week and
+    month-to-date spend, and writes a flat JSON file that Homepage's
+    "Spent This Week" / "Spent This Month" customapi widgets read as a
+    static file. Exists because neither Sure's REST API nor Homepage's
+    customapi widget can do the aggregation on their own - see notes.md.
+  status: new
+  adrs:
+    - 8
+
+services:
+  aggregator:
+    image: alpine:3.20
+    restart: unless-stopped
+    environment:
+      TZ: "Africa/Lagos"
+      SURE_URL: https://sure.ts.kazuki.uk
+      MCP_API_TOKEN: ${MCP_API_TOKEN}
+      MCP_USER_EMAIL: ${MCP_USER_EMAIL}
+    volumes:
+      - ./generate.sh:/generate.sh:ro
+      - /opt/homelab/homepage/assets/data:/output
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -e &&
+       apk add --no-cache curl jq tzdata >/dev/null &&
+       chmod +x /generate.sh &&
+       /generate.sh &&
+       echo '*/15 * * * * /generate.sh >>/proc/1/fd/1 2>>/proc/1/fd/2' | crontab - &&
+       crond -f -l 2"
