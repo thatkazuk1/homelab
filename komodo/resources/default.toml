@@ -482,6 +482,26 @@ compose_cmd_wrapper_include = ["up"]
 ##
 
 [[stack]]
+name = "sure-spending-widget"
+tags = ["docker-prod-01"]
+[stack.config]
+server = "docker-prod-01"
+project_name = "sure-spending-widget"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/sure-spending-widget"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
 name = "uptime-kuma"
 tags = ["core-01"]
 [stack.config]
