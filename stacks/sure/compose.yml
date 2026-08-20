@@ -42,6 +42,10 @@ x-rails-env: &rails_env
   GENERIC_S3_FORCE_PATH_STYLE: ${GENERIC_S3_FORCE_PATH_STYLE}
   # Ollama on nexus-v (personal workstation), reached over Tailscale — see
   # docs/sprints/reports/handoff-ollama-sure-mcp-report.md for placement rationale.
+  # Forces Builtin mode for every family regardless of the persisted per-family
+  # Settings > Self-Hosting > AI Assistant value (this family's was "external"
+  # from earlier exploration, which silently shadowed the OPENAI_* config below).
+  ASSISTANT_TYPE: builtin
   # Dummy token: Ollama's OpenAI-compatible endpoint ignores auth.
   OPENAI_ACCESS_TOKEN: ollama-local
   OPENAI_URI_BASE: http://100.73.5.121:11434/v1
