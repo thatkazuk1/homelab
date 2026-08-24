@@ -1,9 +1,17 @@
 # Meta-infrastructure — not Komodo-managed.
 # Deployed and updated manually on nas-01 (TerraMaster TOS 7).
 # This file is documentation of the running config; not the deployment source of truth.
-# Own path convention (/Volume1/@apps/komodo) and age-key mount per ADR-0006's
-# TOS exception — pre-existing (ADR-0007), not re-verified against live state
-# since Sprint 3i (no TOS browser terminal session available that day).
+# PERIPHERY_ROOT_DIRECTORY and its volume mount now use the identical host and
+# container path (/Volume1/@apps/komodo on both sides), matching the convention
+# every other host's Periphery already follows (PERIPHERY_ROOT_DIRECTORY == the
+# volume's host path == its container path). Previously mounted host
+# /Volume1/@apps/komodo at container path /data/komodo — a mismatch specific to
+# this host that made docker compose record config_files paths (e.g.
+# /data/komodo/repos/...) that only existed inside the Periphery container, never
+# on the actual NAS filesystem. TOS's Container Manager checks the host
+# filesystem directly, so it flagged every nas-01 stack's compose file as
+# "deleted" even though nothing was ever missing — fixed by aligning the path,
+# not by working around the symptom.
 
 x-meta:
   name: komodo-periphery-nas-01
@@ -32,13 +40,13 @@ services:
     ports:
       - "8120:8120"
     environment:
-      - PERIPHERY_ROOT_DIRECTORY=/data/komodo
+      - PERIPHERY_ROOT_DIRECTORY=/Volume1/@apps/komodo
       - PERIPHERY_DISABLE_TERMINALS=false
       - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
       - SOPS_AGE_KEY_FILE=/config/age-keys.txt
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/proc
-      - /Volume1/@apps/komodo:/data/komodo
+      - /Volume1/@apps/komodo:/Volume1/@apps/komodo
       - ./keys:/config/keys
       - /Volume1/@apps/homelab/komodo-periphery/age-keys.txt:/config/age-keys.txt:ro
