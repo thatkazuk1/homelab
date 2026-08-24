@@ -16,7 +16,7 @@ x-meta:
 
 services:
   aggregator:
-    image: alpine:3.20
+    image: alpine:3.24
     restart: unless-stopped
     environment:
       TZ: "Africa/Lagos"

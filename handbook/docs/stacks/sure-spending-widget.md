@@ -15,7 +15,7 @@ Cron job that calls Sure Finance's MCP endpoint for the current week and month-t
 
 ### `aggregator`
 
-- **Image:** `alpine:3.20`
+- **Image:** `alpine:3.24`
 - **Restart policy:** `unless-stopped`
 
 ## Secrets
