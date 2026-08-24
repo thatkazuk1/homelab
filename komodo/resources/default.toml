@@ -165,7 +165,7 @@ name = "glances"
 tags = ["nas-01"]
 [stack.config]
 server = "nas-01"
-project_name = " glances"
+project_name = "glances"
 linked_repo = "kazuki/homelab"
 webhook_enabled = false
 run_directory = "stacks/glances"
