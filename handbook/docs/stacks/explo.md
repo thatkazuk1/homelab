@@ -22,7 +22,7 @@ Generates weekly/monthly/daily discovery playlists from ListenBrainz recommendat
 
 ## Secrets
 
-No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
+This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack-sops-secrets.md). Encrypted values live in `stacks/explo/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
 
 ## Related decisions
 
