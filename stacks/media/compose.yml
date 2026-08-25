@@ -42,6 +42,7 @@ services:
     restart: unless-stopped
     volumes:
       - /Volume1/nexus-pve/media:/media
+      - /Volume1/nexus-pve/downloads:/downloads
       - /Volume1/@apps/homelab/media/aurral/data:/app/backend/data
     networks:
       - media-internal
