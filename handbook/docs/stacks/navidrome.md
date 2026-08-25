@@ -22,7 +22,7 @@ Navidrome music server (Subsonic/OpenSubsonic API) serving the shared music libr
 
 ## Secrets
 
-No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
+This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack-sops-secrets.md). Encrypted values live in `stacks/navidrome/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
 
 ## Related decisions
 

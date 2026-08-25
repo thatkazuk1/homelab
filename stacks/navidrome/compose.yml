@@ -27,6 +27,7 @@ services:
       - ND_SCANSCHEDULE=1h
       - ND_LOGLEVEL=info
       - TZ=Africa/Lagos
+      - ND_LASTFM_APIKEY
     volumes:
       - /Volume1/@apps/homelab/navidrome/data:/data
       - /Volume1/nexus-pve/media/music:/music:ro
