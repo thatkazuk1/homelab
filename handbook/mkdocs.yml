@@ -79,7 +79,6 @@ nav:
       - beszel-agent: stacks/beszel-agent.md
       - cloudflared: stacks/cloudflared.md
       - dockhand: stacks/dockhand.md
-      - explo: stacks/explo.md
       - forgejo: stacks/forgejo.md
       - forgejo-runner: stacks/forgejo-runner.md
       - garage: stacks/garage.md
