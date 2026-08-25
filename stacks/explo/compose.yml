@@ -18,10 +18,11 @@ services:
     image: ghcr.io/lumepart/explo:latest
     container_name: explo
     restart: unless-stopped
-    user: "1006:997"
     ports:
       - "7288:7288"
     environment:
+      - PUID=1006
+      - PGID=997
       - TZ=Africa/Lagos
       - WEB_UI=true
       - UI_USERNAME
