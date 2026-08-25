@@ -17,3 +17,4 @@
   verification" discipline now in `CLAUDE.md` — an early verification step here used an
   unfiltered container-environment dump instead of a targeted grep, which is exactly the
   mistake that rule exists to prevent.
+- OPENAI_MODEL changes don't apply to retries on already-created chat messages — send a new message instead of hitting Retry.
