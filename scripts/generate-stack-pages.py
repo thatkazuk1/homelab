@@ -7,7 +7,6 @@ from pathlib import Path
 
 import yaml
 from jinja2 import Environment, FileSystemLoader
-from ruamel.yaml import YAML
 
 STACKS_DIR = Path("stacks")
 HANDBOOK_STACKS_DIR = Path("handbook/docs/stacks")
@@ -214,29 +213,41 @@ def prune_orphans(expected_names: set) -> list:
 
 
 def update_nav(expected_names: set) -> None:
-    """Rewrite mkdocs.yml's nav.Stacks section from the current stack list."""
-    yaml_rt = YAML()
-    yaml_rt.preserve_quotes = True
-    yaml_rt.indent(mapping=2, sequence=4, offset=2)
-    yaml_rt.width = 4096  # don't let ruamel reflow long lines elsewhere in the file
+    """Rewrite mkdocs.yml's nav.Stacks section from the current stack list.
 
-    data = yaml_rt.load(MKDOCS_PATH)
-    nav = data["nav"]
+    Edits the file as text rather than round-tripping the whole document
+    through ruamel.yaml: markdown_extensions elsewhere in this file uses
+    PyYAML-specific !!python/name: tags that ruamel's round-trip dumper has
+    no native representer for, and silently corrupts on a full-document
+    dump (percent-encodes the '!', producing !%21python/name: — a YAML
+    *local* tag that resolves to a different, unregistered tag namespace
+    than the intended one, breaking `mkdocs build`). See the commit that
+    introduced this fix for the incident this caused.
+    """
+    lines = MKDOCS_PATH.read_text().splitlines(keepends=True)
 
-    found = False
-    for entry in nav:
-        if isinstance(entry, dict) and "Stacks" in entry:
-            stacks_nav = [{"Overview": "stacks/index.md"}]
-            for name in sorted(expected_names):
-                stacks_nav.append({name: f"stacks/{name}.md"})
-            entry["Stacks"] = stacks_nav
-            found = True
+    start = None
+    indent = None
+    for i, line in enumerate(lines):
+        m = re.match(r"^(\s*)- Stacks:\s*\n?$", line)
+        if m:
+            start = i
+            indent = m.group(1)
             break
-
-    if not found:
+    if start is None:
         raise ValueError(f"{MKDOCS_PATH} has no nav entry containing 'Stacks'.")
 
-    yaml_rt.dump(data, MKDOCS_PATH)
+    child_indent = indent + "    "
+    end = start + 1
+    while end < len(lines) and lines[end].startswith(child_indent):
+        end += 1
+
+    new_block = [f"{child_indent}- Overview: stacks/index.md\n"]
+    for name in sorted(expected_names):
+        new_block.append(f"{child_indent}- {name}: stacks/{name}.md\n")
+
+    lines[start + 1 : end] = new_block
+    MKDOCS_PATH.write_text("".join(lines))
 
 
 def main():
