@@ -146,6 +146,19 @@ file_paths = ["compose.yml"]
 ##
 
 [[stack]]
+name = "explo"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "explo"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/explo"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
 name = "garage"
 tags = ["garage-prod-01"]
 [stack.config]
