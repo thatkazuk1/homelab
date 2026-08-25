@@ -71,6 +71,7 @@ nav:
       - Restoring Forgejo: operations/restoring-forgejo.md
       - Maintaining the handbook: operations/maintaining-handbook.md
       - Renovate (dependency updates): operations/renovate.md
+      - nas-01 arr stack performance: operations/nas01-arr-performance.md
   - Stacks:
       - Overview: stacks/index.md
       - backrest: stacks/backrest.md
