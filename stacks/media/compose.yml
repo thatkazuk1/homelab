@@ -41,7 +41,7 @@ services:
     container_name: aurral
     restart: unless-stopped
     volumes:
-      - /Volume1/nexus-pve/downloads:/app/downloads
+      - /Volume1/nexus-pve/media:/media
       - /Volume1/@apps/homelab/media/aurral/data:/app/backend/data
     networks:
       - media-internal
@@ -53,7 +53,7 @@ services:
       - TZ=Africa/Lagos
       - SOULSEEK_USERNAME=${AURRAL_SLSK_USERNAME}
       - SOULSEEK_PASSWORD=${AURRAL_SLSK_PASSWORD}
-      - DOWNLOAD_FOLDER=/app/downloads
+      - DOWNLOAD_FOLDER=/media/music/aurral
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
