@@ -1,0 +1,32 @@
+x-meta:
+  name: navidrome
+  host: nas-01
+  category: media
+  description: >
+    Navidrome music server (Subsonic/OpenSubsonic API) serving the shared
+    music library on nas-01, read-only. Paired with Lidarr (stacks/media)
+    for acquisition and any Subsonic-compatible client (e.g. Symfonium) for
+    playback.
+  status: adopted
+  adrs:
+    - 8
+
+name: navidrome
+
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    restart: unless-stopped
+    user: "1006:997"
+    ports:
+      - "4533:4533"
+    environment:
+      - ND_MUSICFOLDER=/music
+      - ND_DATAFOLDER=/data
+      - ND_SCANSCHEDULE=1h
+      - ND_LOGLEVEL=info
+      - TZ=Africa/Lagos
+    volumes:
+      - /Volume1/@apps/homelab/navidrome/data:/data
+      - /Volume1/nexus-pve/media/music:/music:ro

@@ -90,6 +90,7 @@ nav:
       - komodo: stacks/komodo.md
       - komodo-periphery: stacks/komodo-periphery.md
       - media: stacks/media.md
+      - navidrome: stacks/navidrome.md
       - ntfy: stacks/ntfy.md
       - plane: stacks/plane.md
       - qbittorrent: stacks/qbittorrent.md

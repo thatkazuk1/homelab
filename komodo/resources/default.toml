@@ -375,6 +375,19 @@ compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
 ##
 
 [[stack]]
+name = "navidrome"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "navidrome"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/navidrome"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
 name = "ntfy"
 tags = ["core-01"]
 [stack.config]
