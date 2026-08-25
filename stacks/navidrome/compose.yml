@@ -25,7 +25,7 @@ services:
     ports:
       - "4533:4533"
     environment:
-      - ND_MUSICFOLDER=/music
+      - ND_MUSICFOLDER=/media/music
       - ND_DATAFOLDER=/data
       - ND_SCANSCHEDULE=1h
       - ND_LOGLEVEL=info
@@ -33,4 +33,4 @@ services:
       - ND_LASTFM_APIKEY
     volumes:
       - /Volume1/@apps/homelab/navidrome/data:/data
-      - /Volume1/nexus-pve/media/music:/music:ro
+      - /Volume1/nexus-pve/media/music:/media/music:ro
