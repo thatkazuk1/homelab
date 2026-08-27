@@ -3,8 +3,7 @@ x-meta:
   host: nas-01
   category: media
   description: >
-    Jellyfin media server with Jellystat watch-history tracking
-    (Postgres-backed), running as one compose project on nas-01.
+    Jellyfin media server with Jellystat watch-history tracking (Postgres-backed), running as one compose project on nas-01.
   status: adopted
   adrs:
     - 8

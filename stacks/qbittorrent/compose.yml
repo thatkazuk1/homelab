@@ -3,8 +3,7 @@ x-meta:
   host: nas-01
   category: download
   description: >
-    qBittorrent torrent client routed entirely through Gluetun's VPN tunnel
-    (network_mode: service:gluetun) for IP isolation.
+    qBittorrent torrent client routed entirely through Gluetun's VPN tunnel (network_mode: service:gluetun) for IP isolation.
   status: adopted
   adrs:
     - 8
