@@ -72,6 +72,7 @@ nav:
       - Maintaining the handbook: operations/maintaining-handbook.md
       - Renovate (dependency updates): operations/renovate.md
       - nas-01 arr stack performance: operations/nas01-arr-performance.md
+      - HA Tuya sensors (cloud poll): operations/home-assistant-tuya-sensors.md
   - Stacks:
       - Overview: stacks/index.md
       - backrest: stacks/backrest.md

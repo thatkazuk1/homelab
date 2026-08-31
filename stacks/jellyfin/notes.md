@@ -1,48 +1,3 @@
-# jellyfin
-
-Jellyfin media server with Jellystat watch-history tracking (Postgres-backed), running as one compose project on nas-01.
-
-## Reference
-
-| Field | Value |
-|---|---|
-| Host | `nas-01` |
-| Category | media |
-| Status | adopted |
-| Repo path | [`stacks/jellyfin/`](https://github.com/meetKazuki/homelab/tree/master/stacks/jellyfin) |
-
-## Services
-
-### `jellyfin`
-
-- **Image:** `ghcr.io/jellyfin/jellyfin:12.0-rc6`
-- **Container:** `jellyfin`
-- **Restart policy:** `unless-stopped`
-- **Ports:** `8096:8096`
-
-### `jellystat`
-
-- **Image:** `cyfershepard/jellystat:latest`
-- **Container:** `jellystat`
-- **Restart policy:** `unless-stopped`
-- **Ports:** `3000:3000`
-
-### `jellystat-db`
-
-- **Image:** `postgres:15.19`
-- **Container:** `jellystat-db`
-- **Restart policy:** `unless-stopped`
-
-## Secrets
-
-This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack-sops-secrets.md). Encrypted values live in `stacks/jellyfin/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
-
-## Related decisions
-
-- [ADR-0008](../decisions/0008-per-stack-sops-secrets.md)
-
-## Operational notes
-
 ## Anime library
 
 Anime runs as **dedicated libraries**, not a Jellyfin "Collection" (a Collection
@@ -120,7 +75,3 @@ take path (a).
 Auto-detection occasionally misses a title TMDB classifies oddly. An admin can
 fix it after the fact by editing the request, or by using Advanced request
 options (per-request server/root/profile) if that permission is granted.
-
----
-
-*This page is auto-generated from `stacks/jellyfin/compose.yml`. Reference-level content (host, services, images, secrets pattern) reflects the compose file's current state. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose file. To add operational context, edit `stacks/jellyfin/notes.md`.*
