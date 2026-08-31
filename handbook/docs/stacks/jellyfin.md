@@ -29,7 +29,7 @@ Jellyfin media server with Jellystat watch-history tracking (Postgres-backed), r
 
 ### `jellystat-db`
 
-- **Image:** `postgres:15.2`
+- **Image:** `postgres:15.19`
 - **Container:** `jellystat-db`
 - **Restart policy:** `unless-stopped`
 

@@ -48,7 +48,7 @@ Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-styl
 
 ### `plane-db`
 
-- **Image:** `postgres:15.7-alpine`
+- **Image:** `postgres:15.19-alpine`
 
 ### `plane-redis`
 
