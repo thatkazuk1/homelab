@@ -1,0 +1,22 @@
+name: Plane sync
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  transition:
+    if: github.event.pull_request.merged == true
+    runs-on: docker
+    steps:
+      - uses: https://github.com/thatkazuk1/plane-transition@v1
+        with:
+          plane-base-url: https://plane.kazuki.uk
+          plane-workspace-slug: shokunbi
+          plane-api-token: ${{ secrets.PLANE_API_TOKEN }}
+          identifier-prefixes: HOMELAB
+          target-state: Done
+          text: |
+            ${{ github.event.pull_request.title }}
+
+            ${{ github.event.pull_request.body }}
