@@ -2,11 +2,29 @@ name: Plane sync
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened, reopened, closed]
 
 jobs:
+  start:
+    if: github.event.action == 'opened' || github.event.action == 'reopened'
+    runs-on: docker
+    steps:
+      - uses: https://github.com/thatkazuk1/plane-transition@v1
+        with:
+          plane-base-url: https://plane.kazuki.uk
+          plane-workspace-slug: shokunbi
+          plane-api-token: ${{ secrets.PLANE_API_TOKEN }}
+          identifier-prefixes: HOMELAB
+          target-state: started
+          keywords: start,starts,started
+          pr-url: ${{ github.event.pull_request.html_url }}
+          text: |
+            ${{ github.event.pull_request.title }}
+
+            ${{ github.event.pull_request.body }}
+
   transition:
-    if: github.event.pull_request.merged == true
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: docker
     steps:
       - uses: https://github.com/thatkazuk1/plane-transition@v1
@@ -16,9 +34,8 @@ jobs:
           plane-api-token: ${{ secrets.PLANE_API_TOKEN }}
           identifier-prefixes: HOMELAB
           target-state: Done
+          pr-url: ${{ github.event.pull_request.html_url }}
           text: |
             ${{ github.event.pull_request.title }}
 
             ${{ github.event.pull_request.body }}
-
-# Live-verified 2026-08-31: confirms the transition path end to end.
