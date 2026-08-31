@@ -73,6 +73,7 @@ nav:
       - Renovate (dependency updates): operations/renovate.md
       - nas-01 arr stack performance: operations/nas01-arr-performance.md
       - HA Tuya sensors (cloud poll): operations/home-assistant-tuya-sensors.md
+      - Plane PR-merge automation: operations/plane-github-transition.md
   - Stacks:
       - Overview: stacks/index.md
       - backrest: stacks/backrest.md
