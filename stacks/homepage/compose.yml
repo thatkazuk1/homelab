@@ -79,6 +79,7 @@ services:
       - HOMEPAGE_VAR_SLSKD_API_KEY
       - HOMEPAGE_VAR_K8S_API_KEY
       - HOMEPAGE_VAR_NTFY_TOKEN
+      - HOMEPAGE_VAR_SPARKYFITNESS_API_KEY
 
 networks:
   private:
