@@ -1,0 +1,85 @@
+name: sparkyfitness
+
+x-meta:
+  name: sparkyfitness
+  host: docker-prod-02
+  category: applications
+  description: >
+    SparkyFitness — self-hosted nutrition, exercise, and body-metric
+    tracker (a privacy-first MyFitnessPal alternative). Postgres +
+    Node backend + nginx/React frontend. First stack on docker-prod-02,
+    the fleet's second general Docker host.
+  status: new
+  adrs:
+    - 8
+  public_url: sparkyfitness.ts.kazuki.uk
+
+services:
+  sparkyfitness-db:
+    image: postgres:18.3-alpine
+    container_name: sparkyfitness-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sparkyfitness_db
+      POSTGRES_USER: sparky
+      # sops exec-env injects SPARKY_FITNESS_DB_PASSWORD; :- keeps
+      # `docker compose config` (Komodo's change-detection) quiet when
+      # the wrapper isn't in play.
+      POSTGRES_PASSWORD: ${SPARKY_FITNESS_DB_PASSWORD:-}
+    volumes:
+      - /opt/homelab/sparkyfitness/postgresql:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sparky -d sparkyfitness_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  sparkyfitness-server:
+    image: codewithcj/sparkyfitness_server:v1.6.4
+    container_name: sparkyfitness-server
+    restart: unless-stopped
+    depends_on:
+      sparkyfitness-db:
+        condition: service_healthy
+    environment:
+      SPARKY_FITNESS_DB_HOST: sparkyfitness-db
+      SPARKY_FITNESS_DB_PORT: 5432
+      SPARKY_FITNESS_DB_NAME: sparkyfitness_db
+      SPARKY_FITNESS_DB_USER: sparky
+      SPARKY_FITNESS_APP_DB_USER: sparky_app
+      SPARKY_FITNESS_FRONTEND_URL: https://sparkyfitness.ts.kazuki.uk
+      # Also allow the direct LAN address (used for first-run admin setup,
+      # and any time the Traefik hop is bypassed).
+      SPARKY_FITNESS_EXTRA_TRUSTED_ORIGINS: http://192.168.50.100:3004
+      NODE_ENV: production
+      TZ: Africa/Lagos
+      SPARKY_FITNESS_LOG_LEVEL: WARN
+      SPARKY_FITNESS_DISABLE_SIGNUP: "false"
+      SPARKY_FITNESS_PUBLIC_API_DOCS: "false"
+      # Secrets (and PII kept out of the public repo) — sops exec-env
+      # injects these; enumerated as bare pass-through keys per ADR-0008.
+      # SPARKY_FITNESS_ADMIN_EMAIL is not secret, but this repo is
+      # published publicly (ADR-0010), so the operator's email lives in
+      # secrets.enc.env rather than here.
+      SPARKY_FITNESS_ADMIN_EMAIL:
+      SPARKY_FITNESS_DB_PASSWORD:
+      SPARKY_FITNESS_APP_DB_PASSWORD:
+      SPARKY_FITNESS_API_ENCRYPTION_KEY:
+      BETTER_AUTH_SECRET:
+    volumes:
+      - /opt/homelab/sparkyfitness/backup:/app/SparkyFitnessServer/backup
+      - /opt/homelab/sparkyfitness/uploads:/app/SparkyFitnessServer/uploads
+
+  sparkyfitness-frontend:
+    image: codewithcj/sparkyfitness:v1.6.4
+    container_name: sparkyfitness-frontend
+    restart: unless-stopped
+    depends_on:
+      - sparkyfitness-server
+    ports:
+      - "3004:80"
+    environment:
+      SPARKY_FITNESS_FRONTEND_URL: https://sparkyfitness.ts.kazuki.uk
+      SPARKY_FITNESS_SERVER_HOST: sparkyfitness-server
+      SPARKY_FITNESS_SERVER_PORT: 3010
+      NGINX_RATE_LIMIT: 5r/s

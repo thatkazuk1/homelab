@@ -465,6 +465,21 @@ compose_cmd_wrapper_include = ["up"]
 ##
 
 [[stack]]
+name = "sparkyfitness"
+tags = ["docker-prod-02"]
+[stack.config]
+server = "docker-prod-02"
+project_name = "sparkyfitness"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/sparkyfitness"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
 name = "speedtest-tracker"
 tags = ["telemetry-prod-01"]
 [stack.config]

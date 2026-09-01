@@ -98,6 +98,7 @@ nav:
       - plane: stacks/plane.md
       - qbittorrent: stacks/qbittorrent.md
       - slskd: stacks/slskd.md
+      - sparkyfitness: stacks/sparkyfitness.md
       - speedtest-tracker: stacks/speedtest-tracker.md
       - sure: stacks/sure.md
       - sure-spending-widget: stacks/sure-spending-widget.md
