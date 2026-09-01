@@ -60,6 +60,11 @@ ansible-playbook playbooks/provision-baseline.yml --check   # idempotence check
 ansible-playbook playbooks/provision-baseline.yml
 ```
 
+Every run appends to `~/.ansible/homelab.log` (`log_path` in `ansible.cfg`) — host,
+timestamp, task, and the changed/ok/failed recap. It's the nearest thing to a deployment
+history for a stateless push tool; `git log` on this directory is the record of *intended*
+state. Not committed, and cwd-independent so it captures runs from anywhere.
+
 ## Secrets
 
 Uses `community.sops` — its lookup plugin reads a sops-encrypted file directly (age identity
