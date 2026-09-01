@@ -74,6 +74,12 @@ nav:
       - nas-01 arr stack performance: operations/nas01-arr-performance.md
       - HA Tuya sensors (cloud poll): operations/home-assistant-tuya-sensors.md
       - Plane PR-merge automation: operations/plane-github-transition.md
+  - Runbooks:
+      - Overview: runbooks/index.md
+      - Proxmox cluster: runbooks/pve-cluster.md
+      - core-01: runbooks/core-01.md
+      - Backrest backup: runbooks/backrest-backup.md
+      - Komodo Core restore: runbooks/komodo-restore.md
   - Stacks:
       - Overview: stacks/index.md
       - backrest: stacks/backrest.md

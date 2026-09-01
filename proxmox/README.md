@@ -131,6 +131,6 @@ captured in the sprint status report). The first-boot hook and
 `proxmox_node` role are **not executed** — no node exists to run them
 against. Their idempotence and correctness against real hardware are
 unproven. See the runbook's "Adding a new node" section
-(`docs/runbooks/pve-cluster.md`) for the config-validated-vs-live-pending
-split, and the Sprint 4c status report for the full honesty-boundary
-statement.
+(`handbook/docs/runbooks/pve-cluster.md`) for the
+config-validated-vs-live-pending split, and the Sprint 4c status report
+for the full honesty-boundary statement.
