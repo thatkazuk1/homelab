@@ -2,6 +2,15 @@
 - name: Provision baseline Docker host
   hosts: docker_hosts
   become: true
+  pre_tasks:
+    # Fresh-provisioning only (baseline_managed) — creates the docker /
+    # svc-docker groups, kazuki's membership, and /opt/homelab that adopted
+    # hosts already had. No-op on the 4b-adopted fleet.
+    - name: Apply fleet baseline
+      ansible.builtin.import_role:
+        name: baseline
+    - name: Reset connection so kazuki's new group membership takes effect
+      ansible.builtin.meta: reset_connection
   roles:
     - docker
     - periphery

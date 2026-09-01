@@ -1,0 +1,45 @@
+---
+# Fleet baseline for a *freshly provisioned* Docker host (a template clone
+# with nothing on it yet). The 7 hosts adopted in Sprint 4b already had all
+# of this in place before Ansible existed, so this role is gated to
+# fresh-provisioning only (baseline_managed, default false) and never runs
+# against — or drifts — an adopted host.
+#
+# Without it, the periphery role fails on a fresh host two ways:
+#   - "Ensure Periphery stack directory exists" sets group: svc-docker,
+#     which does not exist -> chgrp: failed to look up group svc-docker
+#   - docker_login / docker_compose_v2 run become: false (as kazuki), who
+#     is not in the docker group -> permission denied on /var/run/docker.sock
+- name: Fleet baseline (fresh-provisioning hosts only)
+  when: baseline_managed | default(false)
+  block:
+    - name: Ensure docker and svc-docker system groups exist
+      # No gid: pinned. The fleet's svc-docker GID is already non-uniform
+      # (103 on docker-prod-01, 105 on plane/garage — unexplained
+      # historical drift, documented in the 4b status report), so pinning
+      # one here would only risk renumbering a group on some future host.
+      # docker-ce's postinst adopts a pre-existing docker group fine.
+      ansible.builtin.group:
+        name: "{{ item }}"
+        system: true
+      loop:
+        - docker
+        - svc-docker
+
+    - name: Ensure kazuki can manage Docker and group-owns stack data
+      ansible.builtin.user:
+        name: kazuki
+        groups: "docker,svc-docker"
+        append: true
+
+    - name: Ensure the stack-data root exists
+      # kazuki:svc-docker, setgid — the documented standard
+      # (handbook/docs/operations/deploying-a-new-host.md), matching
+      # docker-prod-01. periphery's own file task does not create parent
+      # dirs, so /opt/homelab has to exist before it runs.
+      ansible.builtin.file:
+        path: "{{ baseline_stack_root }}"
+        state: directory
+        owner: root
+        group: svc-docker
+        mode: "2775"

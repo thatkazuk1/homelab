@@ -1,0 +1,17 @@
+---
+# docker-prod-02 — first host provisioned genuinely fresh through the
+# template-clone + Ansible flow (every other docker_hosts member was
+# adopted in Sprint 4b with Docker/Periphery already running).
+#
+# A clean clone has no svc-docker group, no docker group, no kazuki
+# group membership, and no /opt/homelab — the baseline role creates
+# them. Adopted hosts leave baseline_managed unset (false) and the role
+# is a no-op for them.
+baseline_managed: true
+
+# Everything else is the fleet standard, so no other overrides:
+#   - periphery_env_file: false      (inline ${PERIPHERY_CORE_PUBLIC_KEYS} via .env)
+#   - periphery_stack_dir_mode: "02775"
+#   - periphery_files_group: svc-docker
+#   - docker_apt_deb822: false       (legacy one-line repo, like 7/8 of the fleet)
+#   - no Hawser (the docker_hosts play is docker + periphery only)

@@ -1,0 +1,6 @@
+---
+# Off by default: only fresh template clones need this. Adopted hosts
+# (Sprint 4b) set nothing and the role is a no-op for them.
+baseline_managed: false
+
+baseline_stack_root: /opt/homelab
