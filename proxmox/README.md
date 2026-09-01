@@ -39,6 +39,13 @@ can be provisioned end-to-end; that proof doesn't exist yet.
   the node's SSH pubkey, asserts `openssh-server`/`python3`. Real
   configuration is `ansible/roles/proxmox_node/`'s job, not this
   script's.
+- `debian13-vendor.yaml` — the cloud-init vendor-data snippet the fleet's
+  Debian 13 **guest** templates use (VMID 107 on `pve-01`, 9000 on
+  `pve-02`). Not part of node baking — it's the guest-template analogue,
+  tracked here because there's no better home. The live copy is a
+  host-local file at `/var/lib/vz/snippets/debian13-vendor.yaml` on each
+  PVE node; restore from this file if a node is rebuilt. See
+  `handbook/docs/runbooks/pve-cluster.md` "Golden templates".
 
 ## Prerequisites (per node-baking session, not yet automated)
 

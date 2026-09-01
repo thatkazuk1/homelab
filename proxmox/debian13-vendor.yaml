@@ -1,0 +1,33 @@
+#cloud-config
+# Canonical copy of the cloud-init vendor-data snippet the fleet's Debian 13
+# guest templates use (VMID 107 on pve-01, 9000 on pve-02, referenced as
+# --cicustom "vendor=local:snippets/debian13-vendor.yaml"). The live copy is
+# a host-local file at /var/lib/vz/snippets/debian13-vendor.yaml on each PVE
+# node; keep this file and those in sync. If a node is rebuilt, restore the
+# snippet from here.
+#
+# See handbook/docs/runbooks/pve-cluster.md "Golden templates" and
+# "What the template and Ansible handle for a fresh guest".
+timezone: Africa/Lagos
+package_update: true
+packages:
+  - qemu-guest-agent
+runcmd:
+  - echo "en_NG.UTF-8 UTF-8" >> /etc/locale.gen
+  - locale-gen
+  - update-locale LANG=en_NG.UTF-8
+  - systemctl enable --now qemu-guest-agent
+  - |
+    # Fleet standard: the interactive admin user is UID/GID 1001. The Debian
+    # cloud image creates its first user at 1000 and Proxmox's --ciuser reuses
+    # it, so renumber at first boot -- before anyone has logged in as kazuki.
+    if id kazuki >/dev/null 2>&1 && [ "$(id -u kazuki)" = 1000 ]; then
+      systemctl stop user@1000.service 2>/dev/null || true
+      loginctl terminate-user kazuki 2>/dev/null || true
+      pkill -9 -u 1000 2>/dev/null || true
+      sleep 1
+      usermod  -u 1001 kazuki
+      groupmod -g 1001 kazuki
+      find / -xdev -uid 1000 -exec chown -h 1001 {} + 2>/dev/null || true
+      find / -xdev -gid 1000 -exec chgrp -h 1001 {} + 2>/dev/null || true
+    fi

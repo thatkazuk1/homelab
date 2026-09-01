@@ -493,10 +493,19 @@ fresh host (`docker-prod-02`, on `pve-02`) on 2026-09-01.
 Each node has its own template because the template disk lives on
 `local-lvm` (not shared storage) — `qm clone` can't reach across nodes.
 Rather than migrate a clone (`qm clone` on `pve-01` → `qm migrate` to
-`pve-02`), the fleet keeps an independent template per node. Build a new
-node's template the same way 9000 was: copy `pve-01`'s exact verified
-`debian-13-genericcloud-amd64.qcow2` + `SHA512SUMS` and
-`/var/lib/vz/snippets/debian13-vendor.yaml` over, then
+`pve-02`), the fleet keeps an independent template per node.
+
+The cloud-init vendor-data snippet is tracked at
+[`proxmox/debian13-vendor.yaml`](https://github.com/meetKazuki/homelab/blob/master/proxmox/debian13-vendor.yaml)
+— the live copy is a host-local file at
+`/var/lib/vz/snippets/debian13-vendor.yaml` on each PVE node; keep them in
+sync (restore from the repo copy if a node is rebuilt). It sets
+timezone/locale/guest-agent and renumbers `kazuki` to UID 1001 at first
+boot.
+
+Build a new node's template the same way 9000 was: copy `pve-01`'s exact
+verified `debian-13-genericcloud-amd64.qcow2` + `SHA512SUMS`, place the
+tracked `debian13-vendor.yaml` in `/var/lib/vz/snippets/`, then
 `qm create <id> --memory 2048 --cores 2 --cpu host --net0
 virtio,bridge=vmbr0,firewall=1 --scsihw virtio-scsi-single --scsi0
 local-lvm:0,import-from=<qcow2>,discard=on,iothread=1,ssd=1 --ide2
@@ -506,25 +515,29 @@ local-lvm:cloudinit --boot order=scsi0 --serial0 socket --vga serial0
 Diff `qm config` against 107 before trusting it — only the VMID, node,
 and (deliberately) `ostype: l26` should differ.
 
-## Two things the guest needs fixed after first boot (not yet in the template)
+## What the template and Ansible handle for a fresh guest
 
-1. **`kazuki` is UID 1000, not the fleet-standard 1001.** The Debian cloud
-   image makes its first user 1000 and `--ciuser` just reuses it. Renumber
-   before Ansible runs (nothing is using the account yet), via the guest
-   agent from the PVE node:
-   ```
-   qm guest exec <vmid> --timeout 120 -- bash -lc '
-   loginctl terminate-user kazuki; systemctl stop user@1000.service; sleep 3
-   pkill -9 -u 1000; sleep 2
-   usermod -u 1001 kazuki && groupmod -g 1001 kazuki
-   find / -xdev -uid 1000 -exec chown -h 1001 {} +
-   find / -xdev -gid 1000 -exec chgrp -h 1001 {} +'
-   ```
-2. **No `svc-docker` group, no `docker` group, no `/opt/homelab`, `kazuki`
-   not in `docker`.** The Ansible `baseline` role (added 2026-09-01, gated
-   `baseline_managed: true` in the host's `host_vars`) creates all of it
-   ahead of the `docker`/`periphery` roles. Set `baseline_managed: true`
-   for any genuinely fresh host; leave it unset for adopted ones.
+- **`kazuki` UID.** The Debian cloud image makes its first user UID 1000;
+  the fleet standard is 1001. The vendor-data snippet renumbers it (user
+  and primary group) at first boot, before anyone logs in — verified
+  2026-09-01 by a clone-test off template 9000. After boot, confirm:
+  `qm guest exec <vmid> -- bash -lc 'id kazuki'` should show
+  `uid=1001(kazuki) gid=1001(kazuki)`. If it somehow still says 1000 (an
+  older guest, or the runcmd failed), renumber manually while nothing is
+  using the account:
+  ```
+  qm guest exec <vmid> --timeout 120 -- bash -lc '
+  loginctl terminate-user kazuki; systemctl stop user@1000.service; sleep 3
+  pkill -9 -u 1000; sleep 2
+  usermod -u 1001 kazuki && groupmod -g 1001 kazuki
+  find / -xdev -uid 1000 -exec chown -h 1001 {} +
+  find / -xdev -gid 1000 -exec chgrp -h 1001 {} +'
+  ```
+- **`svc-docker` / `docker` groups, `kazuki` membership, `/opt/homelab`.**
+  The Ansible `baseline` role (gated `baseline_managed: true` in the
+  host's `host_vars`) creates all of it ahead of the `docker`/`periphery`
+  roles. Set `baseline_managed: true` for any genuinely fresh host; leave
+  it unset for adopted ones.
 
 ## 1. Clone the template
 
