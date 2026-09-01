@@ -7,6 +7,7 @@ The hosts currently registered as Komodo Servers, sourced live from Komodo Core'
 | `coolify-prod-01` | `https://192.168.50.30:8120` |
 | `core-01` | `https://192.168.50.3:8120` |
 | `docker-prod-01` | `https://192.168.50.105:8120` |
+| `docker-prod-02` | `https://192.168.50.100:8120` |
 | `garage-prod-01` | `https://192.168.50.80:8120` |
 | `nas-01` | `https://192.168.50.163:8120` |
 | `plane-prod-01` | `https://192.168.50.50:8120` |
@@ -25,4 +26,4 @@ outside Komodo's management surface.
 make fleet-inventory
 ```
 
-*Last regenerated: 2026-07-18T22:24+00:00 UTC*
+*Last regenerated: 2026-09-01T13:01+00:00 UTC*

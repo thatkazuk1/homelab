@@ -10,13 +10,14 @@ Komodo GitOps management (name and address, sourced live from Komodo Core's API)
 [Fleet Inventory](fleet.md). The table below adds context Komodo's API doesn't carry — VM/CT
 type, which Proxmox node each guest runs on, and a human-readable role.
 
-**Proxmox cluster** — two nodes, `pve-01` and `pve-02`, hosting eight guests between them:
+**Proxmox cluster** — two nodes, `pve-01` and `pve-02`, hosting nine guests between them:
 
 | Host | Type | Node | Role |
 |---|---|---|---|
 | `docker-prod-01` | VM | `pve-01` | General-purpose Docker workloads |
 | `coolify-prod-01` | CT | `pve-01` | Coolify (self-managed, not Komodo — see below) |
 | `forgejo-prod-01` | CT | `pve-01` | Forgejo (git + container registry) + Actions runner |
+| `docker-prod-02` | VM | `pve-02` | General-purpose Docker workloads (SparkyFitness) |
 | `telemetry-prod-01` | CT | `pve-02` | InfluxDB 3, Speedtest Tracker |
 | `proxy-prod-01` | CT | `pve-02` | Traefik + CrowdSec |
 | `plane-prod-01` | CT | `pve-02` | Plane (project management) |
