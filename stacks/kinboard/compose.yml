@@ -16,7 +16,7 @@ x-meta:
   status: new
   adrs:
     - 8
-  public_url: planner.kazuki.uk
+  public_url: planner.ts.kazuki.uk
 
 # See "Docker log rotation" in CLAUDE.md's Environment quirks — same
 # rationale as proxy-prod-01: Kong alone logs one line per API request.
@@ -179,13 +179,13 @@ services:
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
-      API_EXTERNAL_URL: https://planner.kazuki.uk
+      API_EXTERNAL_URL: https://planner.ts.kazuki.uk
 
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-}@db:5432/postgres
 
-      GOTRUE_SITE_URL: https://planner.kazuki.uk
-      GOTRUE_URI_ALLOW_LIST: https://planner.kazuki.uk
+      GOTRUE_SITE_URL: https://planner.ts.kazuki.uk
+      GOTRUE_URI_ALLOW_LIST: https://planner.ts.kazuki.uk
       GOTRUE_DISABLE_SIGNUP: "false"
 
       GOTRUE_JWT_ADMIN_ROLES: service_role
@@ -428,14 +428,14 @@ services:
       # (Traefik path-routes /rest, /auth, /storage, /realtime to Kong;
       # everything else to this container — see proxy-prod-01's
       # dynamic/router.yaml).
-      NEXT_PUBLIC_SUPABASE_URL: https://planner.kazuki.uk
+      NEXT_PUBLIC_SUPABASE_URL: https://planner.ts.kazuki.uk
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY:-}
       # Server-side: talks to Kong over the Docker network directly.
       SUPABASE_URL: http://kong:8000
       SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY:-}
       JWT_SECRET:
       TZ: Africa/Lagos
-      SITE_URL: https://planner.kazuki.uk
+      SITE_URL: https://planner.ts.kazuki.uk
       CRON_SECRET:
       VAPID_PUBLIC_KEY:
       VAPID_PRIVATE_KEY:

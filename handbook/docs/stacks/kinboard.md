@@ -9,7 +9,7 @@ Kinboard — self-hosted family "kitchen wall planner" (calendars, shopping, mea
 | Host | `docker-prod-02` |
 | Category | applications |
 | Status | new |
-| Public URL | [planner.kazuki.uk](https://planner.kazuki.uk) |
+| Public URL | [planner.ts.kazuki.uk](https://planner.ts.kazuki.uk) |
 | Repo path | [`stacks/kinboard/`](https://github.com/meetKazuki/homelab/tree/master/stacks/kinboard) |
 
 ## Services
