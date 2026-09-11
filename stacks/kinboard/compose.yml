@@ -440,6 +440,8 @@ services:
       VAPID_PUBLIC_KEY:
       VAPID_PRIVATE_KEY:
       VAPID_SUBJECT:
+      # Weather widget — free-tier key from openweathermap.org.
+      OPENWEATHERMAP_API_KEY: ${OPENWEATHERMAP_API_KEY:-}
       # Migration runner in the entrypoint applies webapp/docker/
       # migration*.sql on container start so image updates pick up new
       # schema without a manual `start.sh migrate`.
@@ -448,7 +450,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
       POSTGRES_PASSWORD:
-      OPENWEATHERMAP_API_KEY: ${OPENWEATHERMAP_API_KEY}
     networks:
       - kinboard
 
