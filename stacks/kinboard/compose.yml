@@ -128,7 +128,7 @@ services:
       - "8100:8000"
     environment:
       KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml.resolved
+      KONG_DECLARATIVE_CONFIG: /tmp/kong.yml.resolved
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
@@ -153,7 +153,7 @@ services:
         set -e
         sed -e "s|REPLACE_WITH_ANON_KEY|$$ANON_KEY|g" \
             -e "s|REPLACE_WITH_SERVICE_ROLE_KEY|$$SERVICE_ROLE_KEY|g" \
-            /home/kong/kong.yml.template > /home/kong/kong.yml.resolved
+            /home/kong/kong.yml.template > /tmp/kong.yml.resolved
         exec /docker-entrypoint.sh kong docker-start
     networks:
       - kinboard
