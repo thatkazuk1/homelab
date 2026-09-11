@@ -480,6 +480,21 @@ compose_cmd_wrapper_include = ["up"]
 ##
 
 [[stack]]
+name = "kinboard"
+tags = ["docker-prod-02"]
+[stack.config]
+server = "docker-prod-02"
+project_name = "kinboard"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/kinboard"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
 name = "speedtest-tracker"
 tags = ["telemetry-prod-01"]
 [stack.config]

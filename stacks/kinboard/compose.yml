@@ -1,0 +1,481 @@
+name: kinboard
+
+x-meta:
+  name: kinboard
+  host: docker-prod-02
+  category: applications
+  description: >
+    Kinboard — self-hosted family "kitchen wall planner" (calendars, shopping,
+    meals, chores, pocket money) on a bundled self-hosted Supabase (Postgres +
+    Kong + GoTrue + Realtime + PostgREST + Storage) backend. Adopted from the
+    vendor's own multi-container bundle; go2rtc (camera streaming) and the
+    optional integrations (weather, Google Calendar, Immich, Bring!, SMTP)
+    are dropped from this deployment — none were requested, and Kinboard's
+    own docs mark them as independently addable later with no compose change
+    beyond re-adding the relevant env vars.
+  status: new
+  adrs:
+    - 8
+  public_url: planner.kazuki.uk
+
+# See "Docker log rotation" in CLAUDE.md's Environment quirks — same
+# rationale as proxy-prod-01: Kong alone logs one line per API request.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  # ===================
+  # PostgreSQL Database
+  # ===================
+  db:
+    logging: *default-logging
+    image: supabase/postgres:15.14.1.159
+    container_name: kinboard-db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      PGPORT: 5432
+      POSTGRES_PORT: 5432
+      # Bare pass-through where the internal name already matches the secret
+      # name; ${VAR:-} where it doesn't — sops exec-env injects these, and
+      # the :- keeps `docker compose config` (Komodo's change-detection)
+      # quiet when the wrapper isn't in play. See ADR-0008.
+      PGPASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_PASSWORD:
+      PGDATABASE: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - /opt/homelab/kinboard/db:/var/lib/postgresql/data
+      # Mounted as `zz-init.sql` (NOT `init.sql`) so it runs AFTER the
+      # supabase image's own migrate.sh in the postgres entrypoint's lexical
+      # order — see the file's own header comment for why `init.sql` breaks.
+      - ./init.sql:/docker-entrypoint-initdb.d/zz-init.sql:ro
+    networks:
+      - kinboard
+
+  # ===================
+  # DB role-password alignment (one-shot, idempotent)
+  # ===================
+  # The supabase/postgres image seeds authenticator, supabase_auth_admin and
+  # supabase_storage_admin with EMPTY passwords; only supabase_admin gets the
+  # real one from migrate.sh. Without aligning them, rest/auth/storage/
+  # realtime crash-loop forever with "password authentication failed".
+  db-init:
+    logging: *default-logging
+    image: supabase/postgres:15.14.1.159
+    container_name: kinboard-db-init
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-}
+    # Connect as supabase_admin — the actual bootstrap superuser in this
+    # image. Waits for supabase's own migrations to create `authenticator`
+    # before ALTERing it (db can report healthy mid-init on first boot).
+    #
+    # Deviates from upstream here: upstream embeds the password via
+    # compose-time ${POSTGRES_PASSWORD} substitution, which bakes the
+    # plaintext into this container's Cmd (visible in `docker inspect`).
+    # $$PGPASSWORD (double-dollar, unquoted heredoc) defers to runtime shell
+    # expansion from the container's own env instead — same mechanism every
+    # other service here already uses to keep secrets out of resolved
+    # command/inspect output.
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        for i in $$(seq 1 60); do
+          if psql -h db -p 5432 -U supabase_admin -d postgres -tAc \
+               "SELECT 1 FROM pg_roles WHERE rolname='authenticator'" 2>/dev/null \
+               | grep -q 1; then
+            break
+          fi
+          echo "db-init: waiting for supabase roles to exist ($$i)…"
+          sleep 2
+        done
+        psql -h db -p 5432 -U supabase_admin -d postgres -v ON_ERROR_STOP=1 <<SQL
+        ALTER USER authenticator          WITH PASSWORD '$$PGPASSWORD';
+        ALTER USER supabase_auth_admin     WITH PASSWORD '$$PGPASSWORD';
+        ALTER USER supabase_storage_admin  WITH PASSWORD '$$PGPASSWORD';
+        CREATE SCHEMA IF NOT EXISTS _realtime;
+        SQL
+        echo "db-init: role passwords aligned."
+    networks:
+      - kinboard
+
+  # ===================
+  # Supabase Kong (API Gateway)
+  # ===================
+  kong:
+    logging: *default-logging
+    image: kong:3.9.3
+    container_name: kinboard-kong
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8100:8000"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml.resolved
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
+      # nginx defaults to one worker per HOST core, not per container
+      # allocation — see upstream's own comment (kinboard#252). Two is
+      # plenty for a household.
+      KONG_NGINX_WORKER_PROCESSES: 2
+      # kong.yml is committed as a template (safe — no secrets in git).
+      # ANON_KEY/SERVICE_ROLE_KEY are resolved into it at container start
+      # from the sops-injected env, same one-encrypted-file-per-stack model
+      # (ADR-0008) as every other stack; kong.yml itself never holds a
+      # plaintext secret at rest.
+      ANON_KEY:
+      SERVICE_ROLE_KEY:
+    volumes:
+      - ./kong.yml.template:/home/kong/kong.yml.template:ro
+    entrypoint:
+      - sh
+      - -c
+      - |
+        set -e
+        sed -e "s|REPLACE_WITH_ANON_KEY|$$ANON_KEY|g" \
+            -e "s|REPLACE_WITH_SERVICE_ROLE_KEY|$$SERVICE_ROLE_KEY|g" \
+            /home/kong/kong.yml.template > /home/kong/kong.yml.resolved
+        exec /docker-entrypoint.sh kong docker-start
+    networks:
+      - kinboard
+
+  # ===================
+  # Supabase Auth (GoTrue)
+  # ===================
+  auth:
+    logging: *default-logging
+    image: supabase/gotrue:v2.189.0
+    container_name: kinboard-auth
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9999/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: https://planner.kazuki.uk
+
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-}@db:5432/postgres
+
+      GOTRUE_SITE_URL: https://planner.kazuki.uk
+      GOTRUE_URI_ALLOW_LIST: https://planner.kazuki.uk
+      GOTRUE_DISABLE_SIGNUP: "false"
+
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_SECRET: ${JWT_SECRET:-}
+
+      # No SMTP configured — GOTRUE_MAILER_AUTOCONFIRM skips email
+      # confirmation entirely, so signup works with no mail transport.
+      # Add SMTP_* secrets + GOTRUE_SMTP_* env here later if real
+      # confirmation emails are ever wanted.
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_MAILER_URLPATHS_INVITE: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: /auth/v1/verify
+
+      GOTRUE_EXTERNAL_PHONE_ENABLED: "false"
+      GOTRUE_SMS_AUTOCONFIRM: "false"
+    networks:
+      - kinboard
+
+  # ===================
+  # Supabase Realtime
+  # ===================
+  realtime:
+    logging: *default-logging
+    image: supabase/realtime:v2.102.3
+    container_name: kinboard-realtime
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-sSfL", "--head", "-o", "/dev/null", "-H", "Authorization: Bearer ${ANON_KEY:-}", "http://localhost:4000/api/tenants/realtime-dev/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    ulimits:
+      nofile:
+        soft: 100000
+        hard: 100000
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-}
+      DB_NAME: postgres
+      DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
+      DB_ENC_KEY: supabaserealtime
+      API_JWT_SECRET: ${JWT_SECRET:-}
+      # Guards /metrics only, but read with fetch_env! outside any
+      # environment guard — absent, the container exits at boot.
+      METRICS_JWT_SECRET: ${JWT_SECRET:-}
+      SECRET_KEY_BASE:
+      APP_NAME: realtime
+      # Creates (and recreates on every start) the realtime-dev tenant.
+      SEED_SELF_HOST: "true"
+      RUN_JANITOR: "true"
+      RLIMIT_NOFILE: "10000"
+      DISABLE_HEALTHCHECK_LOGGING: "true"
+      ERL_AFLAGS: -proto_dist inet_tcp
+      DNS_NODES: "''"
+    # No command: the image's own run.sh migrates, seeds when
+    # SEED_SELF_HOST is set, then execs the server.
+    networks:
+      kinboard:
+        # Realtime extracts tenant_id from the first label of the Host
+        # header. Kong forwards with Host = upstream hostname, so the
+        # upstream name must match the seeded tenant external_id.
+        aliases:
+          - realtime-dev
+
+  # ===================
+  # Supabase REST (PostgREST)
+  # ===================
+  rest:
+    logging: *default-logging
+    image: postgrest/postgrest:v14.16
+    container_name: kinboard-rest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD:-}@db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET:-}
+    command: "postgrest"
+    networks:
+      - kinboard
+
+  # ===================
+  # Supabase Storage
+  # ===================
+  storage:
+    logging: *default-logging
+    image: supabase/storage-api:v1.60.4
+    container_name: kinboard-storage
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+      rest:
+        condition: service_started
+    healthcheck:
+      # 127.0.0.1, not localhost: the storage server binds IPv4 only, but
+      # `localhost` resolves to IPv6 [::1] first in this image.
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5000/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      ANON_KEY:
+      SERVICE_KEY: ${SERVICE_ROLE_KEY:-}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET:-}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD:-}@db:5432/postgres
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: "true"
+      IMGPROXY_URL: http://imgproxy:8080
+    volumes:
+      - /opt/homelab/kinboard/storage:/var/lib/storage
+    networks:
+      - kinboard
+
+  # ===================
+  # Image Proxy (for storage transformations)
+  # ===================
+  imgproxy:
+    logging: *default-logging
+    image: darthsim/imgproxy:v4.0.12
+    container_name: kinboard-imgproxy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "imgproxy", "health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      IMGPROXY_BIND: ":8080"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
+      IMGPROXY_ETAG_ENABLED: "true"
+      IMGPROXY_AUTO_WEBP: "true"
+      # Held at v3's default rather than v4's raised ceiling — this decodes
+      # untrusted images, and the ceiling is the memory a single request
+      # can cost.
+      IMGPROXY_MAX_SRC_RESOLUTION: 16.8
+    volumes:
+      - /opt/homelab/kinboard/storage:/var/lib/storage:ro
+    networks:
+      - kinboard
+
+  # ===================
+  # Next.js Webapp (published image — see x-meta for why go2rtc/optional
+  # integrations were dropped rather than adopted wholesale)
+  # ===================
+  webapp:
+    logging: *default-logging
+    image: ghcr.io/svenger87/kinboard:latest@sha256:64d150dac9c0c564a215dfa76c5f42d28f802d8e49a583c5fb62356bb0135a6b
+    container_name: kinboard-webapp
+    restart: unless-stopped
+    # Scheduled-job labels read by the `cron` (Ofelia) service below, which
+    # is filtered to exactly this container by name — see that service's
+    # comment for why the filter (not just label-mode) matters.
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.google-sync.schedule: "@every 15m"
+      ofelia.job-exec.google-sync.command: "/usr/local/bin/google-sync"
+      ofelia.job-exec.google-sync.no-overlap: "true"
+      ofelia.job-exec.todo-reminders.schedule: "0 0 8 * * *"
+      ofelia.job-exec.todo-reminders.command: "/usr/local/bin/todo-reminders"
+      ofelia.job-exec.todo-reminders.no-overlap: "true"
+      ofelia.job-exec.evaluate-attention.schedule: "@every 5m"
+      ofelia.job-exec.evaluate-attention.command: "/usr/local/bin/evaluate-attention"
+      ofelia.job-exec.evaluate-attention.no-overlap: "true"
+      ofelia.job-exec.process-notifications.schedule: "@every 30s"
+      ofelia.job-exec.process-notifications.command: "/usr/local/bin/process-notifications"
+      ofelia.job-exec.process-notifications.no-overlap: "true"
+      ofelia.job-exec.schedule-event-reminders.schedule: "@every 5m"
+      ofelia.job-exec.schedule-event-reminders.command: "/usr/local/bin/schedule-event-reminders"
+      ofelia.job-exec.schedule-event-reminders.no-overlap: "true"
+      ofelia.job-exec.birthday-reminders.schedule: "0 0 7 * * *"
+      ofelia.job-exec.birthday-reminders.command: "/usr/local/bin/birthday-reminders"
+      ofelia.job-exec.birthday-reminders.no-overlap: "true"
+      ofelia.job-exec.meal-prep-reminders.schedule: "0 0 18 * * *"
+      ofelia.job-exec.meal-prep-reminders.command: "/usr/local/bin/meal-prep-reminders"
+      ofelia.job-exec.meal-prep-reminders.no-overlap: "true"
+      ofelia.job-exec.sync-ics.schedule: "@every 30m"
+      ofelia.job-exec.sync-ics.command: "/usr/local/bin/sync-ics"
+      ofelia.job-exec.sync-ics.no-overlap: "true"
+      ofelia.job-exec.sync-caldav.schedule: "0 15,45 * * * *"
+      ofelia.job-exec.sync-caldav.command: "/usr/local/bin/sync-caldav"
+      ofelia.job-exec.sync-caldav.no-overlap: "true"
+      ofelia.job-exec.pocket-money-accrue-interest.schedule: "0 30 0 * * *"
+      ofelia.job-exec.pocket-money-accrue-interest.command: "/usr/local/bin/pocket-money-accrue-interest"
+      ofelia.job-exec.pocket-money-accrue-interest.no-overlap: "true"
+      ofelia.job-exec.pocket-money-commit-interest.schedule: "0 0 * * * *"
+      ofelia.job-exec.pocket-money-commit-interest.command: "/usr/local/bin/pocket-money-commit-interest"
+      ofelia.job-exec.pocket-money-commit-interest.no-overlap: "true"
+      ofelia.job-exec.pocket-money-process-allowance.schedule: "0 0 * * * *"
+      ofelia.job-exec.pocket-money-process-allowance.command: "/usr/local/bin/pocket-money-process-allowance"
+      ofelia.job-exec.pocket-money-process-allowance.no-overlap: "true"
+      ofelia.job-exec.purge-recycle-bin.schedule: "0 30 3 * * *"
+      ofelia.job-exec.purge-recycle-bin.command: "/usr/local/bin/purge-recycle-bin"
+      ofelia.job-exec.purge-recycle-bin.no-overlap: "true"
+      ofelia.job-exec.purge-domain-events.schedule: "0 45 3 * * *"
+      ofelia.job-exec.purge-domain-events.command: "/usr/local/bin/purge-domain-events"
+      ofelia.job-exec.purge-domain-events.no-overlap: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      kong:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "3001:3000"
+    environment:
+      # Browser-facing: talks directly to Kong at the same public origin
+      # (Traefik path-routes /rest, /auth, /storage, /realtime to Kong;
+      # everything else to this container — see proxy-prod-01's
+      # dynamic/router.yaml).
+      NEXT_PUBLIC_SUPABASE_URL: https://planner.kazuki.uk
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY:-}
+      # Server-side: talks to Kong over the Docker network directly.
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY:-}
+      JWT_SECRET:
+      TZ: Africa/Lagos
+      SITE_URL: https://planner.kazuki.uk
+      CRON_SECRET:
+      VAPID_PUBLIC_KEY:
+      VAPID_PRIVATE_KEY:
+      VAPID_SUBJECT:
+      # Migration runner in the entrypoint applies webapp/docker/
+      # migration*.sql on container start so image updates pick up new
+      # schema without a manual `start.sh migrate`.
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD:
+    networks:
+      - kinboard
+
+  # ===================
+  # Cron Scheduler (Ofelia)
+  # ===================
+  cron:
+    logging: *default-logging
+    image: mcuadros/ofelia@sha256:efcbe2c5cf658a25de6443c1462d653f9cc03791d642e01fc6c638a00f97e492
+    container_name: kinboard-cron
+    restart: unless-stopped
+    depends_on:
+      - webapp
+    # Filtered to this deployment's own webapp container by name — see
+    # upstream's comment history (kinboard's own postmortem on a test rig's
+    # scheduler driving production because it only filtered by label).
+    command: daemon --docker --docker-filter "name=kinboard-webapp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CRON_SECRET:
+    networks:
+      - kinboard
+
+networks:
+  kinboard:
+    name: kinboard
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.200.0.0/24

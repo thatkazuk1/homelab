@@ -96,6 +96,7 @@ nav:
       - homepage: stacks/homepage.md
       - influxdb3: stacks/influxdb3.md
       - jellyfin: stacks/jellyfin.md
+      - kinboard: stacks/kinboard.md
       - komodo: stacks/komodo.md
       - komodo-periphery: stacks/komodo-periphery.md
       - media: stacks/media.md
