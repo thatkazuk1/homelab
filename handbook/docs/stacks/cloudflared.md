@@ -24,6 +24,7 @@ This stack runs a per-host instance on the following hosts:
 - **Image:** `cloudflare/cloudflared:latest`
 - **Container:** `cloudflared-tunnel`
 - **Restart policy:** `unless-stopped`
+- **Network mode:** `host`
 
 ## Secrets
 

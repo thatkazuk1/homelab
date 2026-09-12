@@ -16,6 +16,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared-tunnel
     restart: unless-stopped
+    network_mode: host
     environment:
       - PUID
       - PGID
