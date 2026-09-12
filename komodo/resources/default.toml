@@ -134,7 +134,24 @@ repo = "kazuki/homelab"
 branch = "master"
 webhook_enabled = false
 run_directory = "stacks/cloudflared"
-file_paths = ["compose.yml"]
+file_paths = ["compose.docker-prod-01.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
+name = "cloudflared-coolify-prod-01"
+tags = ["coolify-prod-01"]
+[stack.config]
+server = "coolify-prod-01"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/cloudflared"
+file_paths = ["compose.coolify-prod-01.yml"]
 compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
 compose_cmd_wrapper_include = ["up"]
 

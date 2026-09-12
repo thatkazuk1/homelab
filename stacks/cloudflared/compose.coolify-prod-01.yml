@@ -1,0 +1,25 @@
+x-meta:
+  name: cloudflared
+  host: coolify-prod-01
+  category: networking
+  description: >
+    A second, dedicated Cloudflare Tunnel client for personal-project hostnames
+    routed to Coolify — isolated from the fleet's shared tunnel
+    (docker-prod-01) so adding or changing a personal-project route no longer
+    bounces every kazuki.uk hostname on the fleet.
+  status: adopted
+  adrs:
+    - 8
+
+services:
+  cloudflared-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-tunnel-personal
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+    volumes:
+      - /opt/homelab/cloudflared/config:/etc/cloudflared
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run coolify-prod-01
