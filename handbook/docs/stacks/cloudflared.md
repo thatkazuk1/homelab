@@ -22,7 +22,7 @@ This stack runs a per-host instance on the following hosts:
 ### `cloudflared-tunnel`
 
 - **Image:** `cloudflare/cloudflared:latest`
-- **Container:** `cloudflared-tunnel-personal`
+- **Container:** `cloudflared-tunnel`
 - **Restart policy:** `unless-stopped`
 
 ## Secrets

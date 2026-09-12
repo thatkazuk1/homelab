@@ -14,7 +14,7 @@ x-meta:
 services:
   cloudflared-tunnel:
     image: cloudflare/cloudflared:latest
-    container_name: cloudflared-tunnel-personal
+    container_name: cloudflared-tunnel
     restart: unless-stopped
     environment:
       - PUID
