@@ -107,11 +107,13 @@ configured correctly:
    with `openssl s_client -connect 192.168.50.30:443 -servername <tenant>.kazuki.uk | openssl
    x509 -noout -issuer -dates` — issuer should be Let's Encrypt, not `TRAEFIK DEFAULT CERT`.
 
-3. **An AdGuard DNS rewrite** for `<tenant>.kazuki.uk → 192.168.50.30`, more specific than the
-   fleet's blanket `*.kazuki.uk → 192.168.50.107` rule, so LAN/tailnet clients resolve to
-   Coolify directly instead of to fleet Traefik (which has no route for a Coolify tenant).
-   Operator-driven UI action (AdGuard's admin, per ADR-0011) — not tracked anywhere in this
-   repo.
+3. **An AdGuard DNS rewrite** for `<tenant>.kazuki.uk → 192.168.50.30`, so LAN/tailnet
+   clients resolve to Coolify directly instead of to fleet Traefik (which has no route for
+   a Coolify tenant). There is no fleet-wide `*.kazuki.uk` fallback to fall back on — the
+   blanket rewrite that used to cover this was removed 2026-09-12 (every fleet-infra and
+   Coolify-tenant hostname now needs its own explicit rewrite, or it resolves via the
+   public Cloudflare path instead of LAN-direct). Operator-driven UI action (AdGuard's
+   admin, per ADR-0011) — not tracked anywhere in this repo.
 
 4. **The domain entered into Coolify's UI with an explicit scheme** — `https://tenant.kazuki.uk`,
    not a bare hostname. A bare hostname produces a broken Traefik router label in this Coolify
