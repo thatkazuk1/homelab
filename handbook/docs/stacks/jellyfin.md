@@ -15,7 +15,7 @@ Jellyfin media server with Jellystat watch-history tracking (Postgres-backed), r
 
 ### `jellyfin`
 
-- **Image:** `ghcr.io/jellyfin/jellyfin:12.0`
+- **Image:** `ghcr.io/jellyfin/jellyfin:latest`
 - **Container:** `jellyfin`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `8096:8096`
