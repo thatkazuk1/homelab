@@ -301,7 +301,7 @@ services:
   # ===================
   imgproxy:
     logging: *default-logging
-    image: darthsim/imgproxy:v4.0.12
+    image: darthsim/imgproxy:v4.0.14
     container_name: kinboard-imgproxy
     restart: unless-stopped
     healthcheck:

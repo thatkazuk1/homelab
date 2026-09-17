@@ -59,7 +59,7 @@ Kinboard — self-hosted family "kitchen wall planner" (calendars, shopping, mea
 
 ### `imgproxy`
 
-- **Image:** `darthsim/imgproxy:v4.0.12`
+- **Image:** `darthsim/imgproxy:v4.0.14`
 - **Container:** `kinboard-imgproxy`
 - **Restart policy:** `unless-stopped`
 
