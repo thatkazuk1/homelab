@@ -52,6 +52,9 @@ services:
     container_name: qbittorrent
     restart: unless-stopped
     network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
     mem_limit: 3g
     memswap_limit: 3g
     volumes:
