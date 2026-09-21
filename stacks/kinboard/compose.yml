@@ -326,7 +326,7 @@ services:
   # ===================
   webapp:
     logging: *default-logging
-    image: ghcr.io/svenger87/kinboard:latest@sha256:64d150dac9c0c564a215dfa76c5f42d28f802d8e49a583c5fb62356bb0135a6b
+    image: ghcr.io/svenger87/kinboard:latest@sha256:bce873acdc30b2d198d6543c94daa55142f7a479575a387032aae6df1701978b
     container_name: kinboard-webapp
     restart: unless-stopped
     labels:

@@ -65,7 +65,7 @@ Kinboard — self-hosted family "kitchen wall planner" (calendars, shopping, mea
 
 ### `webapp`
 
-- **Image:** `ghcr.io/svenger87/kinboard:latest@sha256:64d150dac9c0c564a215dfa76c5f42d28f802d8e49a583c5fb62356bb0135a6b`
+- **Image:** `ghcr.io/svenger87/kinboard:latest@sha256:bce873acdc30b2d198d6543c94daa55142f7a479575a387032aae6df1701978b`
 - **Container:** `kinboard-webapp`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `3001:3000`
