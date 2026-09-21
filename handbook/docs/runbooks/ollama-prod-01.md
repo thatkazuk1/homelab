@@ -188,6 +188,7 @@ Expect `OLLAMA_FLASH_ATTENTION:true`, `OLLAMA_KV_CACHE_TYPE:q8_0`,
 | Consumer | Setting | Notes |
 |---|---|---|
 | SparkyFitness (`docker-prod-02`) | Settings, AI Services: service type **Ollama**, URL `http://192.168.30.111:11434`, custom model name `qwen3-vl:4b`, chat tool set **Core** | Configured in the app UI and stored in its database (the API key field is unused for Ollama). Not in the compose file, so nothing to redeploy. |
+| Sure (`docker-prod-01`) | `stacks/sure/compose.yml`: `OPENAI_URI_BASE=http://192.168.30.111:11434/v1`, `OPENAI_MODEL=qwen3-vl:4b`, `LLM_CONTEXT_WINDOW=8192`, `OPENAI_REQUEST_TIMEOUT=180` | Builtin AI assistant (`ASSISTANT_TYPE=builtin`). Uses the LAN address, not the tailnet one. Same model as SparkyFitness so the 6 GB card never swaps. A tool-calling turn measured ~30–50 s (cold or warm), so expect slow answers; when the laptop is off the assistant errors and the rest of Sure is unaffected. Changing the model does not affect retries of existing chat messages — send a new one. |
 
 Add new consumers here. Anything that uses this host should tolerate it being off.
 
