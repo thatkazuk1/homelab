@@ -71,7 +71,7 @@ services:
       - /opt/homelab/sparkyfitness/uploads:/app/SparkyFitnessServer/uploads
 
   sparkyfitness-frontend:
-    image: codewithcj/sparkyfitness:v1.7.0
+    image: codewithcj/sparkyfitness:v1.7.2
     container_name: sparkyfitness-frontend
     restart: unless-stopped
     depends_on:

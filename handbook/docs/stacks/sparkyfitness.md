@@ -28,7 +28,7 @@ SparkyFitness — self-hosted nutrition, exercise, and body-metric tracker (a pr
 
 ### `sparkyfitness-frontend`
 
-- **Image:** `codewithcj/sparkyfitness:v1.7.0`
+- **Image:** `codewithcj/sparkyfitness:v1.7.2`
 - **Container:** `sparkyfitness-frontend`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `3004:80`
