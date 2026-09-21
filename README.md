@@ -157,7 +157,7 @@ dead link); it's checked periodically, not continuously.
 
 ## Authors
 
-**Desmond Edem** ([@meetKazuki](https://github.com/meetKazuki)) — sole operator and author.
+**Desmond Edem** ([@thatkazuk1](https://github.com/thatkazuk1)) — sole operator and author.
 
 ### Repo Activity
 
