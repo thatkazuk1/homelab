@@ -90,9 +90,33 @@ default); Postgres chowns its own data subdir to the in-image `postgres` uid on 
 Files under `backup/` and `uploads/` are written root-owned — acceptable for now; add
 `PUID`/`GUID` to the server service if that needs to change.
 
+## AI services
+
+Meal-photo scanning and the chat helper need an AI provider, configured in the app under
+Settings, AI Services (stored in the database, encrypted with
+`SPARKY_FITNESS_API_ENCRYPTION_KEY`; nothing in `compose.yml`). This instance uses Ollama on
+`ollama-prod-01` (`http://192.168.30.111:11434`, model `qwen3-vl:4b`, chat tool set **Core**).
+The request comes from the server container, so the URL must be reachable from
+`docker-prod-02` (LAN address; that VM is not on the tailnet). The laptop can be off, and the
+first request after an Ollama restart takes 30–75 s. See the
+[`ollama-prod-01` runbook](../runbooks/ollama-prod-01.md).
+
+## Exercise providers
+
+Wger works. Free Exercise DB is enabled but unreliable here: the server's fetch of the dataset
+from `raw.githubusercontent.com` times out (IPv6 unreachable plus IPv4 timeouts from the Node
+process, while `curl` from the same container succeeds), and v1.7.0 then blocks retries for
+5 minutes. It is not fixed; Wger is the working provider.
+
+## Upgrade note
+
+After a version bump, sign-ins can fail with "Database schema mismatch" until the server
+container is restarted (`docker restart sparkyfitness-server`). Better Auth caches its schema
+check at boot and can race the migrations.
+
 ## Renovate
 
-`postgres:18.3-alpine` and both `codewithcj/*:v1.6.4` tags are pinned and tracked by
+`postgres:18.3-alpine` and both `codewithcj/*:v1.7.0` tags are pinned and tracked by
 Renovate like every other stack.
 
 ---

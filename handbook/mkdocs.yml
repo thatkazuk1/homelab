@@ -80,6 +80,7 @@ nav:
       - core-01: runbooks/core-01.md
       - Backrest backup: runbooks/backrest-backup.md
       - Komodo Core restore: runbooks/komodo-restore.md
+      - ollama-prod-01: runbooks/ollama-prod-01.md
   - Stacks:
       - Overview: stacks/index.md
       - backrest: stacks/backrest.md

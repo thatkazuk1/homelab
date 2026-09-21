@@ -28,6 +28,11 @@ type, which Proxmox node each guest runs on, and a human-readable role.
 arm64, runs Home Assistant among other things) and `nas-01` (TerraMaster NAS, runs the media
 stack via TOS/Docker).
 
+**LLM host** — `ollama-prod-01`, a Windows laptop with an RTX 3060 (6 GB) that serves
+[Ollama](https://ollama.com) over the LAN for light LLM tasks such as SparkyFitness meal-photo
+scanning. It is a personal machine adopted into the fleet, so it sits outside Komodo and Ansible
+and is documented in its [runbook](../runbooks/ollama-prod-01.md) instead.
+
 **Workstation** — `nexus-v`, the operator's personal machine. Not fleet infrastructure; it's
 where Claude Code runs, where the age private key lives, and where all git operations
 originate.
@@ -98,6 +103,9 @@ Anything not explicitly behind Cloudflare Tunnel or Tailscale uses `.lan`.
 - **Periphery agents** run on each Docker host, pull the target image from Forgejo's registry
   (using their own registry credentials — they don't inherit the SSH user's `docker login`),
   and run `docker compose` against the stack's committed compose file.
+- **SparkyFitness** (`docker-prod-02`) calls **`ollama-prod-01`** directly over the LAN
+  (`:11434`, unauthenticated, firewalled to the LAN subnets) for AI features. It is configured
+  in the app's UI, not in git, and the laptop may be off — see the runbook.
 - **Traefik** (`proxy-prod-01`) fronts most `.lan` and public services — but not all; see the
   handbook's own serving setup as a documented exception below.
 

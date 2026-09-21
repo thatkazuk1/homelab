@@ -11,6 +11,7 @@ operating this fleet.
 | [`core-01`](core-01.md) | Raspberry Pi 4 running Home Assistant — cloud-init management, accounts, host specifics. |
 | [Backrest backup](backrest-backup.md) | The restic-to-Google-Drive backup on `docker-prod-01` — config, secrets, restore. |
 | [Komodo Core restore](komodo-restore.md) | Restoring Komodo Core's database from backup. |
+| [`ollama-prod-01`](ollama-prod-01.md) | Windows laptop with an RTX 3060 serving Ollama over the LAN — SSH access, install, environment settings, GPU sizing, known quirks. Not Komodo-managed. |
 
 `nas-01` has a runbook too, kept operator-side only (`docs/runbooks/nas-01.md`) — it documents
 host-specific access and hardening details that don't belong in the public mirror.
