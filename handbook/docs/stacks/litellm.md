@@ -1,6 +1,6 @@
 # litellm
 
-LiteLLM proxy — a single OpenAI-compatible endpoint in front of the fleet's Ollama hosts (ollama-prod-01, nexus-v), so consumers (Sure, SparkyFitness) stop hardcoding a backend URL. Stateless: no database, model routing and priority failover are defined in config.yaml, and the only credential is a shared master key (no per-consumer virtual keys yet — that needs a Postgres DB, not added here per minimal footprint).
+LiteLLM proxy — a single OpenAI-compatible endpoint in front of the fleet's Ollama hosts (ollama-prod-01, nexus-v), so consumers (Sure, SparkyFitness) stop hardcoding a backend URL. Backed by its own Postgres for the Admin UI (/ui — login, virtual keys, spend/request history). Model routing itself stays in config.yaml, not the database (STORE_MODEL_IN_DB deliberately unset), so git remains the source of truth for what's routed where — the DB only backs UI/key/usage state.
 
 ## Reference
 
@@ -13,12 +13,22 @@ LiteLLM proxy — a single OpenAI-compatible endpoint in front of the fleet's Ol
 
 ## Services
 
+### `litellm-db`
+
+- **Image:** `postgres:18.3-alpine`
+- **Container:** `litellm-db`
+- **Restart policy:** `unless-stopped`
+
 ### `litellm`
 
 - **Image:** `ghcr.io/berriai/litellm:v1.83.14-stable`
 - **Container:** `litellm`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `4000:4000`
+
+## Named volumes
+
+- `litellm-db-data`
 
 ## Secrets
 
