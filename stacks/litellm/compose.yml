@@ -1,0 +1,40 @@
+x-meta:
+  name: litellm
+  host: docker-prod-02
+  category: ai-gateway
+  description: >
+    LiteLLM proxy — a single OpenAI-compatible endpoint in front of the
+    fleet's Ollama hosts (ollama-prod-01, nexus-v), so consumers (Sure,
+    SparkyFitness) stop hardcoding a backend URL. Stateless: no database,
+    model routing and priority failover are defined in config.yaml, and
+    the only credential is a shared master key (no per-consumer virtual
+    keys yet — that needs a Postgres DB, not added here per minimal
+    footprint).
+  status: new
+  adrs:
+    - 8
+
+name: litellm
+
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:v1.83.14-stable
+    container_name: litellm
+    restart: unless-stopped
+    command: ["--config", "/app/proxy_server_config.yaml", "--port", "4000"]
+    ports:
+      - "4000:4000"
+    environment:
+      # sops exec-env injects this; bare pass-through per ADR-0008.
+      LITELLM_MASTER_KEY:
+    volumes:
+      - ./config.yaml:/app/proxy_server_config.yaml:ro
+    healthcheck:
+      # No API key required for this endpoint (see LiteLLM's health docs).
+      # curl/wget presence in this image isn't confirmed, so use python3,
+      # which every litellm image ships.
+      test: ["CMD", "python3", "-c", "import urllib.request as u; u.urlopen('http://localhost:4000/health/liveliness')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

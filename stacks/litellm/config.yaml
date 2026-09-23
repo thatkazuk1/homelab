@@ -1,0 +1,36 @@
+# LiteLLM proxy routing config. Not secret — the master key lives in
+# secrets.enc.env and is referenced here by name only (os.environ/... syntax).
+#
+# Deliberately minimal for the first pass: one backend per model_name, no
+# fallback tier wired in yet. See the commented block below and
+# notes.md before enabling it.
+
+model_list:
+  - model_name: vision-default
+    litellm_params:
+      model: ollama/qwen3-vl:4b-instruct
+      api_base: http://192.168.30.111:11434
+    model_info:
+      order: 1
+
+  # Fallback tier, disabled by default — do not enable without reading
+  # notes.md first. Two open problems:
+  #   1. nexus-v only has qwen2.5vl:7b pulled, not qwen3-vl:4b-instruct, so
+  #      this is a different model, not a clean swap — verify its output
+  #      shape is acceptable to every consumer before relying on it.
+  #   2. nexus-v is a personal workstation with no DHCP reservation (unlike
+  #      ollama-prod-01's 192.168.30.111). Its LAN IP (192.168.30.108,
+  #      confirmed reachable from docker-prod-02 on 2026-09-23) can change.
+  #      Its tailnet IP (100.73.5.121) is NOT usable here — docker-prod-02
+  #      is not on the tailnet (confirmed 2026-09-23, no tailscale binary,
+  #      no route).
+  #
+  # - model_name: vision-default
+  #   litellm_params:
+  #     model: ollama/qwen2.5vl:7b
+  #     api_base: http://192.168.30.108:11434
+  #   model_info:
+  #     order: 2
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

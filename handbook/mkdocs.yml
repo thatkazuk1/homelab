@@ -100,6 +100,7 @@ nav:
       - kinboard: stacks/kinboard.md
       - komodo: stacks/komodo.md
       - komodo-periphery: stacks/komodo-periphery.md
+      - litellm: stacks/litellm.md
       - media: stacks/media.md
       - navidrome: stacks/navidrome.md
       - ntfy: stacks/ntfy.md
