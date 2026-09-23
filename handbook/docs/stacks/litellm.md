@@ -81,8 +81,23 @@ This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack
   gateway checks against, not an external credential) via `openssl rand -hex 32`, prefixed
   `sk-`. Encrypted with `sops --encrypt`, round-trip verified (`diff -q` clean, sha256 match on
   both sides), scratch plaintext shredded immediately. Never printed.
-- **Not yet deployed or adopted.** `default.toml` has the `[[stack]]` block; nothing has been
-  pushed, and no consumer points at this yet.
+- Deployed 2026-09-23. First deploy hit a real stall (`docker compose pull` sat at flat network
+  I/O for ~7 minutes with zero logs on either side) — turned out to be the pull's final
+  extraction/checksum phase reading as idle, not an actual hang; a direct `docker pull` on the
+  host confirmed the image was already fully fetched and the stack came up clean right after.
+- **Postgres added 2026-09-23** so `/ui` works (it requires a DB connection to function at all,
+  confirmed against LiteLLM's own docs — there's no degraded no-DB login mode). `STORE_MODEL_IN_DB`
+  deliberately left unset — the DB only backs UI/key/session/history state, not model routing,
+  so `config.yaml` stays the single source of truth and nothing can drift from git via the UI.
+  **Mistake caught, not a handoff fabrication this time — my own:** the first attempt mounted
+  `litellm-db-data:/var/lib/postgresql/data`, copied from an older stack's pattern without
+  checking `sparkyfitness`'s own `postgres:18.3-alpine` service first. Postgres 18's official
+  image expects a mount at `/var/lib/postgresql` (no `/data` suffix) and refuses to start
+  against the old path — `litellm-db` crash-looped immediately, `litellm` never got past
+  `Created` (blocked on `depends_on: service_healthy`). Confirmed the volume was still empty
+  (crashed before ever writing anything) before fixing the path and redeploying, no data at
+  risk. If this stack is ever copied as a template, check the target Postgres major version's
+  expected mount path — it changed between 17 and 18, this repo now has stacks straddling both.
 - Follow-ups, in order, once the operator wants to proceed:
   1. Push and verify the Stack deploys clean (`docker logs litellm`, then
      `curl -H "Authorization: Bearer $LITELLM_MASTER_KEY" http://192.168.50.100:4000/health/liveliness`
