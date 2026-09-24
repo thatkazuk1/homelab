@@ -27,6 +27,17 @@ services:
     volumes:
       - gluetun-data:/gluetun
       - /Volume1/@apps/homelab/qBittorrent/config.toml:/gluetun/auth/config.toml:ro
+    # The image's own healthcheck (5s interval, 1 retry, 10s start period) is
+    # tighter than a VPN cold start: gluetun's first check often fails, it
+    # restarts the VPN internally, and ~30s later is fine — but by then
+    # `compose up` has already aborted with "gluetun is unhealthy" and left
+    # qbittorrent in Created. Only the timings are overridden; the test
+    # command is inherited from the image.
+    healthcheck:
+      interval: 10s
+      timeout: 10s
+      retries: 6
+      start_period: 120s
     cap_add:
       - NET_ADMIN
     devices:
