@@ -55,6 +55,10 @@ services:
     depends_on:
       gluetun:
         condition: service_healthy
+        # qbittorrent lives in gluetun's network namespace; if gluetun is
+        # recreated/restarted, the old namespace goes stale and the WebUI
+        # stops answering until qbittorrent is restarted too.
+        restart: true
     mem_limit: 3g
     memswap_limit: 3g
     volumes:
