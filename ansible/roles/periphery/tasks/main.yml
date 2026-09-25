@@ -74,6 +74,46 @@
         password: "{{ periphery_registry_token }}"
       no_log: true
 
+    - name: Docker Hub authenticated pulls
+      when: periphery_dockerhub_login
+      block:
+        - name: Look up Docker Hub pull credential
+          ansible.builtin.set_fact:
+            periphery_dockerhub_user: "{{ lookup('community.sops.sops',
+              playbook_dir + '/../../stacks/komodo-periphery/secrets.enc.env',
+              input_type='dotenv', output_type='dotenv',
+              extract='[\"DOCKERHUB_USER\"]') }}"
+            periphery_dockerhub_token: "{{ lookup('community.sops.sops',
+              playbook_dir + '/../../stacks/komodo-periphery/secrets.enc.env',
+              input_type='dotenv', output_type='dotenv',
+              extract='[\"DOCKERHUB_TOKEN\"]') }}"
+          no_log: true
+
+        - name: Ensure Periphery Docker config directory exists
+          # 0700 kazuki: the container reads it as root; nobody else needs to.
+          ansible.builtin.file:
+            path: "{{ periphery_docker_config_dir }}"
+            state: directory
+            owner: kazuki
+            mode: "0700"
+
+        - name: Log in to Docker Hub for Periphery's Docker client
+          become: false
+          community.docker.docker_login:
+            registry_url: https://index.docker.io/v1/
+            username: "{{ periphery_dockerhub_user }}"
+            password: "{{ periphery_dockerhub_token }}"
+            config_path: "{{ periphery_docker_config_dir }}/config.json"
+          no_log: true
+
+        - name: Log in to Docker Hub for the host's own Docker (hand pulls)
+          become: false
+          community.docker.docker_login:
+            registry_url: https://index.docker.io/v1/
+            username: "{{ periphery_dockerhub_user }}"
+            password: "{{ periphery_dockerhub_token }}"
+          no_log: true
+
     - name: Deploy Periphery via docker compose
       # Same reasoning as the login task above: kazuki (docker-group
       # member) is who actually holds the pull credential; running this

@@ -26,6 +26,9 @@ services:
 {% endif %}
 {% endif %}
       - SOPS_AGE_KEY_FILE=/config/age-keys.txt
+{% if periphery_dockerhub_login %}
+      - DOCKER_CONFIG=/config/docker
+{% endif %}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/proc
@@ -36,4 +39,7 @@ services:
 {% else %}
       - {{ periphery_age_key_dest }}:/config/age-keys.txt:ro
       - ./keys:/config/keys
+{% endif %}
+{% if periphery_dockerhub_login %}
+      - {{ periphery_docker_config_dir }}:/config/docker
 {% endif %}

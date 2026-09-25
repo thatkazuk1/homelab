@@ -56,3 +56,13 @@ periphery_managed: true
 # per-host values.
 periphery_env_file: false
 periphery_disable_container_exec: ~
+
+# Docker Hub authenticated pulls. Komodo runs `docker compose pull` with the
+# Docker *client inside the Periphery container*, which has no view of the
+# host's ~/.docker — so the credential lives in its own config dir, mounted
+# into the container and selected with DOCKER_CONFIG. The limit then follows
+# the Docker Hub account (200/h) instead of the fleet's shared CGNAT egress IP
+# (100/h anonymous, shared with every host). Credential:
+# stacks/komodo-periphery/secrets.enc.env (DOCKERHUB_USER/DOCKERHUB_TOKEN).
+periphery_dockerhub_login: true
+periphery_docker_config_dir: "{{ periphery_stack_dir }}/docker-config"
