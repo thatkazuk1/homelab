@@ -13,6 +13,12 @@
 # "deleted" even though nothing was ever missing — fixed by aligning the path,
 # not by working around the symptom.
 
+# Docker Hub authenticated pulls: the Periphery container's Docker client does
+# the `compose pull` and has no view of the host's ~/.docker, so the credential
+# (docker-config/config.json, written by hand on this host — nas-01 isn't
+# Ansible-managed, see ansible/roles/periphery for the fleet equivalent) is
+# mounted in and selected with DOCKER_CONFIG.
+
 x-meta:
   name: komodo-periphery-nas-01
   host: nas-01
@@ -44,9 +50,11 @@ services:
       - PERIPHERY_DISABLE_TERMINALS=false
       - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
       - SOPS_AGE_KEY_FILE=/config/age-keys.txt
+      - DOCKER_CONFIG=/config/docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/proc
       - /Volume1/@apps/komodo:/Volume1/@apps/komodo
       - ./keys:/config/keys
       - /Volume1/@apps/homelab/komodo-periphery/age-keys.txt:/config/age-keys.txt:ro
+      - /Volume1/@apps/homelab/komodo-periphery/docker-config:/config/docker
