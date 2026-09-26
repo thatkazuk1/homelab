@@ -16,6 +16,7 @@ This stack runs a per-host instance on the following hosts:
 
 - `coolify-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.coolify-prod-01.yml)
 - `core-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.core-01.yml)
+- `docker-prod-02` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.docker-prod-02.yml)
 - `garage-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.garage-prod-01.yml)
 - `komodo-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.komodo-prod-01.yml)
 - `nas-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/hawser/compose.nas-01.yml)

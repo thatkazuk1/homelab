@@ -9,7 +9,7 @@ that one line — this is expected, not an oversight.
 
 ## Scope (Sprint 3r, Session 2; `nas-01` closed Sprint 3w)
 
-Deployed and live as real Komodo Stacks on 7 hosts (verified against
+Deployed and live as real Komodo Stacks on 8 hosts (verified against
 Komodo's own `ListStacks` API, Sprint 3y):
 
 - `core-01`
@@ -18,6 +18,7 @@ Komodo's own `ListStacks` API, Sprint 3y):
 - `garage-prod-01`
 - `telemetry-prod-01`
 - `proxy-prod-01`
+- `docker-prod-02` (added after the original rollout)
 - `nas-01` (closed Sprint 3w via TOS browser-Terminal relay; this
   README previously listed it as deferred pending TOS-terminal
   confirmation — stale as of Sprint 3y)
