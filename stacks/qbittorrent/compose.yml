@@ -72,6 +72,22 @@ services:
         restart: true
     mem_limit: 3g
     memswap_limit: 3g
+    # Self-healing for the actual failure mode: qbittorrent's namespace goes
+    # stale any time gluetun restarts for a reason Compose isn't involved in
+    # (its own VPN healthcheck, a daemon-level unless-stopped restart after a
+    # crash, a manual restart from TOS) — none of those trigger the
+    # depends_on.restart hook above, which only fires on a Compose-driven
+    # recreate of gluetun. This checks the symptom (WebUI unreachable)
+    # instead of chasing every possible cause; autoheal (below) restarts it
+    # when this goes unhealthy.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - autoheal=true
     volumes:
       - /Volume1/nexus-pve/downloads:/downloads
       - /Volume1/@apps/homelab/qBittorrent/qbittorrent/config:/config
@@ -90,6 +106,24 @@ services:
       - GLUETUN_API_KEY
       - GLUETUN_USER
       - GLUETUN_PASSWORD
+
+  # Restarts any container in this stack labeled autoheal=true once Docker
+  # reports it unhealthy. Only qbittorrent carries the label today — gluetun
+  # already restarts itself internally on its own healthcheck failure, and
+  # doing it again from the outside would just race that. Scoped to this
+  # stack, not a fleet-wide utility: qbittorrent is the only stack on nas-01
+  # with a network_mode: service:X dependency, so it's the only one that
+  # needs a restart trigger Compose itself can't provide.
+  autoheal:
+    image: willfarrell/autoheal
+    container_name: autoheal
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=10
+      - AUTOHEAL_START_PERIOD=60
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   gluetun-data:

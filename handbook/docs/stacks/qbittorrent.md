@@ -27,6 +27,12 @@ qBittorrent torrent client routed entirely through Gluetun's VPN tunnel (network
 - **Restart policy:** `unless-stopped`
 - **Network mode:** `service:gluetun`
 
+### `autoheal`
+
+- **Image:** `willfarrell/autoheal`
+- **Container:** `autoheal`
+- **Restart policy:** `unless-stopped`
+
 ## Named volumes
 
 - `gluetun-data`
