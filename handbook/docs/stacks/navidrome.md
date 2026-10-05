@@ -17,7 +17,7 @@ Navidrome music server (Subsonic/OpenSubsonic API) serving the shared music libr
 
 - **Image:** `deluan/navidrome:latest`
 - **Container:** `navidrome`
-- **Restart policy:** `unless-stopped`
+- **Restart policy:** `always`
 - **Ports:** `4533:4533`
 
 ## Secrets

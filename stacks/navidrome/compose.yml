@@ -17,7 +17,7 @@ services:
   navidrome:
     image: deluan/navidrome:latest
     container_name: navidrome
-    restart: unless-stopped
+    restart: always
     user: "1006:997"
     dns:
       - 1.1.1.1
