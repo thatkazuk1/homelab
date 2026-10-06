@@ -38,6 +38,8 @@ services:
       - /opt/homelab/backup-staging:/sources/fleet-staging:ro
       # === Logical DB dumps written by scripts/backup/db-dump.sh (this host only) ===
       - /opt/homelab/db-dumps:/sources/db-dumps:ro
+      # === Hand-written sure SQL dumps, kept until a snapshot covers them, then deleted ===
+      - /opt/homelab/sure/backups:/sources/sure-handwritten:ro
     environment:
       - BACKREST_DATA=/data
       - BACKREST_CONFIG=/config/config.json
