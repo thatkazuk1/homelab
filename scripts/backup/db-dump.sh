@@ -61,4 +61,15 @@ while IFS='|' read -r stack container engine keep_days keep_months; do
   done
 done < "$MANIFEST"
 
+# Heartbeat to Uptime Kuma. Push URL lives in kuma.env; read with grep, not
+# source, because the URL contains '&'.
+kuma_ping() { # $1 = up|down, $2 = message word
+  local url
+  url=$(grep -m1 '^KUMA_PUSH_DB_DUMP=' "$HOME/homelab-backup/kuma.env" 2>/dev/null | cut -d= -f2-)
+  [ -n "$url" ] || return 0
+  url=${url/status=up&msg=OK/status=$1&msg=$2}
+  curl -fsS -m 20 -o /dev/null "$url" || echo "kuma push failed"
+}
+if [ "$failed" -eq 0 ]; then kuma_ping up ok; else kuma_ping down failed; fi
+
 exit "$failed"

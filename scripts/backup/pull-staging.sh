@@ -24,6 +24,16 @@ HOSTS=(
   "docker-prod-02 192.168.50.100"
 )
 
+# Heartbeat to Uptime Kuma (core-01). Push URLs live in kuma.env, not in
+# this repo. Read with grep: the URLs contain '&', which `source` would break.
+kuma_ping() { # $1 = variable name, $2 = up|down, $3 = message word
+  local url
+  url=$(grep -m1 "^$1=" "$HOME/homelab-backup/kuma.env" 2>/dev/null | cut -d= -f2-)
+  [ -n "$url" ] || return 0
+  url=${url/status=up&msg=OK/status=$2&msg=$3}
+  curl -fsS -m 20 -o /dev/null "$url" || echo "kuma push failed ($1)"
+}
+
 failed=0
 for entry in "${HOSTS[@]}"; do
   read -r name ip <<<"$entry"
@@ -50,5 +60,11 @@ for entry in "${HOSTS[@]}"; do
     failed=1
   fi
 done
+
+if [ "$failed" -eq 0 ]; then
+  kuma_ping KUMA_PUSH_PULL_STAGING up ok
+else
+  kuma_ping KUMA_PUSH_PULL_STAGING down failed
+fi
 
 exit "$failed"
