@@ -34,6 +34,10 @@ services:
       - sure_app_storage:/sources/sure/app-storage:ro
       - sure_postgres_data:/sources/sure/postgres-data:ro
       - beszel_data:/sources/beszel/beszel-data:ro
+      # === Fleet config staged by scripts/backup/pull-staging.sh (one dir per host) ===
+      - /opt/homelab/backup-staging:/sources/fleet-staging:ro
+      # === Logical DB dumps written by scripts/backup/db-dump.sh (this host only) ===
+      - /opt/homelab/db-dumps:/sources/db-dumps:ro
     environment:
       - BACKREST_DATA=/data
       - BACKREST_CONFIG=/config/config.json

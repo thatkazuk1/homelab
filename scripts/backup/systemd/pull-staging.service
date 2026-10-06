@@ -1,0 +1,10 @@
+[Unit]
+Description=Pull fleet host config into Backrest staging
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=kazuki
+Group=kazuki
+ExecStart=/home/kazuki/homelab-backup/pull-staging.sh

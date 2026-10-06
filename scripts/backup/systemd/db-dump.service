@@ -1,0 +1,11 @@
+[Unit]
+Description=Logical database dumps for this host (manifest selected by hostname)
+Wants=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+User=kazuki
+Group=kazuki
+# Manifest is db-dump.<hostname>.conf in the kazuki backup directory.
+ExecStart=/bin/sh -c 'exec /home/kazuki/homelab-backup/db-dump.sh /home/kazuki/homelab-backup/db-dump.$(hostname).conf'

@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly fleet config pull for Backrest (before the 23:59 Backrest run)
+
+[Timer]
+# docker-prod-01 is Africa/Lagos; Backrest plan runs 23:59 local.
+OnCalendar=*-*-* 22:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
