@@ -146,8 +146,15 @@ verified runbook.
 
 ## Monitoring
 
-A `Shoutrrr` hook on the `docker-prod-01` plan, condition
-`CONDITION_ANY_ERROR`, posts to ntfy topic `homelab-backup-failures`
+Every Backrest plan carries the same `Shoutrrr` hook: action
+`actionShoutrrr`, condition `CONDITION_ANY_ERROR`, template
+`{{ .Summary }}`. The plans are `docker-prod-01`, `fleet-staging` (fleet
+config staged by `scripts/backup/pull-staging.sh`) and `db-dumps`
+(logical dumps from `scripts/backup/db-dump.sh`). Hooks are per-plan, so
+a new plan needs its own hook. The URL is the same `svc-backrest` ntfy
+value in every plan, copied in the UI rather than written into the repo.
+
+The hook posts to ntfy topic `homelab-backup-failures`
 (same topic Forgejo's backup uses — see
 `handbook/docs/operations/` for that setup) via a dedicated
 `svc-backrest` ntfy user (write-only to that topic, per the
