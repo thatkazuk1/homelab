@@ -67,7 +67,9 @@ kuma_ping() { # $1 = up|down, $2 = message word
   local url
   url=$(grep -m1 '^KUMA_PUSH_DB_DUMP=' "$HOME/homelab-backup/kuma.env" 2>/dev/null | cut -d= -f2-)
   [ -n "$url" ] || return 0
-  url=${url/status=up&msg=OK/status=$1&msg=$2}
+  # Rebuild the query from the base URL. A pattern-substitution replacement
+  # treats '&' as "matched text" in bash 5.2+, which mangles the query.
+  url="${url%%\?*}?status=$1&msg=$2&ping="
   curl -fsS -m 20 -o /dev/null "$url" || echo "kuma push failed"
 }
 if [ "$failed" -eq 0 ]; then kuma_ping up ok; else kuma_ping down failed; fi
