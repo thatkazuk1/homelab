@@ -18,7 +18,7 @@ qBittorrent torrent client routed entirely through Gluetun's VPN tunnel (network
 - **Image:** `qmcgaw/gluetun`
 - **Container:** `gluetun`
 - **Restart policy:** `unless-stopped`
-- **Ports:** `8000:8000`, `8000:8000/tcp`, `8080:8080`, `8388:8388/tcp`, `8388:8388/udp`, `8888:8888/tcp`, `8999:8999/tcp`, `8999:8999/udp`
+- **Ports:** `8000:8000`, `8080:8080`
 
 ### `qbittorrent`
 
