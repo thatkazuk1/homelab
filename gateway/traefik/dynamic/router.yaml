@@ -85,6 +85,8 @@ http:
         - websecure
       rule: "Host(`backrest.ts.kazuki.uk`)"
       service: backrest-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -103,6 +105,8 @@ http:
         - websecure
       rule: "Host(`coolify.ts.kazuki.uk`)"
       service: coolify-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -121,6 +125,8 @@ http:
         - websecure
       rule: "Host(`dockhand.ts.kazuki.uk`)"
       service: dockhand-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -129,6 +135,8 @@ http:
         - websecure
       rule: "Host(`forgejo.ts.kazuki.uk`)"
       service: forgejo-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -147,6 +155,8 @@ http:
         - websecure
       rule: "Host(`garage-s3.ts.kazuki.uk`)"
       service: garage-s3-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -155,6 +165,8 @@ http:
         - websecure
       rule: "Host(`git.ts.kazuki.uk`)"
       service: forgejo-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -163,6 +175,8 @@ http:
         - websecure
       rule: "Host(`ha.ts.kazuki.uk`)"
       service: homeassistant-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -181,6 +195,8 @@ http:
         - websecure
       rule: "Host(`influxdb-explorer.ts.kazuki.uk`)"
       service: influxdb-explorer-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -189,6 +205,8 @@ http:
         - websecure
       rule: "Host(`komodo.ts.kazuki.uk`)"
       service: komodo-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
@@ -208,6 +226,8 @@ http:
         - websecure
       rule: "Host(`uptime.ts.kazuki.uk`)"
       service: uptime-kuma-service
+      middlewares:
+        - tailscale-whitelist
       tls:
         certResolver: cloudflare
 
