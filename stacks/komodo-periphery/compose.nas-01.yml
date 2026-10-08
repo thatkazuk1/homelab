@@ -47,7 +47,7 @@ services:
       - "8120:8120"
     environment:
       - PERIPHERY_ROOT_DIRECTORY=/Volume1/@apps/komodo
-      - PERIPHERY_DISABLE_TERMINALS=false
+      - PERIPHERY_DISABLE_TERMINALS=true
       - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
       - SOPS_AGE_KEY_FILE=/config/age-keys.txt
       - DOCKER_CONFIG=/config/docker

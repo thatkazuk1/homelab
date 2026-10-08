@@ -37,8 +37,8 @@ services:
       - .env
     environment:
       PERIPHERY_ROOT_DIRECTORY: /etc/komodo
-      PERIPHERY_DISABLE_TERMINALS: false
-      PERIPHERY_DISABLE_CONTAINER_EXEC: false
+      PERIPHERY_DISABLE_TERMINALS: true
+      PERIPHERY_DISABLE_CONTAINER_EXEC: true
       SOPS_AGE_KEY_FILE: /config/age-keys.txt
     volumes:
       - /etc/komodo:/etc/komodo

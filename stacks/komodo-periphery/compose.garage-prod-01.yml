@@ -34,7 +34,7 @@ services:
       - "8120:8120"
     environment:
       - PERIPHERY_ROOT_DIRECTORY=/etc/komodo
-      - PERIPHERY_DISABLE_TERMINALS=false
+      - PERIPHERY_DISABLE_TERMINALS=true
       - PERIPHERY_CORE_PUBLIC_KEYS=MCowBQYDK2VuAyEAIAM4kk8DRPlx2wTihDDYYRgD64lBmz+I/OPOAtcikR0=
       - SOPS_AGE_KEY_FILE=/config/age-keys.txt
     volumes:
