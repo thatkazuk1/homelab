@@ -1,0 +1,80 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+    forwardedHeaders:
+      trustedIPs:
+        - "127.0.0.1/32"
+        - "172.16.0.0/12"
+        - "192.168.50.0/24"
+    http:
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: ${CLOUDFLARE_DOMAIN}
+            sans:
+              - "*.${CLOUDFLARE_DOMAIN}"
+          - main: ts.${CLOUDFLARE_DOMAIN}
+            sans:
+              - "*.ts.${CLOUDFLARE_DOMAIN}"
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: proxy
+  file:
+    directory: "/etc/traefik/dynamic"
+    watch: true
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: ${HOMELAB_EMAIL}
+      storage: "/etc/traefik/acme.json"
+      dnsChallenge:
+        provider: cloudflare
+
+log:
+  level: INFO
+
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  format: json
+  bufferingSize: 100
+  filters:
+    statusCodes:
+      - "200-299"
+      - "300-399"
+      - "400-404"
+      - "500-503"
+  fields:
+    defaultMode: keep
+    names:
+      ClientUsername: drop
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: keep
+        Authorization: drop
+        Content-Type: keep
+        X-Forwarded-For: keep
+        X-Real-IP: keep
+
+experimental:
+  plugins:
+    bouncer:
+      moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      version: v1.4.6

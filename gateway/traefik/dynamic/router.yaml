@@ -1,0 +1,386 @@
+http:
+  routers:
+    aurral:
+      entrypoints:
+        - websecure
+      rule: "Host(`aurral.kazuki.uk`)"
+      service: aurral-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    jellyfin:
+      entrypoints:
+        - websecure
+      rule: "Host(`jellyfin.kazuki.uk`)"
+      service: jellyfin-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    jellystat:
+      entrypoints:
+        - websecure
+      rule: "Host(`jellystat.kazuki.uk`)"
+      service: jellystat-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    navidrome:
+      entrypoints:
+        - websecure
+      rule: "Host(`navidrome.kazuki.uk`)"
+      service: navidrome-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    ntfy:
+      entrypoints:
+        - websecure
+      rule: "Host(`ntfy.kazuki.uk`)"
+      service: ntfy-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    plane:
+      entrypoints:
+        - websecure
+      rule: "Host(`plane.kazuki.uk`)"
+      service: plane-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    seerr:
+      entrypoints:
+        - websecure
+      rule: "Host(`seerr.kazuki.uk`)"
+      service: seerr-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    speedtest-tracker:
+      entrypoints:
+        - websecure
+      rule: "Host(`speed.kazuki.uk`)"
+      service: speedtest-tracker-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    backrest:
+      entrypoints:
+        - websecure
+      rule: "Host(`backrest.ts.kazuki.uk`)"
+      service: backrest-service
+      tls:
+        certResolver: cloudflare
+
+    beszel:
+      entrypoints:
+        - websecure
+      rule: "Host(`beszel.ts.kazuki.uk`)"
+      service: beszel-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    coolify:
+      entrypoints:
+        - websecure
+      rule: "Host(`coolify.ts.kazuki.uk`)"
+      service: coolify-service
+      tls:
+        certResolver: cloudflare
+
+    coolify-webhook:
+      entrypoints:
+        - websecure
+      rule: "Host(`coolify.kazuki.uk`) && PathPrefix(`/webhooks`)"
+      service: coolify-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    dockhand:
+      entrypoints:
+        - websecure
+      rule: "Host(`dockhand.ts.kazuki.uk`)"
+      service: dockhand-service
+      tls:
+        certResolver: cloudflare
+
+    forgejo:
+      entrypoints:
+        - websecure
+      rule: "Host(`forgejo.ts.kazuki.uk`)"
+      service: forgejo-service
+      tls:
+        certResolver: cloudflare
+
+    garage-ui:
+      entrypoints:
+        - websecure
+      rule: "Host(`garage.ts.kazuki.uk`)"
+      service: garage-ui-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    garage-s3:
+      entrypoints:
+        - websecure
+      rule: "Host(`garage-s3.ts.kazuki.uk`)"
+      service: garage-s3-service
+      tls:
+        certResolver: cloudflare
+
+    git:
+      entrypoints:
+        - websecure
+      rule: "Host(`git.ts.kazuki.uk`)"
+      service: forgejo-service
+      tls:
+        certResolver: cloudflare
+
+    homeassistant:
+      entrypoints:
+        - websecure
+      rule: "Host(`ha.ts.kazuki.uk`)"
+      service: homeassistant-service
+      tls:
+        certResolver: cloudflare
+
+    homepage:
+      entrypoints:
+        - websecure
+      rule: "Host(`home.ts.kazuki.uk`)"
+      service: homepage-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    influxdb-explorer:
+      entrypoints:
+        - websecure
+      rule: "Host(`influxdb-explorer.ts.kazuki.uk`)"
+      service: influxdb-explorer-service
+      tls:
+        certResolver: cloudflare
+
+    komodo:
+      entrypoints:
+        - websecure
+      rule: "Host(`komodo.ts.kazuki.uk`)"
+      service: komodo-service
+      tls:
+        certResolver: cloudflare
+
+    sure:
+      entrypoints:
+        - websecure
+      rule: "Host(`sure.ts.kazuki.uk`)"
+      service: sure-service
+      middlewares:
+        - crowdsec
+        - sure-ssl-header
+      tls:
+        certResolver: cloudflare
+
+    uptime-kuma:
+      entrypoints:
+        - websecure
+      rule: "Host(`uptime.ts.kazuki.uk`)"
+      service: uptime-kuma-service
+      tls:
+        certResolver: cloudflare
+
+    vaultwarden:
+      entrypoints:
+        - websecure
+      rule: "Host(`vault.ts.kazuki.uk`)"
+      service: vaultwarden-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    kinboard-api:
+      entrypoints:
+        - websecure
+      rule: "Host(`planner.ts.kazuki.uk`) && (PathPrefix(`/rest`) || PathPrefix(`/auth`) || PathPrefix(`/storage`) || PathPrefix(`/realtime`))"
+      priority: 100
+      service: kinboard-api-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    kinboard:
+      entrypoints:
+        - websecure
+      rule: "Host(`planner.ts.kazuki.uk`)"
+      priority: 1
+      service: kinboard-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+    sparkyfitness:
+      entrypoints:
+        - websecure
+      rule: "Host(`sparkyfitness.ts.kazuki.uk`)"
+      service: sparkyfitness-service
+      middlewares:
+        - crowdsec
+      tls:
+        certResolver: cloudflare
+
+  middlewares:
+    sure-ssl-header:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Ssl: "on"
+
+  services:
+    aurral-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.163:3001"
+
+    backrest-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:9898"
+
+    beszel-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:8090"
+
+    coolify-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.30:8000"
+
+    dockhand-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:3050"
+
+    forgejo-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.108:3000"
+
+    garage-s3-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.80:3900"
+
+    garage-ui-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.80:3909"
+
+    homeassistant-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.3:8123"
+
+    homepage-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:3000"
+
+    influxdb-explorer-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.106:8888"
+
+    jellyfin-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.163:8096"
+
+    jellystat-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.163:3000"
+
+    navidrome-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.163:4533"
+
+    komodo-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.111:9120"
+
+    ntfy-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.3:8085"
+
+    plane-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.50:80"
+
+    seerr-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.163:5055"
+
+    speedtest-tracker-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.106:8080"
+
+    sure-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:3001" 
+   
+    uptime-kuma-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.3:3001"
+
+    vaultwarden-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:8000"
+
+    kinboard-api-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.100:8100"
+
+    kinboard-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.100:3001"
+
+    sparkyfitness-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.100:3004"

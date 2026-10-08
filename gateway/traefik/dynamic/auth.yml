@@ -1,0 +1,6 @@
+http:
+  middlewares:
+    garage:
+      basicAuth:
+        users:
+          - "garage-admin:$2y$05$hMxOhU8Uy92OCnAx/AcsY.CrbjhZxEfAqMI6ZG4/e8GqjdmSPDFYy"

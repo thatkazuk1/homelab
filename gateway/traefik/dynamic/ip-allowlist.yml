@@ -1,0 +1,6 @@
+http:
+  middlewares:
+    tailscale-whitelist:
+      ipAllowList:
+        sourceRange:
+          - "100.64.0.0/10"
