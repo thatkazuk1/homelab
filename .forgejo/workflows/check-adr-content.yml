@@ -2,6 +2,7 @@ name: ADR content check (Dimension B, warn-only)
 
 on:
   push:
+    branches: [master]
     paths:
       - 'stacks/**'
       - 'scripts/check-adr-content.py'

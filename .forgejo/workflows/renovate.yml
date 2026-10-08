@@ -24,12 +24,12 @@ jobs:
       - name: Run Renovate
         run: |
           docker run --rm \
-            -e RENOVATE_TOKEN="${RENOVATE_TOKEN}" \
+            -e RENOVATE_TOKEN \
             -e RENOVATE_PLATFORM=forgejo \
             -e RENOVATE_ENDPOINT="https://forgejo.ts.kazuki.uk/api/v1" \
             -e RENOVATE_REPOSITORIES=kazuki/homelab \
             -e RENOVATE_AUTODISCOVER=false \
-            -e RENOVATE_GITHUB_COM_TOKEN="${RENOVATE_GITHUB_COM_TOKEN}" \
+            -e RENOVATE_GITHUB_COM_TOKEN \
             -e RENOVATE_ALLOWED_COMMANDS='["^python3 scripts/generate-stack-pages\.py$"]' \
             homelab-renovate:local
         env:

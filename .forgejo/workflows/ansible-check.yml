@@ -18,12 +18,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install sops and age (pinned, independent of any workstation's installed versions)
+      - name: Install sops and age (pinned, checksum-verified)
         run: |
           apk add --no-cache curl tar
           curl -Lo /usr/local/bin/sops https://github.com/getsops/sops/releases/download/v3.13.1/sops-v3.13.1.linux.amd64
+          echo "620a9d7e3352ababeca6908cea24a6e8b14ce89a448ddbd3f94f1ef3398f470a  /usr/local/bin/sops" | sha256sum -c -
           chmod +x /usr/local/bin/sops
           curl -Lo /tmp/age.tar.gz https://github.com/FiloSottile/age/releases/download/v1.2.1/age-v1.2.1-linux-amd64.tar.gz
+          echo "7df45a6cc87d4da11cc03a539a7470c15b1041ab2b396af088fe9990f7c79d50  /tmp/age.tar.gz" | sha256sum -c -
           tar -xzf /tmp/age.tar.gz -C /tmp
           mv /tmp/age/age /tmp/age/age-keygen /usr/local/bin/
           sops --version

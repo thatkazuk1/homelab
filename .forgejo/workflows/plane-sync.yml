@@ -9,7 +9,7 @@ jobs:
     if: github.event.action == 'opened' || github.event.action == 'reopened'
     runs-on: docker
     steps:
-      - uses: https://github.com/thatkazuk1/plane-transition@v1
+      - uses: https://github.com/thatkazuk1/plane-transition@34b5688fa3ee4812a101ecba17094cede329bf33
         with:
           plane-base-url: https://plane.kazuki.uk
           plane-workspace-slug: shokunbi
@@ -27,7 +27,7 @@ jobs:
     if: github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: docker
     steps:
-      - uses: https://github.com/thatkazuk1/plane-transition@v1
+      - uses: https://github.com/thatkazuk1/plane-transition@34b5688fa3ee4812a101ecba17094cede329bf33
         with:
           plane-base-url: https://plane.kazuki.uk
           plane-workspace-slug: shokunbi
