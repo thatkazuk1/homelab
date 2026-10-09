@@ -4,9 +4,9 @@
 - `container.docker_host: "-"` in its `config.yaml` (since 2026-10-09; it was `automount`).
   Job containers do **not** get the host's Docker socket, so a job cannot run `docker` and
   cannot reach the host Docker daemon. The old value gave every job root on
-  `forgejo-prod-01`. A backup of the old config is at `config.yaml.bak-2026-10-09` in the
-  `forgejo-runner-data` volume. Do not set it back to `automount`. If a job needs a tool,
-  run the job in an image that has the tool (the Renovate workflow does this).
+  `forgejo-prod-01`. To roll back, set `docker_host` in `config.yaml` to its old value and
+  restart the runner. Do not set it to `automount`. If a job needs a tool, run the job in an
+  image that has the tool (the Renovate workflow does this).
 - The config lives in the `forgejo-runner-data` volume, not in this repo. After a config
   change, run `docker restart forgejo-runner` and check that the log shows "declared
   successfully".

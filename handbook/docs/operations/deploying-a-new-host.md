@@ -97,7 +97,7 @@ sufficient.
 ## What this doesn't cover yet
 
 Steps 2 (baseline config) and 4 (Periphery) are automated by Ansible for hosts in the
-`docker_hosts` inventory group — live-verified on 7 of 8 real hosts (see `ansible/README.md`
+`docker_hosts` inventory group — live-verified on 7 of the 8 real hosts; the eighth, `forgejo-prod-01`, runs Periphery but the role is not verified on it (see `ansible/README.md`
 for current status and exceptions). Steps 1, 3, 5, and 6 (provisioning, Beszel registration,
 Komodo Server registration, exposing services), and the whole sequence for hosts outside
 `docker_hosts` (`core-01`, `nas-01`), remain manual — there's no L1 automation provisioning

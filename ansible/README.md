@@ -8,8 +8,8 @@ runs the Docker + Periphery baseline; live-rolled-out and verified (byte-identic
 IDs/timestamps before and after, idempotent re-`--check`) on 7 of 8. `forgejo-prod-01`'s
 Periphery is running too (container created 2026-09-25); the earlier registry token block is
 resolved. Its compose file is tracked as `stacks/komodo-periphery/compose.forgejo-prod-01.yml`.
-The role template still writes `PERIPHERY_DISABLE_TERMINALS=false`, so a role run on any host
-reverts the 2026-10-08 hardening; align the template before the next run.
+The role template writes `PERIPHERY_DISABLE_TERMINALS=true`, so a role run keeps the
+2026-10-09 hardening.
 `komodo-prod-01` gets `periphery_managed: false` — its Periphery
 is a fundamentally different deployment shape (vanilla image bundled inside the `komodo`
 stack's own compose, not `-sops`, not at the standard path) and is deliberately left

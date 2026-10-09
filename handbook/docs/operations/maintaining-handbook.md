@@ -264,13 +264,13 @@ pattern). Committing the encrypted file is safe; no plaintext copy exists anywhe
 
 ### Coverage gap
 
-`fleet.md` only lists hosts with a registered Komodo Server entry — as of Sprint 3u that's 8 of
-the fleet's 13 hosts. Not included: `pve-01`/`pve-02` (Proxmox nodes, no Periphery, not part of
-Komodo's data model), `komodo-prod-01` (Komodo Core doesn't self-register as a Server — the same
-bootstrap-circularity already documented for its Periphery setup), and `forgejo-prod-01`
-(it runs Periphery, but no Server entry existed at that time; `komodo/resources/default.toml` now
-declares it, so the next `make fleet-inventory` run lists it). `overview.md`'s hand-authored table is the complete
-picture; `fleet.md` is "hosts Komodo actively manages," not "every host."
+`fleet.md` only lists hosts with a registered Komodo Server entry. Komodo has 10 Servers
+(checked 2026-10-09), and `fleet.md` lists all 10, including `forgejo-prod-01`. Not included:
+`pve-01`/`pve-02` (Proxmox nodes, no Periphery, not part of Komodo's data model) and
+`komodo-prod-01` (Komodo Core does not register itself as a Server — the same
+bootstrap-circularity already documented for its Periphery setup). `overview.md`'s
+hand-authored table is the complete picture; `fleet.md` is "hosts Komodo actively manages,"
+not "every host."
 
 ## ADR consistency checks
 
