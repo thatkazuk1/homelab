@@ -21,12 +21,15 @@ services:
       - --object-store=file
       - --data-dir=/var/lib/influxdb3/data
       - --plugin-dir=/var/lib/influxdb3/plugins
+      # Core has no compaction: about one Parquet file per write period.
+      # The default limit (432) stops speedtest queries longer than 7 days.
+      - --query-file-limit=5000
     volumes:
       - /opt/homelab/influxdb3/data:/var/lib/influxdb3/data
       - /opt/homelab/influxdb3/plugins:/var/lib/influxdb3/plugins
 
   influxdb3-explorer:
-    image: influxdata/influxdb3-ui:1.9.0
+    image: influxdata/influxdb3-ui:1.11.0
     container_name: influxdb3-explorer
     restart: unless-stopped
     ports:
