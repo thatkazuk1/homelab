@@ -1,9 +1,11 @@
 # Meta-infrastructure — not Komodo-managed.
 # Deployed and updated manually on telemetry-prod-01.
-# This file is documentation of the running config; not the deployment source of truth.
-# Byte-identical (modulo volume order) to proxy-prod-01 and plane-prod-01's
-# Periphery — a real cross-host duplication, tracked per-host per CLAUDE.md's
-# explicit-per-host convention rather than collapsed into one shared file.
+# This file documents the running config. It does not deploy.
+# The compose body below is a copy of /opt/homelab/komodo-periphery/compose.yml
+# on the host (compared 2026-10-09). Do not copy this file over the host file:
+# the host file is the deployed state, and this file adds the x-meta block.
+# The compose project and the file match the Ansible `periphery` role template.
+# `PERIPHERY_CORE_PUBLIC_KEYS` comes from the `.env` file next to the compose file.
 
 x-meta:
   name: komodo-periphery-telemetry-prod-01
@@ -27,8 +29,6 @@ services:
     container_name: komodo-periphery
     restart: unless-stopped
     init: true
-    labels:
-      komodo.skip:
     ports:
       - "8120:8120"
     environment:
@@ -36,9 +36,11 @@ services:
       - PERIPHERY_DISABLE_TERMINALS=true
       - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
       - SOPS_AGE_KEY_FILE=/config/age-keys.txt
+      - DOCKER_CONFIG=/config/docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/proc
       - /etc/komodo:/etc/komodo
       - ./keys:/config/keys
       - /home/kazuki/.config/sops/age/keys.txt:/config/age-keys.txt:ro
+      - /opt/homelab/komodo-periphery/docker-config:/config/docker

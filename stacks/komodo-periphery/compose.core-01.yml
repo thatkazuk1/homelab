@@ -1,8 +1,12 @@
 # Meta-infrastructure — not Komodo-managed.
-# Deployed and updated manually on core-01 (arm64, Raspberry Pi 4).
-# This file is documentation of the running config; not the deployment source of truth.
-# Same structural variant as proxy/telemetry/plane-prod-01, already carrying the
-# komodo.skip label on the host itself (the other hosts in that variant don't).
+# Deployed and updated manually on core-01.
+# This file documents the running config. It does not deploy.
+# The compose body below is a copy of /opt/homelab/komodo-periphery/compose.yml
+# on the host (compared 2026-10-09). Do not copy this file over the host file:
+# the host file is the deployed state, and this file adds the x-meta block.
+# This host runs on arm64 (Raspberry Pi 4).
+# The container has the `komodo.skip` label.
+# The host file has no `DOCKER_CONFIG` variable and no `docker-config` mount (checked 2026-10-09).
 
 x-meta:
   name: komodo-periphery-core-01

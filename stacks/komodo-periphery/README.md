@@ -37,8 +37,8 @@ History, so that the same mistake does not happen again:
   deploy (see "How these files reach hosts" below), so no running host changed. The text here
   then said "disabled on every host", which was wrong.
 - 2026-10-09: each host's own `/opt/homelab/komodo-periphery/compose.yml` was edited in place and
-  the container was recreated. The Ansible template and `docker-prod-01`'s host vars now write
-  the same values, so a role run does not revert them.
+  the container was recreated. The Ansible template and the host vars of `docker-prod-01` and
+  `forgejo-prod-01` now write the same values, so a role run does not revert them.
 
 To check a host, `grep` its own compose file, not the file in this directory:
 `ssh <host> "grep -n PERIPHERY_DISABLE /opt/homelab/komodo-periphery/compose.yml"`.
@@ -46,33 +46,24 @@ To check a host, `grep` its own compose file, not the file in this directory:
 These settings affect only Komodo's UI and API. A `docker exec` on the host itself, for
 example `docker exec komodo-periphery ...`, still works.
 
-## Per-host compose tracking (Sprint 3i)
+## Per-host compose tracking
 
-One compose file per host (`compose.<host>.yml`), not one shared template — real
-per-host drift was found during Sprint 3i's audit, so a single generic file would
-misrepresent most of the fleet:
+There is one compose file for each host (`compose.<host>.yml`). Each file has a header
+comment, an `x-meta` block and a copy of the host file. The host file is
+`/opt/homelab/komodo-periphery/compose.yml`. The copy was compared with the live host files
+on 2026-10-09. Only the header comment and the `x-meta` block are not on the host.
 
-- `compose.docker-prod-01.yml` — distinct: map-style `environment:`, explicit
-  `env_file: .env` container injection, `PERIPHERY_DISABLE_CONTAINER_EXEC` var
-- `compose.proxy-prod-01.yml`, `compose.telemetry-prod-01.yml`,
-  `compose.plane-prod-01.yml` — byte-identical to each other (modulo volume
-  mount order), list-style `environment:`, `PERIPHERY_CORE_PUBLIC_KEYS=${VAR}`
-- `compose.garage-prod-01.yml` — same variant, but `PERIPHERY_CORE_PUBLIC_KEYS`
-  is hardcoded rather than `${VAR}`-substituted (not a credential — Komodo
-  Core's public verification key)
-- `compose.core-01.yml` — same variant, already `komodo.skip`-labeled on the
-  host itself
-- `compose.nas-01.yml` — pre-existing (ADR-0007), own path convention
-  (`/Volume1/@apps/komodo`) and age-key mount per ADR-0006's TOS exception;
-  **not re-verified against live state in Sprint 3i** (no TOS browser terminal
-  session available that day — re-verify next time nas-01 is touched)
+| File | Difference from the standard Ansible-templated shape |
+|---|---|
+| `compose.proxy-prod-01.yml`, `compose.telemetry-prod-01.yml`, `compose.plane-prod-01.yml`, `compose.docker-prod-02.yml`, `compose.coolify-prod-01.yml` | None. List-style `environment:`, `PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}`, `DOCKER_CONFIG` and a `docker-config` mount. |
+| `compose.garage-prod-01.yml` | `PERIPHERY_CORE_PUBLIC_KEYS` is a literal value, not a `${VAR}` reference. It is the public verification key of Komodo Core, not a credential. |
+| `compose.docker-prod-01.yml` | `env_file: .env` and `PERIPHERY_DISABLE_CONTAINER_EXEC=true`. |
+| `compose.forgejo-prod-01.yml` | `PERIPHERY_DISABLE_CONTAINER_EXEC=true`. Komodo registers this server through `komodo/resources/default.toml`. |
+| `compose.core-01.yml` | The `komodo.skip` label. No `DOCKER_CONFIG` variable and no `docker-config` mount, so this host has no Docker Hub login. |
+| `compose.nas-01.yml` | Own path convention (`/Volume1/@apps/komodo`) and age key mount (ADR-0006, TOS exception). **Not compared with the live host on 2026-10-09**, because SSH to `nas-01` was not available. |
 
-- `compose.forgejo-prod-01.yml` — list-style `environment:` like the standard hosts, plus
-  `DOCKER_CONFIG` and a `docker-config` mount for the Docker Hub credential. Komodo registers
-  this server through `komodo/resources/default.toml`.
-
-`forgejo-prod-01` runs Periphery. The container has existed since 2026-09-25. The earlier
-statement that Periphery was "pending" on this host is out of date.
+`komodo-prod-01` has no file here. Its Periphery is a service in the Komodo Core compose
+project (`/opt/homelab/komodo/compose.yml`), which is a different setup.
 
 ## How these files reach hosts
 
@@ -80,12 +71,14 @@ Nothing applies these files automatically. They document the running state. Komo
 manage Periphery, and `deploy-all-changed` does not read this directory. Two methods change a host:
 
 - The Ansible `periphery` role templates `/opt/homelab/komodo-periphery/compose.yml`.
-- An operator copies the file from this directory to the host and runs `docker compose up -d`.
+- An operator edits `/opt/homelab/komodo-periphery/compose.yml` on the host and runs
+  `docker compose up -d`.
 
-A change to a file here does not change a running host. After each change, copy the file to
-the host by hand. Since 2026-10-09 the Ansible role template writes
-`PERIPHERY_DISABLE_TERMINALS=true`, so a role run keeps the hardening.
+A change to a file here does not change a running host. After a host change, update the file
+here so that it matches the host file. For the 8 hosts that the Ansible `periphery` role manages
+(all hosts here except `core-01` and `nas-01`), the role template renders the host file byte for
+byte (checked 2026-10-09).
 
-**Warning:** do not copy a file from this directory over a host file. The host files have a
-`DOCKER_CONFIG` line and a `docker-config` mount (a Docker Hub login) that most files here do
-not have. `compose.forgejo-prod-01.yml` is the only exact copy of its host file.
+**Warning:** do not copy a file from this directory over a host file. The `x-meta` block and
+the header comment are not on the host. Copy only the compose body, which starts at the line
+`name: komodo-periphery`. `compose.forgejo-prod-01.yml` is the only exact copy of its host file.

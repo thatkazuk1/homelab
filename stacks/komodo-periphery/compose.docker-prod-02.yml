@@ -1,16 +1,15 @@
 # Meta-infrastructure — not Komodo-managed.
-# Deployed and updated manually on garage-prod-01.
+# Deployed and updated manually on docker-prod-02.
 # This file documents the running config. It does not deploy.
 # The compose body below is a copy of /opt/homelab/komodo-periphery/compose.yml
 # on the host (compared 2026-10-09). Do not copy this file over the host file:
 # the host file is the deployed state, and this file adds the x-meta block.
-# `PERIPHERY_CORE_PUBLIC_KEYS` is a literal value here, not a `${VAR}` reference.
-# The value is the public verification key of Komodo Core. It is not a credential.
-# The `./keys` volume comes before the age key volume (the template default is the reverse).
+# The compose project and the file match the Ansible `periphery` role template.
+# `PERIPHERY_CORE_PUBLIC_KEYS` comes from the `.env` file next to the compose file.
 
 x-meta:
-  name: komodo-periphery-garage-prod-01
-  host: garage-prod-01
+  name: komodo-periphery-docker-prod-02
+  host: docker-prod-02
   category: meta-infra
   description: >
     Custom Komodo Periphery agent (sops + age baked in) enabling
@@ -35,7 +34,7 @@ services:
     environment:
       - PERIPHERY_ROOT_DIRECTORY=/etc/komodo
       - PERIPHERY_DISABLE_TERMINALS=true
-      - PERIPHERY_CORE_PUBLIC_KEYS=MCowBQYDK2VuAyEAIAM4kk8DRPlx2wTihDDYYRgD64lBmz+I/OPOAtcikR0=
+      - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
       - SOPS_AGE_KEY_FILE=/config/age-keys.txt
       - DOCKER_CONFIG=/config/docker
     volumes:

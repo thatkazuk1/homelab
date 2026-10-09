@@ -1,4 +1,8 @@
 ---
+# Container exec is disabled in Komodo since 2026-10-09 (security hardening).
+# The host file already has this value. Without it, a role run removes it.
+periphery_disable_container_exec: true
+
 # Host firewall (roles/host_firewall).
 # No Hawser agent on this host.
 host_firewall_host_rules:

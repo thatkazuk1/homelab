@@ -14,8 +14,10 @@ Custom Komodo Periphery agent (sops + age baked in) enabling `sops exec-env` sec
 
 This stack runs a per-host instance on the following hosts:
 
+- `coolify-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.coolify-prod-01.yml)
 - `core-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.core-01.yml)
 - `docker-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.docker-prod-01.yml)
+- `docker-prod-02` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.docker-prod-02.yml)
 - `forgejo-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.forgejo-prod-01.yml)
 - `garage-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.garage-prod-01.yml)
 - `nas-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.nas-01.yml)
@@ -46,4 +48,4 @@ No operational notes have been added for this stack yet. To add operational cont
 
 ---
 
-*This page is auto-generated from `stacks/komodo-periphery/compose.<host>.yml`. Reference-level content (services, images, secrets pattern) reflects the first compose file's current state (compose.core-01.yml); per-host divergence is not rendered — see the linked files under "Deployed on" for exact per-host config. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose files. To add operational context, edit `stacks/komodo-periphery/notes.md`.*
+*This page is auto-generated from `stacks/komodo-periphery/compose.<host>.yml`. Reference-level content (services, images, secrets pattern) reflects the first compose file's current state (compose.coolify-prod-01.yml); per-host divergence is not rendered — see the linked files under "Deployed on" for exact per-host config. Manual edits to this page will be overwritten on next generation. To change reference content, edit the compose files. To add operational context, edit `stacks/komodo-periphery/notes.md`.*

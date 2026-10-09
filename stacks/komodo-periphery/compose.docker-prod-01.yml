@@ -1,11 +1,11 @@
 # Meta-infrastructure — not Komodo-managed.
 # Deployed and updated manually on docker-prod-01.
-# This file is documentation of the running config; not the deployment source of truth.
-# docker-prod-01's Periphery diverges from the proxy/telemetry/plane/garage/core-01
-# variant: map-style `environment:` block, explicit `env_file: .env` container
-# injection (those hosts rely on compose's implicit `.env` substitution only), and
-# a PERIPHERY_DISABLE_CONTAINER_EXEC var the others don't set. Real drift, not
-# normalized here — see Sprint 3i status report.
+# This file documents the running config. It does not deploy.
+# The compose body below is a copy of /opt/homelab/komodo-periphery/compose.yml
+# on the host (compared 2026-10-09). Do not copy this file over the host file:
+# the host file is the deployed state, and this file adds the x-meta block.
+# `env_file: .env` supplies `PERIPHERY_CORE_PUBLIC_KEYS` and the other Core settings.
+# The host sets `PERIPHERY_DISABLE_CONTAINER_EXEC=true`.
 
 x-meta:
   name: komodo-periphery-docker-prod-01
@@ -27,22 +27,22 @@ services:
   periphery:
     image: forgejo.ts.kazuki.uk/shokunbi/komodo-periphery-sops:2
     container_name: komodo-periphery
-    init: true
     restart: unless-stopped
-    labels:
-      komodo.skip:
+    init: true
     ports:
-      - 8120:8120
+      - "8120:8120"
     env_file:
       - .env
     environment:
-      PERIPHERY_ROOT_DIRECTORY: /etc/komodo
-      PERIPHERY_DISABLE_TERMINALS: true
-      PERIPHERY_DISABLE_CONTAINER_EXEC: true
-      SOPS_AGE_KEY_FILE: /config/age-keys.txt
+      - PERIPHERY_ROOT_DIRECTORY=/etc/komodo
+      - PERIPHERY_DISABLE_TERMINALS=true
+      - PERIPHERY_DISABLE_CONTAINER_EXEC=true
+      - SOPS_AGE_KEY_FILE=/config/age-keys.txt
+      - DOCKER_CONFIG=/config/docker
     volumes:
-      - /etc/komodo:/etc/komodo
-      - /proc:/proc
       - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - /etc/komodo:/etc/komodo
       - ./keys:/config/keys
       - /home/kazuki/.config/sops/age/keys.txt:/config/age-keys.txt:ro
+      - /opt/homelab/komodo-periphery/docker-config:/config/docker
