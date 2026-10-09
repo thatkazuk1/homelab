@@ -4,4 +4,7 @@ http:
       ipAllowList:
         sourceRange:
           - "100.64.0.0/10"
+          # tailscaled runs in userspace mode on this LXC, so tailnet clients arrive from the Docker bridge gateway
+          - "172.18.0.1/32"
           - "192.168.30.0/24"
+          - "192.168.50.0/24"
