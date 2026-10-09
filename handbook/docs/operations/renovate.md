@@ -107,19 +107,36 @@ Renovate's scope with no config change needed. To exclude a stack, add its path 
 
 ## Tuning grouping and labels
 
-Two `packageRules` entries currently apply:
+These `packageRules` entries apply:
 
 - Any `major`-version update gets the `update:major` label, so major bumps are easy to spot
   in the PR list without opening each one.
-- Any package matching `postgres` is grouped into a single combined PR (`groupName:
-  "postgres"`) rather than one PR per Postgres-based image, since this fleet runs several
-  Postgres-backed stacks and bumping them together is usually the more sensible review unit.
+- Any package with a name that matches `postgres` is grouped into a single combined PR
+  (`groupName: "postgres"`) rather than one PR per Postgres-based image, since this fleet runs
+  several Postgres-backed stacks and bumping them together is usually the more sensible review
+  unit.
+- The two SparkyFitness images, `codewithcj/sparkyfitness` and `codewithcj/sparkyfitness_server`,
+  are grouped into one PR (`groupName: "sparkyfitness"`). The frontend and the server must run
+  the same version. Before this rule, Renovate bumped only the frontend, so the versions did
+  not match.
+- The Kinboard image `ghcr.io/svenger87/kinboard` is paused (`enabled: false`). The compose
+  file uses `:latest` with a digest. Upstream has only `v1.13.0-rc.*` pre-releases, and it uses
+  manual SQL migrations. To lift the pause, delete the Kinboard rule from `renovate.json`
+  after the operator decides to follow a stable release. Then pin the image to that release.
 
-Both are ordinary `packageRules` entries — add another block with a `matchPackagePatterns` or
-`matchUpdateTypes` filter and a `groupName` or `labels` key to change grouping or labeling
+All of these are ordinary `packageRules` entries. Add another block with a `matchPackageNames`
+or `matchUpdateTypes` filter and a `groupName` or `labels` key to change grouping or labeling
 behavior for other packages. Keep tuning changes small and targeted rather than revisiting the
 whole config at once; `config:recommended` (the base preset) already covers most sensible
 defaults.
+
+## Dependency Dashboard (off)
+
+`renovate.json` sets `"dependencyDashboard": false`. Renovate does not open or update the
+"Dependency Dashboard" issue, so the repo has no open Renovate status issue. The trade-off:
+there is no list of pending updates and no checkbox to force-create a PR that waits for its
+schedule or a rebase. To see pending updates, read the Renovate job log. To rebase a PR, use
+the rebase action in the PR itself. To use the dashboard again, set the value to `true`.
 
 ## First real run
 

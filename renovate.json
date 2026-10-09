@@ -2,6 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "semanticCommits": "enabled",
+  "dependencyDashboard": false,
   "schedule": ["before 4am on Monday"],
   "timezone": "Africa/Lagos",
   "docker-compose": {
@@ -29,7 +30,17 @@
     },
     {
       "groupName": "postgres",
-      "matchPackagePatterns": ["postgres"]
+      "matchPackageNames": ["/postgres/"]
+    },
+    {
+      "description": "SparkyFitness frontend and server must run the same version, so bump them in one PR.",
+      "groupName": "sparkyfitness",
+      "matchPackageNames": ["codewithcj/sparkyfitness", "codewithcj/sparkyfitness_server"]
+    },
+    {
+      "description": "Paused until upstream has a stable release. Upstream uses manual SQL migrations.",
+      "matchPackageNames": ["ghcr.io/svenger87/kinboard"],
+      "enabled": false
     }
   ]
 }
