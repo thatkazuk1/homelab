@@ -1,0 +1,45 @@
+---
+# core-01 is a Raspberry Pi 4 (arm64, bare metal). It is in the group
+# firewall_only_hosts, not in docker_hosts. provision-baseline.yml never runs
+# on it. Only the host_firewall role runs here.
+#
+# Periphery 8120 stays on: periphery_managed defaults to true, so the role
+# adds the rule for komodo-prod-01 (192.168.50.111).
+#
+# Host firewall (roles/host_firewall), observe mode.
+# Hawser 2376: the role replaces the manual DOCKER-USER and ip6tables rules.
+# Not allowed on purpose, so they show in the would-drop sets if used:
+# glances (61208/tcp) and go2rtc (18555/tcp). No client was seen.
+host_firewall_hawser: true
+host_firewall_host_rules:
+  # WARNING: a block here takes down DNS for the whole network.
+  # AdGuard is the resolver for every VLAN.
+  - ports: [53]
+    proto: [tcp, udp]
+    sources: any
+    comment: adguard dns, resolver for every VLAN
+  - ports: [80]
+    proto: tcp
+    sources: []
+    comment: adguard web ui, ADMIN VLAN only
+  - ports: [3001]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: uptime kuma behind traefik
+  - ports: [8123]
+    proto: tcp
+    sources:
+      - "{{ host_firewall_addr_proxy }}"
+      - "{{ host_firewall_addr_dockhand }}"
+    comment: home assistant, from traefik and docker-prod-01
+  - ports: [8085]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: ntfy behind traefik
+  - ports: [5353, 1900]
+    proto: udp
+    sources:
+      - "{{ host_firewall_addr_lab }}"
+      - 192.168.40.0/24
+    admin: false
+    comment: mdns and ssdp for home assistant discovery, LAB and IoT VLAN

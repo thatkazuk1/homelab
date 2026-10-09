@@ -4,8 +4,8 @@
 # someone runs it. See roles/host_firewall/README.md before the first run.
 #
 # Check first:  ansible-playbook playbooks/host-firewall.yml --check --diff -l <host>
-- name: Install the host firewall on Docker hosts
-  hosts: docker_hosts
+- name: Install the host firewall on Docker hosts and firewall-only hosts
+  hosts: docker_hosts:firewall_only_hosts
   become: true
   roles:
     - host_firewall

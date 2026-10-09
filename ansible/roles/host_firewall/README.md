@@ -1,6 +1,7 @@
 # host_firewall
 
-The role installs a host firewall on the `docker_hosts` group. The firewall starts in
+The role installs a host firewall on the `docker_hosts` group (9 hosts) and on the
+`firewall_only_hosts` group (`core-01`). The firewall starts in
 **observe mode**: it records the traffic that it would drop, and it drops nothing new.
 A later step switches a host to enforce mode, after a person reviews the records.
 
@@ -19,7 +20,7 @@ is final, so the table works in front of the Docker rules.
 runs `flush ruleset`.** On the LXC hosts, `/etc/nftables.conf` starts with `flush ruleset`.
 A restart or reload of `nftables.service` deletes all Docker rules and this table. The role
 also never installs the `nftables` package, because the package can enable that service. The
-role fails with a clear message when `/usr/sbin/nft` is missing. All 9 hosts have the binary
+role fails with a clear message when `/usr/sbin/nft` is missing. All 10 hosts have the binary
 (checked 2026-10-09).
 
 ## How the table works
@@ -56,6 +57,20 @@ the same rules, and they are enforced in observe mode too:
 - tcp/2376 over IPv6: drop.
 
 After the table loads, the role removes the manual rules, but only when they exist.
+
+## Hosts covered
+
+| Group | Hosts | Note |
+|---|---|---|
+| `docker_hosts` | `telemetry-prod-01`, `plane-prod-01`, `coolify-prod-01`, `garage-prod-01`, `forgejo-prod-01`, `docker-prod-01`, `docker-prod-02`, `proxy-prod-01`, `komodo-prod-01` | Also get `provision-baseline.yml`. |
+| `firewall_only_hosts` | `core-01` | Only this role runs here. See below. |
+
+`core-01` is a Raspberry Pi 4 (arm64) that is not in `docker_hosts`. The Docker and Periphery
+roles must not run on it, so `provision-baseline.yml` never targets it. `core-01` serves DNS
+(AdGuard) to every VLAN. **Warning: a wrong rule for port 53 on `core-01` takes down DNS for
+the whole network.** Its rules are in `ansible/inventory/host_vars/core-01.yml`. Port 53 is open
+to `any`, and the web UI on port 80 is open to the ADMIN VLAN only.
+`nas-01` is not covered (TOS manages its own chains there).
 
 ## Variables
 
@@ -115,7 +130,8 @@ sudo nft list set inet homelab_fw would_drop_v6
 ```
 
 Each element is `source . protocol . port` with a packet counter and an expiry time. For all
-hosts, run `make firewall-review` from the repository root.
+`docker_hosts`, run `make firewall-review` from the repository root. For `core-01`, run the
+`nft list set` commands on the host.
 
 For each element, decide one of two actions:
 
@@ -162,7 +178,7 @@ playbook again soon, or add the manual rules from `stacks/hawser/README.md` agai
 
 - The firewall does not filter outbound traffic.
 - Invalid packets (`ct state invalid`) are not dropped.
-- The role manages only the hosts in `docker_hosts`. `core-01` and `nas-01` keep the manual
-  Hawser rules, which do not survive a reboot.
+- The role manages only the hosts in `docker_hosts` and `firewall_only_hosts` (`core-01`).
+  `nas-01` keeps the manual Hawser rules, which do not survive a reboot.
 - A restart of `nftables.service` (LXC hosts) deletes the table. Check with
   `sudo nft list tables` after such a restart, and run `sudo systemctl restart homelab-fw`.

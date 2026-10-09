@@ -63,9 +63,15 @@ table loads at boot from `homelab-fw.service`. These rules are enforced even whe
 in observe mode. After the table loads, the role removes the manual `iptables` and `ip6tables`
 rules. See `ansible/roles/host_firewall/README.md`.
 
-**Warning: on `core-01` and `nas-01` the rules are manual, and they do not survive a reboot.**
-The role does not manage these hosts. After a reboot of either host, check with
-`sudo iptables -L DOCKER-USER -n` and apply the rules again. On a `docker_hosts` Hawser host
+On `core-01`, the role manages the same rules after someone runs the playbook there
+(`host_firewall_hawser: true` in `ansible/inventory/host_vars/core-01.yml`). `core-01` is in
+the inventory group `firewall_only_hosts`. Until the playbook runs on `core-01`, its rules are
+manual.
+
+**Warning: on `nas-01` the rules are manual, and they do not survive a reboot.**
+The role does not manage this host. After a reboot of `nas-01`, check with
+`sudo iptables -L DOCKER-USER -n` and apply the rules again. Do the same on `core-01` until the
+role is applied there. On a `docker_hosts` Hawser host
 that the role has not yet configured, the same warning applies until the playbook runs.
 
 Verification: from `docker-prod-01`, `curl http://<host>:2376/_hawser/info` gets `401`
