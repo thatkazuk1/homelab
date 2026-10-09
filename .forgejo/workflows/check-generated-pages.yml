@@ -14,6 +14,9 @@ on:
 jobs:
   check-generation:
     runs-on: docker
+    # A normal run takes 20 seconds to 11 minutes. Without a limit, a stalled
+    # run holds the runner for the 3-hour default (run 323, 2026-10-08).
+    timeout-minutes: 20
     steps:
       - name: Checkout
         run: |
