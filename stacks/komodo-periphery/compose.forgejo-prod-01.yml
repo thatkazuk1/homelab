@@ -1,0 +1,45 @@
+# Meta-infrastructure — not Komodo-managed.
+# Deployed and updated manually on forgejo-prod-01.
+# Applied by hand: copy this file to /opt/homelab/komodo-periphery/compose.yml on the host,
+# then run `docker compose up -d`. Nothing applies it automatically.
+# Same shape as the Ansible-templated standard hosts (telemetry-prod-01, plane-prod-01),
+# plus a Docker Hub credential mount (docker-config) and DOCKER_CONFIG.
+
+x-meta:
+  name: komodo-periphery-forgejo-prod-01
+  host: forgejo-prod-01
+  category: meta-infra
+  description: >
+    Custom Komodo Periphery agent (sops + age baked in) enabling
+    `sops exec-env` secret decryption at deploy time. Deployed and
+    updated manually per host — not Komodo-managed itself (bootstrap
+    circularity: Komodo can't manage the agent that runs Komodo's
+    per-host connection).
+  status: meta-infra
+  adrs:
+    - 5
+
+name: komodo-periphery
+
+services:
+  periphery:
+    image: forgejo.ts.kazuki.uk/shokunbi/komodo-periphery-sops:2
+    container_name: komodo-periphery
+    restart: unless-stopped
+    init: true
+    ports:
+      - "8120:8120"
+    environment:
+      - PERIPHERY_ROOT_DIRECTORY=/etc/komodo
+      - PERIPHERY_DISABLE_TERMINALS=true
+      - PERIPHERY_DISABLE_CONTAINER_EXEC=true
+      - PERIPHERY_CORE_PUBLIC_KEYS=${PERIPHERY_CORE_PUBLIC_KEYS}
+      - SOPS_AGE_KEY_FILE=/config/age-keys.txt
+      - DOCKER_CONFIG=/config/docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - /etc/komodo:/etc/komodo
+      - ./keys:/config/keys
+      - /home/kazuki/.config/sops/age/keys.txt:/config/age-keys.txt:ro
+      - /opt/homelab/komodo-periphery/docker-config:/config/docker

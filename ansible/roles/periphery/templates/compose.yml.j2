@@ -14,7 +14,7 @@ services:
 {% endif %}
     environment:
       - PERIPHERY_ROOT_DIRECTORY={{ periphery_root_directory }}
-      - PERIPHERY_DISABLE_TERMINALS=false
+      - PERIPHERY_DISABLE_TERMINALS=true
 {% if periphery_disable_container_exec is not none %}
       - PERIPHERY_DISABLE_CONTAINER_EXEC={{ periphery_disable_container_exec | lower }}
 {% endif %}

@@ -24,12 +24,24 @@ Bump `PERIPHERY_VERSION` when the official Periphery releases. Rebuild and redep
 Push to Forgejo's container registry once that registry is configured, so other
 hosts can pull rather than each building locally.
 
-## Terminals and container exec are disabled (2026-10-08)
+## Terminals and container exec are disabled
 
-Every per-host compose file sets `PERIPHERY_DISABLE_TERMINALS=true`.
-`compose.docker-prod-01.yml` also sets `PERIPHERY_DISABLE_CONTAINER_EXEC=true`. Komodo Core can
-no longer open a shell on a host or in a container. A stolen Komodo API key or Core session
-therefore cannot give a direct shell. Use SSH for shell work.
+The goal: `PERIPHERY_DISABLE_TERMINALS=true` on every host, and also
+`PERIPHERY_DISABLE_CONTAINER_EXEC=true` on `docker-prod-01` and `forgejo-prod-01`. Then Komodo
+Core cannot open a shell on a host or in a container, and a stolen Komodo API key or Core
+session cannot give a direct shell. Use SSH for shell work.
+
+History, so that the same mistake does not happen again:
+
+- 2026-10-08: a commit set these values in the files in this directory only. The files do not
+  deploy (see "How these files reach hosts" below), so no running host changed. The text here
+  then said "disabled on every host", which was wrong.
+- 2026-10-09: each host's own `/opt/homelab/komodo-periphery/compose.yml` was edited in place and
+  the container was recreated. The Ansible template and `docker-prod-01`'s host vars now write
+  the same values, so a role run does not revert them.
+
+To check a host, `grep` its own compose file, not the file in this directory:
+`ssh <host> "grep -n PERIPHERY_DISABLE /opt/homelab/komodo-periphery/compose.yml"`.
 
 These settings affect only Komodo's UI and API. A `docker exec` on the host itself, for
 example `docker exec komodo-periphery ...`, still works.
@@ -55,6 +67,25 @@ misrepresent most of the fleet:
   **not re-verified against live state in Sprint 3i** (no TOS browser terminal
   session available that day — re-verify next time nas-01 is touched)
 
-`forgejo-prod-01` does **not** run Periphery yet (fleet table's "pending" is
-accurate — confirmed no `/opt/homelab/komodo-periphery/` on that host as of
-Sprint 3i).
+- `compose.forgejo-prod-01.yml` — list-style `environment:` like the standard hosts, plus
+  `DOCKER_CONFIG` and a `docker-config` mount for the Docker Hub credential. Komodo registers
+  this server through `komodo/resources/default.toml`.
+
+`forgejo-prod-01` runs Periphery. The container has existed since 2026-09-25. The earlier
+statement that Periphery was "pending" on this host is out of date.
+
+## How these files reach hosts
+
+Nothing applies these files automatically. They document the running state. Komodo does not
+manage Periphery, and `deploy-all-changed` does not read this directory. Two methods change a host:
+
+- The Ansible `periphery` role templates `/opt/homelab/komodo-periphery/compose.yml`.
+- An operator copies the file from this directory to the host and runs `docker compose up -d`.
+
+A change to a file here does not change a running host. After each change, copy the file to
+the host by hand. Since 2026-10-09 the Ansible role template writes
+`PERIPHERY_DISABLE_TERMINALS=true`, so a role run keeps the hardening.
+
+**Warning:** do not copy a file from this directory over a host file. The host files have a
+`DOCKER_CONFIG` line and a `docker-config` mount (a Docker Hub login) that most files here do
+not have. `compose.forgejo-prod-01.yml` is the only exact copy of its host file.

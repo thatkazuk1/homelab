@@ -16,6 +16,7 @@ This stack runs a per-host instance on the following hosts:
 
 - `core-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.core-01.yml)
 - `docker-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.docker-prod-01.yml)
+- `forgejo-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.forgejo-prod-01.yml)
 - `garage-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.garage-prod-01.yml)
 - `nas-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.nas-01.yml)
 - `plane-prod-01` — [compose file](https://github.com/meetKazuki/homelab/blob/master/stacks/komodo-periphery/compose.plane-prod-01.yml)

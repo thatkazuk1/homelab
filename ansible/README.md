@@ -5,10 +5,12 @@ per-host SSH keys documented in `handbook/docs/getting-started/ssh.md`.
 
 **Status (Sprint 4b/4c):** the real fleet is under management. `docker_hosts` (8 real hosts)
 runs the Docker + Periphery baseline; live-rolled-out and verified (byte-identical container
-IDs/timestamps before and after, idempotent re-`--check`) on 7 of 8 — `forgejo-prod-01`'s
-Periphery install is blocked on a Forgejo registry token scope issue, an operator/UI action,
-not a role bug (directory/.env/compose/login all applied for real; the image pull itself
-401s, no container created). `komodo-prod-01` gets `periphery_managed: false` — its Periphery
+IDs/timestamps before and after, idempotent re-`--check`) on 7 of 8. `forgejo-prod-01`'s
+Periphery is running too (container created 2026-09-25); the earlier registry token block is
+resolved. Its compose file is tracked as `stacks/komodo-periphery/compose.forgejo-prod-01.yml`.
+The role template still writes `PERIPHERY_DISABLE_TERMINALS=false`, so a role run on any host
+reverts the 2026-10-08 hardening; align the template before the next run.
+`komodo-prod-01` gets `periphery_managed: false` — its Periphery
 is a fundamentally different deployment shape (vanilla image bundled inside the `komodo`
 stack's own compose, not `-sops`, not at the standard path) and is deliberately left
 untouched rather than parameterized. `scratch` remains a throwaway group for proving new role

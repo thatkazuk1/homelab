@@ -7,13 +7,14 @@ hawser_enabled: false
 # host's stacks/komodo-periphery/compose.docker-prod-01.yml x-meta
 # comment): this Periphery gets PERIPHERY_CORE_PUBLIC_KEYS,
 # KOMODO_CORE_ADDRESS, and PERIPHERY_PASSKEYS via a host-local .env
-# (env_file:), and adds PERIPHERY_DISABLE_CONTAINER_EXEC=false — the
+# (env_file:), and adds a PERIPHERY_DISABLE_CONTAINER_EXEC line — the
 # other 5 standard hosts have none of this. Ansible does not manage or
 # regenerate that .env file (PERIPHERY_PASSKEYS is a real credential
 # with no tracked source — it lives only on the host); the role just
 # needs to reproduce the compose shape that already consumes it.
+# Container exec is disabled since 2026-10-09 (security hardening).
 periphery_env_file: true
-periphery_disable_container_exec: false
+periphery_disable_container_exec: true
 
 # Real, audited mode for /opt/homelab/komodo-periphery — differs from
 # the 02775 default (setgid, but no group-write). See periphery role
