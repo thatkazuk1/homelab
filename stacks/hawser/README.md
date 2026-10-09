@@ -3,9 +3,10 @@
 One compose file per host (`compose.<host>.yml`), not a shared template —
 same precedent as `stacks/komodo-periphery/` (Sprint 3i): per-host drift
 (token, host identity) means a single generic file would misrepresent the
-fleet. All current hosts run an identical Standard-mode Hawser agent aside
-from the per-host `TOKEN` value, so the files are byte-identical except for
-that one line — this is expected, not an oversight.
+fleet. All hosts except `nas-01` run an identical Standard-mode Hawser agent
+aside from the per-host `TOKEN` value, so those files are byte-identical except
+for that one line — this is expected, not an oversight. `nas-01` runs in Edge
+mode (see below).
 
 ## Scope (Sprint 3r, Session 2; `nas-01` closed Sprint 3w)
 
@@ -52,7 +53,8 @@ sudo iptables -I DOCKER-USER 1 -p tcp --dport 2376 -s 192.168.50.105 -j RETURN
 sudo iptables -I DOCKER-USER 2 -p tcp --dport 2376 -j DROP
 ```
 
-Applied on all 8 hosts in the scope list above. On `nas-01`, run the commands as
+These rules apply to the Standard-mode hosts. `nas-01` does not need them (Edge mode, see
+below). If `nas-01` is ever rolled back to Standard mode, run the commands there as
 `nexus-tnas` without `sudo`, because `sudo` there does not give real root.
 
 On the `docker_hosts` Hawser hosts, the Ansible role `host_firewall` makes these rules
@@ -63,16 +65,30 @@ table loads at boot from `homelab-fw.service`. These rules are enforced even whe
 in observe mode. After the table loads, the role removes the manual `iptables` and `ip6tables`
 rules. See `ansible/roles/host_firewall/README.md`.
 
-On `core-01`, the role manages the same rules after someone runs the playbook there
-(`host_firewall_hawser: true` in `ansible/inventory/host_vars/core-01.yml`). `core-01` is in
-the inventory group `firewall_only_hosts`. Until the playbook runs on `core-01`, its rules are
-manual.
+On `core-01`, the role manages the same rules (`host_firewall_hawser: true` in
+`ansible/inventory/host_vars/core-01.yml`, applied 2026-10-09). `core-01` is in the inventory
+group `firewall_only_hosts`.
 
-**Warning: on `nas-01` the rules are manual, and they do not survive a reboot.**
-The role does not manage this host. After a reboot of `nas-01`, check with
-`sudo iptables -L DOCKER-USER -n` and apply the rules again. Do the same on `core-01` until the
-role is applied there. On a `docker_hosts` Hawser host
-that the role has not yet configured, the same warning applies until the playbook runs.
+## `nas-01`: Edge mode (since 2026-10-09)
+
+`nas-01` runs Hawser in **Edge mode**, so it needs no firewall rule. The agent connects out to
+Dockhand at `wss://dockhand.ts.kazuki.uk/api/hawser/connect` (through Traefik, over HTTPS) and
+sends its token after the WebSocket opens. The compose file publishes no port. Hawser still
+runs a health server on port 2376 **inside** the container only:
+`docker exec hawser wget -qO- http://127.0.0.1:2376/_hawser/health` shows `"mode":"edge"` and
+`"connected":true`.
+
+- The Dockhand environment `nas-01` has the type "Hawser Edge". It was changed **in place**.
+  Never delete and re-create an environment: the delete cascades and removes its history.
+- Agent mode is set by environment variables: `DOCKHAND_SERVER_URL` plus `TOKEN` gives Edge
+  mode; `TOKEN` alone gives Standard mode.
+- Management of `nas-01` now also needs Traefik on `proxy-prod-01` and DNS. The agent reconnects
+  by itself (backoff from 1 s to 60 s).
+- Rollback: revert the compose change, set the Dockhand environment back to Hawser Standard
+  with host `192.168.50.163` and port 2376, and restore the manual rules above.
+
+The other Hawser hosts can move to Edge mode in the same way. Then the Hawser rules in
+`host_firewall` (`host_firewall_hawser`) can be removed.
 
 Verification: from `docker-prod-01`, `curl http://<host>:2376/_hawser/info` gets `401`
 (reaches Hawser). From any other host, the same request times out.
