@@ -392,6 +392,10 @@ branch = "master"
 webhook_enabled = false
 run_directory = "stacks/influxdb3"
 file_paths = ["compose.yml"]
+compose_cmd_wrapper = """
+sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'
+"""
+compose_cmd_wrapper_include = ["up"]
 
 ##
 

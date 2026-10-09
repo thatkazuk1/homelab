@@ -23,6 +23,8 @@ services:
       - --plugin-dir=/var/lib/influxdb3/plugins
       # Core has no compaction: about one Parquet file per write period.
       # The default limit (432) stops speedtest queries longer than 7 days.
+      # 5000 covers about 80 days of speedtest data. Higher is not safe on a
+      # 2 GB VM, because a dashboard runs many queries at the same time.
       - --query-file-limit=5000
     volumes:
       - /opt/homelab/influxdb3/data:/var/lib/influxdb3/data
@@ -39,5 +41,9 @@ services:
       - /opt/homelab/influxdb3/config:/app-root/config:ro
       - /opt/homelab/influxdb3/explorer-db:/db
     command: ["--mode=admin"]
+    environment:
+      # Fixed key, so sessions (and the dashboards that belong to them)
+      # survive a restart. Without it Explorer makes a new key at each start.
+      - SESSION_SECRET_KEY
     depends_on:
       - influxdb3-core
