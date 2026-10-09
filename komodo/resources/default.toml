@@ -612,6 +612,24 @@ compose_cmd_wrapper_include = ["up"]
 ##
 
 [[stack]]
+name = "telegraf-adguard"
+tags = ["core-01"]
+[stack.config]
+server = "core-01"
+project_name = "telegraf-adguard"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/telegraf-adguard"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
 name = "uptime-kuma"
 tags = ["core-01"]
 [stack.config]

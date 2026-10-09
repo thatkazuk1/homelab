@@ -1,0 +1,48 @@
+name: telegraf-adguard
+
+x-meta:
+  name: telegraf-adguard
+  host: core-01
+  category: monitoring
+  description: >
+    Telegraf reads the AdGuard Home query log and writes hourly DNS
+    statistics (no domain names) to InfluxDB 3 on telemetry-prod-01.
+  status: new
+  adrs:
+    - 8
+
+services:
+  telegraf-adguard:
+    image: telegraf:1.40.1
+    container_name: telegraf-adguard
+    restart: unless-stopped
+    # The query log is root:root 0600 on the host, so the process runs as root.
+    user: "0:0"
+    entrypoint: ["telegraf"]
+    command: ["--config", "/etc/telegraf/telegraf.conf"]
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+    environment:
+      # sops exec-env injects the value (secrets.enc.env).
+      - INFLUX_TOKEN
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      # Mount the folder, not the file. AdGuard rotates the log by rename.
+      - /opt/AdGuardHome/querylog:/adguard/querylog:ro
+      - telegraf-adguard-state:/var/lib/telegraf
+    logging:
+      # A malformed log line goes into the Telegraf error log with its content.
+      # A small limit keeps such a line for a short time only.
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "2"
+
+volumes:
+  telegraf-adguard-state:
+    name: telegraf-adguard-state

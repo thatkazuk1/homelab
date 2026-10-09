@@ -111,6 +111,7 @@ nav:
       - speedtest-tracker: stacks/speedtest-tracker.md
       - sure: stacks/sure.md
       - sure-spending-widget: stacks/sure-spending-widget.md
+      - telegraf-adguard: stacks/telegraf-adguard.md
       - uptime-kuma: stacks/uptime-kuma.md
       - vaultwarden: stacks/vaultwarden.md
   - Conventions: conventions/index.md
