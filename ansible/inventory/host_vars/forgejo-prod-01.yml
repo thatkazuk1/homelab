@@ -1,0 +1,12 @@
+---
+# Host firewall (roles/host_firewall).
+# No Hawser agent on this host.
+host_firewall_host_rules:
+  - ports: [3000]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: forgejo web behind traefik
+  - ports: [2222]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_coolify }}"]
+    comment: git over ssh from the coolify deploy key

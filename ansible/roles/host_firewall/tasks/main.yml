@@ -1,0 +1,100 @@
+---
+# Installs the `inet homelab_fw` nft table. The role never touches
+# /etc/nftables.conf or nftables.service, and never runs `flush ruleset`.
+# It never installs the nftables package either: that package can enable
+# nftables.service, which flushes all Docker rules.
+
+- name: Find the nft binary
+  ansible.builtin.stat:
+    path: "{{ host_firewall_nft_bin }}"
+  register: host_firewall_nft_stat
+
+- name: Fail when the nft binary is missing
+  ansible.builtin.fail:
+    msg: >-
+      {{ host_firewall_nft_bin }} does not exist on {{ inventory_hostname }}.
+      This role does not install the nftables package, because the package
+      can enable nftables.service and that service flushes the Docker rules.
+      Install the nft binary by another safe method, or skip this host.
+  when: not host_firewall_nft_stat.stat.exists
+
+- name: Ensure the firewall directory exists
+  ansible.builtin.file:
+    path: "{{ host_firewall_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Template the nft table file
+  # validate runs on the target. In --check mode Ansible may skip it.
+  ansible.builtin.template:
+    src: homelab-fw.nft.j2
+    dest: "{{ host_firewall_dir }}/homelab-fw.nft"
+    owner: root
+    group: root
+    mode: "0640"
+    validate: "{{ host_firewall_nft_bin }} -c -f %s"
+  notify: Reload homelab-fw table
+
+- name: Template the systemd unit
+  ansible.builtin.template:
+    src: homelab-fw.service.j2
+    dest: /etc/systemd/system/homelab-fw.service
+    owner: root
+    group: root
+    mode: "0644"
+  register: host_firewall_unit
+  notify: Reload systemd units
+
+- name: Apply the systemd unit change now
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable the unit and load the table at boot
+  # On a first run this start loads the table. Later runs do not restart
+  # the unit, so the would-drop sets keep their elements.
+  ansible.builtin.systemd_service:
+    name: homelab-fw.service
+    enabled: true
+    state: started
+  # In --check mode the unit file does not exist yet on a first run.
+  when: not (ansible_check_mode and host_firewall_unit.changed)
+
+- name: Check that the table is loaded
+  ansible.builtin.command: "{{ host_firewall_nft_bin }} list table inet {{ host_firewall_table }}"
+  register: host_firewall_table_check
+  changed_when: false
+  check_mode: false
+  when: not ansible_check_mode
+
+# The old manual Hawser rules are now in the nft table (chain dnat_new and
+# the IPv6 rule in chain input). Remove the manual rules only after the
+# table is loaded. Each task changes nothing when its rule is absent.
+- name: Remove the old manual Hawser rules
+  when: host_firewall_hawser | bool
+  block:
+    - name: Remove the IPv4 DOCKER-USER accept rule
+      ansible.builtin.iptables:
+        chain: DOCKER-USER
+        protocol: tcp
+        destination_port: "{{ host_firewall_hawser_port | string }}"
+        source: "{{ host_firewall_hawser_source }}"
+        jump: RETURN
+        state: absent
+
+    - name: Remove the IPv4 DOCKER-USER drop rule
+      ansible.builtin.iptables:
+        chain: DOCKER-USER
+        protocol: tcp
+        destination_port: "{{ host_firewall_hawser_port | string }}"
+        jump: DROP
+        state: absent
+
+    - name: Remove the IPv6 INPUT drop rule
+      ansible.builtin.iptables:
+        ip_version: ipv6
+        chain: INPUT
+        protocol: tcp
+        destination_port: "{{ host_firewall_hawser_port | string }}"
+        jump: DROP
+        state: absent

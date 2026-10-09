@@ -4,3 +4,24 @@
 # functional difference; kept to reach a byte-identical check-mode
 # diff. See periphery role defaults.
 periphery_keys_volume_last: false
+
+# Host firewall (roles/host_firewall).
+host_firewall_hawser: true
+host_firewall_host_rules:
+  - ports: [80, 443, 8443]
+    proto: tcp
+    sources: any
+    comment: traefik entrypoints
+  - ports: [443]
+    proto: udp
+    sources: any
+    comment: traefik http3
+  - ports: [41641]
+    proto: udp
+    sources: any
+    comment: tailscale direct connections
+  - ports: [58449]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_tailnet }}"]
+    admin: false
+    comment: tailscaled, tailnet only

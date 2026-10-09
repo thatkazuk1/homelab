@@ -8,3 +8,11 @@ periphery_stack_dir_mode: "0775"
 # group, not svc-docker (the directory itself is svc-docker). See
 # periphery role defaults.
 periphery_files_group: kazuki
+
+# Host firewall (roles/host_firewall).
+host_firewall_hawser: true
+host_firewall_host_rules:
+  - ports: [80, 443]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}", "{{ host_firewall_addr_dockhand }}"]
+    comment: plane behind traefik, and from docker-prod-01

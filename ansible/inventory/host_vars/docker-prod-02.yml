@@ -15,3 +15,12 @@ baseline_managed: true
 #   - periphery_files_group: svc-docker
 #   - docker_apt_deb822: false       (legacy one-line repo, like 7/8 of the fleet)
 #   - no Hawser (the docker_hosts play is docker + periphery only)
+
+# Host firewall (roles/host_firewall).
+# 5355 (LLMNR) is not allowed on purpose. It shows in the would-drop sets.
+host_firewall_hawser: true
+host_firewall_host_rules:
+  - ports: [3001, 3004, 8100, 4000]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: web services and litellm behind traefik

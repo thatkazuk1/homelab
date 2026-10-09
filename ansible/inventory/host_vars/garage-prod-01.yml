@@ -13,3 +13,16 @@ periphery_files_group: kazuki
 # of the ${VAR} + .env pattern every other standard host uses. See
 # periphery role defaults.
 periphery_core_public_keys_inline: true
+
+# Host firewall (roles/host_firewall).
+# Garage runs in host network mode, so 3900 and 3909 use the input hook.
+host_firewall_hawser: true
+host_firewall_host_rules:
+  - ports: [3900]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_lab }}"]
+    comment: garage s3 api for LAB clients
+  - ports: [3909]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: garage web ui behind traefik

@@ -1,0 +1,11 @@
+---
+- name: Reload systemd units
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+# Load the file directly. The file replaces the table in one atomic
+# transaction, so no rule gap exists. A unit restart would delete the table
+# first and open a short gap in the enforced Hawser rules.
+- name: Reload homelab-fw table
+  ansible.builtin.command: "{{ host_firewall_nft_bin }} -f {{ host_firewall_dir }}/homelab-fw.nft"
+  changed_when: true

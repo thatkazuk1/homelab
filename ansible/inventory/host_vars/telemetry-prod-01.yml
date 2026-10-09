@@ -1,0 +1,11 @@
+---
+# Host firewall (roles/host_firewall).
+# 8181 (influxdb) is reached from Docker bridges; the container CIDR list
+# covers it. External writers are unknown, so they show in the would-drop sets.
+# 8443 and 8889 are not allowed on purpose.
+host_firewall_hawser: true
+host_firewall_host_rules:
+  - ports: [8080, 8888]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: web services behind traefik

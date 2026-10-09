@@ -38,11 +38,13 @@ jobs:
           ansible-galaxy collection install -r ansible/requirements.yml
 
       - name: ansible-lint
-        run: ansible-lint ansible/playbooks/provision-baseline.yml
+        run: ansible-lint ansible/playbooks/provision-baseline.yml ansible/playbooks/host-firewall.yml
         env:
           ANSIBLE_CONFIG: ansible/ansible.cfg
 
       - name: ansible-playbook --syntax-check
-        run: ansible-playbook --syntax-check ansible/playbooks/provision-baseline.yml
+        run: |
+          ansible-playbook --syntax-check ansible/playbooks/provision-baseline.yml
+          ansible-playbook --syntax-check ansible/playbooks/host-firewall.yml
         env:
           ANSIBLE_CONFIG: ansible/ansible.cfg

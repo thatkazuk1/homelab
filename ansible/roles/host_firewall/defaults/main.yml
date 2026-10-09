@@ -1,0 +1,68 @@
+---
+# host_firewall installs one nft table, `inet homelab_fw`, that runs before
+# the iptables-nft rules which Docker writes. It never touches
+# /etc/nftables.conf or nftables.service (that file starts with
+# `flush ruleset`, which deletes all Docker rules).
+
+# false = observe mode. The table records traffic that it would drop
+# (sets would_drop_v4 and would_drop_v6, plus a rate-limited log line)
+# and drops nothing new. true = enforce mode: the same record, then drop.
+# The Hawser rules (host_firewall_hawser) are enforced in both modes.
+host_firewall_enforce: false
+
+host_firewall_dir: /etc/homelab-fw
+host_firewall_nft_bin: /usr/sbin/nft
+host_firewall_table: homelab_fw
+
+# Named addresses. Use these names in rule sources.
+host_firewall_addr_admin: 192.168.30.0/24 # ADMIN VLAN, the operator's workstation
+host_firewall_addr_dockhand: 192.168.50.105 # docker-prod-01, Dockhand and the nightly rsync job
+host_firewall_addr_proxy: 192.168.50.107 # proxy-prod-01, Traefik
+host_firewall_addr_komodo: 192.168.50.111 # komodo-prod-01, Komodo Core
+host_firewall_addr_coolify: 192.168.50.30 # coolify-prod-01
+host_firewall_addr_lab: 192.168.50.0/24 # LAB VLAN
+host_firewall_addr_tailnet: 100.64.0.0/10 # Tailscale CGNAT range
+
+# Sources that count as "a container on this host". The input chain and the
+# forward chain accept new connections from these sources to any port
+# (container-to-host traffic, and container-to-published-port traffic).
+host_firewall_container_cidrs:
+  - 172.16.0.0/12
+
+# Size, timeout and log rate of the would-drop sets.
+host_firewall_set_size: 16384
+host_firewall_set_timeout: 8d
+host_firewall_log_rate: 6/minute
+host_firewall_log_burst: 10
+
+# Hawser agent (tcp/2376). Accept from Dockhand, drop all other sources.
+# These rules are enforced in every mode. Set true in host_vars for the
+# hosts that run a Hawser agent.
+host_firewall_hawser: false
+host_firewall_hawser_port: 2376
+host_firewall_hawser_source: "{{ host_firewall_addr_dockhand }}"
+
+# Rule list. Each entry has these keys:
+#   ports:   list of port numbers
+#   proto:   tcp, udp, or a list of both
+#   sources: "any", or a list of IPv4 and IPv6 CIDRs
+#   admin:   optional, default true. true adds host_firewall_addr_admin
+#            to the sources (the operator uses the web UIs directly).
+#   comment: text that nft shows in the rule
+# A port number is the published port (the port that the client uses).
+host_firewall_common_rules:
+  - ports: [22]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_dockhand }}"]
+    comment: ssh, and the nightly rsync job from docker-prod-01
+
+# Periphery listens on 8120 when the periphery role manages it
+# (komodo-prod-01 sets periphery_managed: false and does not publish 8120).
+host_firewall_periphery_rules: >-
+  {{ [{'ports': [8120], 'proto': 'tcp',
+       'sources': [host_firewall_addr_komodo], 'admin': false,
+       'comment': 'komodo periphery from komodo core'}]
+     if (periphery_managed | default(true)) else [] }}
+
+# Per-host rules go in host_vars.
+host_firewall_host_rules: []

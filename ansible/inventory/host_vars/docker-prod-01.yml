@@ -25,3 +25,18 @@ periphery_stack_dir_mode: "02755"
 # Docker's repo (every other host uses the legacy one-line format —
 # see docker role defaults).
 docker_apt_deb822: true
+
+# Host firewall (roles/host_firewall).
+# No Hawser agent here (Dockhand runs on this host).
+# 45876/tcp (beszel-agent, host network) is reached from Docker bridges,
+# so host_firewall_container_cidrs already covers it.
+# 111 (rpcbind) is not allowed on purpose. It shows in the would-drop sets.
+host_firewall_host_rules:
+  - ports: [3000, 3001, 3050, 8000, 8090, 9898]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: web services behind traefik
+  - ports: [41641]
+    proto: udp
+    sources: any
+    comment: tailscale direct connections

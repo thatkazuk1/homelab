@@ -1,0 +1,11 @@
+---
+# Host firewall (nft table inet homelab_fw), observe mode by default.
+# Deliberately NOT part of provision-baseline.yml: it applies only when
+# someone runs it. See roles/host_firewall/README.md before the first run.
+#
+# Check first:  ansible-playbook playbooks/host-firewall.yml --check --diff -l <host>
+- name: Install the host firewall on Docker hosts
+  hosts: docker_hosts
+  become: true
+  roles:
+    - host_firewall

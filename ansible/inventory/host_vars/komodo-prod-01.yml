@@ -20,3 +20,12 @@ periphery_managed: false
 # noted here for when that's revisited: this host has no Hawser
 # container regardless, confirmed by audit.
 hawser_enabled: false
+
+# Host firewall (roles/host_firewall).
+# No Hawser agent here. Periphery 8120 is not published, so the role skips
+# its rule (periphery_managed is false).
+host_firewall_host_rules:
+  - ports: [9120]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: komodo core behind traefik

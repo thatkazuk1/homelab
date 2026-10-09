@@ -55,9 +55,18 @@ sudo iptables -I DOCKER-USER 2 -p tcp --dport 2376 -j DROP
 Applied on all 8 hosts in the scope list above. On `nas-01`, run the commands as
 `nexus-tnas` without `sudo`, because `sudo` there does not give real root.
 
-**Warning: these rules do not survive a reboot.** After a host reboot, check with
-`sudo iptables -L DOCKER-USER -n` and apply the rules again. To make them permanent, move
-them into the Ansible baseline role (host firewall work, not done yet).
+On the `docker_hosts` Hawser hosts, the Ansible role `host_firewall` makes these rules
+persistent. The hosts are `telemetry-prod-01`, `plane-prod-01`, `coolify-prod-01`,
+`garage-prod-01`, `proxy-prod-01` and `docker-prod-02`. The role puts the same rules in the nft
+table `inet homelab_fw` (accept from `192.168.50.105`, drop other IPv4 sources, drop IPv6). The
+table loads at boot from `homelab-fw.service`. These rules are enforced even when the role runs
+in observe mode. After the table loads, the role removes the manual `iptables` and `ip6tables`
+rules. See `ansible/roles/host_firewall/README.md`.
+
+**Warning: on `core-01` and `nas-01` the rules are manual, and they do not survive a reboot.**
+The role does not manage these hosts. After a reboot of either host, check with
+`sudo iptables -L DOCKER-USER -n` and apply the rules again. On a `docker_hosts` Hawser host
+that the role has not yet configured, the same warning applies until the playbook runs.
 
 Verification: from `docker-prod-01`, `curl http://<host>:2376/_hawser/info` gets `401`
 (reaches Hawser). From any other host, the same request times out.

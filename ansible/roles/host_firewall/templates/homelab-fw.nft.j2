@@ -1,0 +1,125 @@
+#jinja2: lstrip_blocks: True, trim_blocks: True
+# {{ ansible_managed }}
+# Host firewall for {{ inventory_hostname }}. Mode: {{ 'ENFORCE' if host_firewall_enforce | bool else 'OBSERVE (log only)' }}.
+# Load with: nft -f {{ host_firewall_dir }}/homelab-fw.nft
+# Do not add `flush ruleset` here. Docker keeps its rules in other tables.
+{% set rules = host_firewall_common_rules + host_firewall_periphery_rules + host_firewall_host_rules %}
+{% set containers = host_firewall_container_cidrs | unique | list %}
+{% set c4 = containers | reject('search', ':') | list %}
+{% set c6 = containers | select('search', ':') | list %}
+{% set final_verdict = 'drop' if host_firewall_enforce | bool else 'accept' %}
+{#
+  dport(chain, proto, ports): the port match for one protocol.
+  The input chain sees the real destination port. The forward chain sees the
+  port after Docker DNAT, so it matches the original (published) port.
+#}
+{% macro dport(chain, proto, ports) -%}
+{% if chain == 'forward' -%}
+ct original protocol {{ proto }} ct original proto-dst { {{ ports | join(', ') }} }
+{%- else -%}
+{{ proto }} dport { {{ ports | join(', ') }} }
+{%- endif %}
+{%- endmacro %}
+{% macro allow_rules(chain) %}
+{% for rule in rules %}
+{% set protos = [rule.proto] if rule.proto is string else rule.proto %}
+{% set srcs = [rule.sources] if rule.sources is string else rule.sources %}
+{% set cmt = (rule.comment | default('')) | replace('"', "'") %}
+{% for proto in protos %}
+{% if 'any' in srcs %}
+        {{ dport(chain, proto, rule.ports) }} accept comment "{{ cmt }} (any)"
+{% else %}
+{% set all_srcs = (srcs + ([host_firewall_addr_admin] if rule.admin | default(true) else [])) | unique | list %}
+{% set v4 = all_srcs | reject('search', ':') | list %}
+{% set v6 = all_srcs | select('search', ':') | list %}
+{% if v4 | length > 0 %}
+        ip saddr { {{ v4 | join(', ') }} } {{ dport(chain, proto, rule.ports) }} accept comment "{{ cmt }}"
+{% endif %}
+{% if v6 | length > 0 %}
+        ip6 saddr { {{ v6 | join(', ') }} } {{ dport(chain, proto, rule.ports) }} accept comment "{{ cmt }}"
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{%- endmacro %}
+{% macro container_rules() %}
+{% if c4 | length > 0 %}
+        ip saddr { {{ c4 | join(', ') }} } accept comment "containers on this host"
+{% endif %}
+{% if c6 | length > 0 %}
+        ip6 saddr { {{ c6 | join(', ') }} } accept comment "containers on this host"
+{% endif %}
+{%- endmacro %}
+{#
+  record_and_finish(tuple_v4, tuple_v6): the last rules of a branch.
+  They record the tuple of a new packet, log it, and accept or drop it.
+#}
+{% macro record_and_finish(tuple_v4, tuple_v6) %}
+        meta nfproto ipv4 ct state new update @would_drop_v4 { {{ tuple_v4 }} }
+        meta nfproto ipv6 ct state new update @would_drop_v6 { {{ tuple_v6 }} }
+        ct state new limit rate {{ host_firewall_log_rate }} burst {{ host_firewall_log_burst }} packets log prefix "homelab_fw would-drop: "
+        ct state new {{ final_verdict }}
+{%- endmacro %}
+
+# The file replaces the table in one atomic transaction.
+table inet {{ host_firewall_table }} {}
+delete table inet {{ host_firewall_table }}
+
+table inet {{ host_firewall_table }} {
+    # New connections that reached the end of a branch: source . protocol . port.
+    # Review with: nft list set inet {{ host_firewall_table }} would_drop_v4
+    set would_drop_v4 {
+        type ipv4_addr . inet_proto . inet_service
+        size {{ host_firewall_set_size }}
+        flags dynamic, timeout
+        timeout {{ host_firewall_set_timeout }}
+        counter
+    }
+
+    set would_drop_v6 {
+        type ipv6_addr . inet_proto . inet_service
+        size {{ host_firewall_set_size }}
+        flags dynamic, timeout
+        timeout {{ host_firewall_set_timeout }}
+        counter
+    }
+
+    # Host processes: sshd, host-network containers, docker-proxy (IPv6 published ports).
+    chain input {
+        type filter hook input priority filter - 5; policy accept;
+
+        ct state established,related accept
+        iifname "lo" accept
+        meta l4proto { icmp, ipv6-icmp } accept
+{% if host_firewall_hawser | bool %}
+
+        # Hawser: enforced in every mode. The IPv4 pair is in chain dnat_new.
+        meta nfproto ipv6 tcp dport {{ host_firewall_hawser_port }} drop comment "hawser: no IPv6"
+{% endif %}
+
+{{ container_rules() }}
+{{ allow_rules('input') }}
+{{ record_and_finish('ip saddr . meta l4proto . th dport', 'ip6 saddr . meta l4proto . th dport') }}
+    }
+
+    # Docker published ports (DNAT). Other forwarded traffic is not changed.
+    chain dnat_new {
+{% if host_firewall_hawser | bool %}
+        # Hawser: enforced in every mode.
+        ip saddr {{ host_firewall_hawser_source }} ct original protocol tcp ct original proto-dst {{ host_firewall_hawser_port }} accept comment "hawser from dockhand"
+        ct original protocol tcp ct original proto-dst {{ host_firewall_hawser_port }} drop comment "hawser: all other sources"
+
+{% endif %}
+{{ container_rules() }}
+{{ allow_rules('forward') }}
+{{ record_and_finish('ip saddr . meta l4proto . ct original proto-dst', 'ip6 saddr . meta l4proto . ct original proto-dst') }}
+    }
+
+    chain forward {
+        type filter hook forward priority filter - 5; policy accept;
+
+        ct state established,related accept
+        meta l4proto { icmp, ipv6-icmp } accept
+        ct status dnat ct state new jump dnat_new
+    }
+}

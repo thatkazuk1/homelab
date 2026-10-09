@@ -8,3 +8,18 @@ periphery_stack_dir_mode: "0775"
 # group, not svc-docker (the directory itself is svc-docker). See
 # periphery role defaults.
 periphery_files_group: kazuki
+
+# Host firewall (roles/host_firewall).
+# 22/tcp from 10.0.0.0/8: the Coolify container connects to its host over
+# SSH from a Docker network in 10.0.0.0/8. The container CIDR list covers it.
+# 80 and 443 (Cloudflare tunnel in host mode) are local only. The loopback
+# rule covers them.
+host_firewall_hawser: true
+host_firewall_container_cidrs:
+  - 172.16.0.0/12
+  - 10.0.0.0/8
+host_firewall_host_rules:
+  - ports: [8000, 6001, 6002, 8080]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: coolify web, realtime and terminal

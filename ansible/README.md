@@ -47,9 +47,16 @@ management, and Talos itself is deferred with no active driver.
   Written and statically validated only; see `proxmox/README.md` for the honest
   proven-vs-not boundary. No `proxmox_nodes` inventory group exists yet — `pve-01`/`pve-02`
   are live production and don't match this role's fresh-node assumptions.
+- `roles/host_firewall` — host firewall (nft table `inet homelab_fw`) for `docker_hosts`, in
+  observe (log-only) mode by default. It also makes the Hawser port 2376 rules persistent.
+  Not part of `provision-baseline.yml`; it applies only when someone runs
+  `playbooks/host-firewall.yml`. Review the would-drop sets with `make firewall-review`.
+  See `roles/host_firewall/README.md`.
 - `playbooks/provision-baseline.yml` — two plays: `docker` + `periphery` against
   `docker_hosts` (the real fleet baseline); `docker` + `periphery` + `hawser` against
   `scratch` (the end-to-end proof path, hawser included there only).
+- `playbooks/host-firewall.yml` — `host_firewall` role against `docker_hosts`. Run it with
+  `--check --diff -l <host>` first.
 - `playbooks/provision-proxmox-node.yml` — `proxmox_node` role against `proxmox_nodes`
   (currently empty; first real run is first real hardware, a future sprint).
 

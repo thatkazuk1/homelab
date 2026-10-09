@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Homelab host firewall (nft table inet {{ host_firewall_table }})
+# nftables.service starts with `flush ruleset`. Start after it, so that a
+# boot never flushes this table. This unit does not start nftables.service.
+After=docker.service network-online.target nftables.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart={{ host_firewall_nft_bin }} -f {{ host_firewall_dir }}/homelab-fw.nft
+# The "-" prefix: a stop does not fail when the table is already gone.
+ExecStop=-{{ host_firewall_nft_bin }} delete table inet {{ host_firewall_table }}
+
+[Install]
+WantedBy=multi-user.target
