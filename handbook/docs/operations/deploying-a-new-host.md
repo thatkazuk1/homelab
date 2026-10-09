@@ -75,14 +75,28 @@ reporting have drifted apart before on this fleet, so don't assume one implies t
 
 ## 5. Register the server in Komodo Core
 
-Operator-performed UI step, per [ADR-0011](../decisions/index.md) — the executor supplies the
-exact values (host name, registration address), the operator clicks it into Komodo, the
-executor verifies the result over SSH afterward.
+Declarative, not a UI step. Add a `[[server]]` block for the host to
+`komodo/resources/default.toml`, in the same shape as the existing blocks:
+
+```toml
+[[server]]
+name = "<host-name>"
+[server.config]
+address = "https://<HOST-IP>:8120"
+enabled = true
+```
+
+Check the TOML syntax with
+`python3 -c "import tomllib; tomllib.load(open('komodo/resources/default.toml','rb'))"`, because a
+syntax error breaks the sync for every resource. Open a PR and merge it. The merge runs
+`deploy-all-changed`, and its first stage (`homelab-resources` resource sync) creates the
+server in Komodo. No Komodo UI action is needed. `forgejo-prod-01` was registered this way on
+2026-10-09.
 
 - **Address:** `https://<HOST-IP>:8120` — **not** `http://`. Periphery has defaulted to SSL
   enabled (self-signed cert, auto-generated on first boot) since Komodo v1.15; `http://`
   registration fails silently against a host running this default.
-- Confirm green status, and confirm the container list Komodo reports for the new host
+- After the merge, confirm that the server shows `Ok` in Komodo, and confirm the container list Komodo reports for the new host
   matches what's actually running (`docker compose ls` / `docker ps -a` on the host itself) —
   don't take Komodo's dashboard as the sole source of truth for what's live.
 
@@ -98,10 +112,11 @@ sufficient.
 
 Steps 2 (baseline config) and 4 (Periphery) are automated by Ansible for hosts in the
 `docker_hosts` inventory group — live-verified on 7 of the 8 real hosts; the eighth, `forgejo-prod-01`, runs Periphery but the role is not verified on it (see `ansible/README.md`
-for current status and exceptions). Steps 1, 3, 5, and 6 (provisioning, Beszel registration,
-Komodo Server registration, exposing services), and the whole sequence for hosts outside
-`docker_hosts` (`core-01`, `nas-01`), remain manual — there's no L1 automation provisioning
-the host itself yet, and no automation drives Beszel/Komodo registration.
+for current status and exceptions). Step 5 (Komodo Server registration) is declarative: a
+`[[server]]` block in `komodo/resources/default.toml`, applied by the resource sync when the PR
+merges. Steps 1, 3 and 6 (provisioning, Beszel registration, exposing services), and the whole
+sequence for hosts outside `docker_hosts` (`core-01`, `nas-01`), remain manual — there's no L1
+automation provisioning the host itself yet, and no automation drives Beszel registration.
 Bare-metal Proxmox node baking (`proxmox/`, Sprint 4c) is a separate, earlier-stage
 effort — config-validated only, no node has booted from it yet. Treat this page as the
 checklist for what's still manual, not as a promise that all of it runs itself.
