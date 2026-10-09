@@ -186,6 +186,7 @@ http:
       rule: "Host(`home.ts.kazuki.uk`)"
       service: homepage-service
       middlewares:
+        - tailscale-whitelist
         - crowdsec
       tls:
         certResolver: cloudflare

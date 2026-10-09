@@ -55,6 +55,14 @@ This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack
   account, suggesting it's a leftover from the pre-standardization Proxmox/K8s era rather than
   an active integration. Left in place (rename only, per sprint scope) — removal is a judgment
   call for a future pass, not done here.
+- On 2026-10-09 the 10 variables that no widget used were removed from `compose.yml` and
+  `secrets.enc.env`: `K8S_API_KEY`, `PLEX_API_KEY`, `PORTAINER_ACCESS_KEY`, the old
+  `ADGUARD_USERNAME`/`ADGUARD_PASSWORD`, `CROWDSEC_USERNAME`/`CROWDSEC_PASSWORD` and the three
+  `PROXMOXBACKUPSERVER_*` values (all with the `HOMEPAGE_VAR_` prefix). The `_ONE` AdGuard pair
+  is the live one. Removal from the file does not revoke a credential in its service.
+- The Traefik route `home.ts.kazuki.uk` uses `tailscale-whitelist` (since 2026-10-09), so only
+  the tailnet, ADMIN and LAB can reach it through Traefik. Homepage has no login of its own, and
+  its server-side proxy uses the stored credentials for any client that reaches it.
 
 ---
 
