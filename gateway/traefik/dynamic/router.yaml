@@ -110,6 +110,26 @@ http:
       tls:
         certResolver: cloudflare
 
+    coolify-terminal:
+      entrypoints:
+        - websecure
+      rule: "Host(`coolify.ts.kazuki.uk`) && PathPrefix(`/terminal/ws`)"
+      service: coolify-terminal-service
+      middlewares:
+        - tailscale-whitelist
+      tls:
+        certResolver: cloudflare
+
+    coolify-realtime:
+      entrypoints:
+        - websecure
+      rule: "Host(`coolify.ts.kazuki.uk`) && PathPrefix(`/app`)"
+      service: coolify-realtime-service
+      middlewares:
+        - tailscale-whitelist
+      tls:
+        certResolver: cloudflare
+
     coolify-webhook:
       entrypoints:
         - websecure
@@ -300,6 +320,16 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.50.30:8000"
+
+    coolify-terminal-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.30:6002"
+
+    coolify-realtime-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.30:6001"
 
     dockhand-service:
       loadBalancer:
