@@ -67,6 +67,8 @@ services:
       KOMODO_JWT_TTL:
       KOMODO_DATABASE_USERNAME:
       KOMODO_DATABASE_PASSWORD:
+      PERIPHERY_DISABLE_TERMINALS: "true"
+      PERIPHERY_DISABLE_CONTAINER_EXEC: "true"
     volumes:
       - keys:/config/keys
       - /var/run/docker.sock:/var/run/docker.sock
