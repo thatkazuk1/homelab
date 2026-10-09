@@ -79,6 +79,10 @@ configured, deliberately — image bumps can carry breaking changes even at mino
 versions, and this fleet doesn't yet have the automated test coverage that would make
 unattended merges safe.
 
+Branch protection on `master` also enforces this (2026-10-09). `renovate-bot` has write
+access, so it can push its own branches. But only `kazuki` can merge into `master`, and no
+account can push to `master` directly. See [Deploy triggers](deploy-triggers.md#branch-protection).
+
 ## Adding a dependency to scope
 
 A dependency is in scope automatically if it's an image reference inside a `compose.yml`

@@ -52,20 +52,40 @@ head -3 stacks/<name>/secrets.enc.env
 
 Should show ciphertext, not plaintext. If plaintext, stop — do not commit.
 
-```bash
-sops -d stacks/<name>/secrets.enc.env | grep <var-name>
-```
-
-Confirms the values you meant to set are what got saved.
-
-### 5. Commit, push, redeploy
-
-Commit describes what and why:
+Then confirm that the saved value is the value you meant to set. Compare hashes, so the
+value never appears on screen or in a log:
 
 ```bash
-git commit -m "Rotate <stack> S3 credentials to <new-bucket>"
-git push
+sops exec-env stacks/<name>/secrets.enc.env 'printenv <VAR_NAME>' | sha256sum
 ```
+
+Compare the result with the hash of the new value at its source. For example, if the new
+value is in a password manager entry or a shell variable, hash it the same way:
+
+```bash
+printf '%s\n' "$NEW_VALUE" | sha256sum
+```
+
+The two hashes must be the same.
+
+!!! warning "Do not print the value"
+    Do not run `sops -d ... | grep <VAR_NAME>`. That prints the secret in plaintext to the
+    terminal, and from there it can get into shell history, session logs and transcripts.
+    If you only need to know that a variable exists, list names only:
+    `sops exec-env stacks/<name>/secrets.enc.env 'printenv' | cut -d= -f1 | grep -x <VAR_NAME>`.
+
+### 5. Commit, open a PR, merge, redeploy
+
+Commit on a branch. The commit message describes what and why:
+
+```bash
+git switch -c rotate-<stack>-s3
+git commit -m "fix(secrets): rotate <stack> S3 credentials to <new-bucket>"
+git push -u origin rotate-<stack>-s3
+```
+
+Open a PR for the branch and merge it. `master` does not accept direct pushes
+(see [Deploy triggers](deploy-triggers.md#branch-protection)).
 
 Then in Komodo UI, trigger a manual Deploy on the stack. Auto-triggers are
 [deferred as a standing carryover](../decisions/index.md).

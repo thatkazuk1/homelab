@@ -40,6 +40,28 @@ on the compose file, added Sprint 3x); see CLAUDE.md's Docker-management
 coverage-gap note. Not going to be revisited unless `komodo-prod-01`'s
 Periphery is upgraded to the `-sops` variant for unrelated reasons.
 
+## Network restriction (2026-10-09)
+
+Hawser speaks plain HTTP on port 2376, and the token travels in the `X-Hawser-Token` header.
+Every agent publishes `0.0.0.0:2376`. Only Dockhand on `docker-prod-01` (`192.168.50.105`)
+needs to connect. All agents are on VLAN 50, and OPNsense does not see intra-VLAN traffic.
+So each Hawser host has two `iptables` rules in the `DOCKER-USER` chain:
+
+```bash
+sudo iptables -I DOCKER-USER 1 -p tcp --dport 2376 -s 192.168.50.105 -j RETURN
+sudo iptables -I DOCKER-USER 2 -p tcp --dport 2376 -j DROP
+```
+
+Applied on all 8 hosts in the scope list above. On `nas-01`, run the commands as
+`nexus-tnas` without `sudo`, because `sudo` there does not give real root.
+
+**Warning: these rules do not survive a reboot.** After a host reboot, check with
+`sudo iptables -L DOCKER-USER -n` and apply the rules again. To make them permanent, move
+them into the Ansible baseline role (host firewall work, not done yet).
+
+Verification: from `docker-prod-01`, `curl http://<host>:2376/_hawser/info` gets `401`
+(reaches Hawser). From any other host, the same request times out.
+
 ## Secrets
 
 `secrets.enc.env` holds one `HAWSER_TOKEN_<HOST>` per host, SOPS-encrypted

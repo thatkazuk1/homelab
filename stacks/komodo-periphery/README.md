@@ -24,6 +24,16 @@ Bump `PERIPHERY_VERSION` when the official Periphery releases. Rebuild and redep
 Push to Forgejo's container registry once that registry is configured, so other
 hosts can pull rather than each building locally.
 
+## Terminals and container exec are disabled (2026-10-08)
+
+Every per-host compose file sets `PERIPHERY_DISABLE_TERMINALS=true`.
+`compose.docker-prod-01.yml` also sets `PERIPHERY_DISABLE_CONTAINER_EXEC=true`. Komodo Core can
+no longer open a shell on a host or in a container. A stolen Komodo API key or Core session
+therefore cannot give a direct shell. Use SSH for shell work.
+
+These settings affect only Komodo's UI and API. A `docker exec` on the host itself, for
+example `docker exec komodo-periphery ...`, still works.
+
 ## Per-host compose tracking (Sprint 3i)
 
 One compose file per host (`compose.<host>.yml`), not one shared template — real

@@ -125,10 +125,11 @@ No per-Stack webhook setup needed. A single repo-level Forgejo webhook fires the
 picked up automatically the next time anything pushes — nothing to register for it
 specifically. See [Deploy triggers](deploy-triggers.md) for how the mechanism works.
 
-To verify a new adoption's round trip, force a real redeploy by pushing a small, harmless
-change — a marker environment variable is the standard choice, since it's easy to verify
-landed without being a real functional change. Expect container recreation within a few
-seconds of the push landing. If it doesn't land within a couple of minutes, don't assume this
+To verify a new adoption's round trip, force a real redeploy with a small, harmless change.
+A marker environment variable is the standard choice, since it's easy to verify landed
+without being a real functional change. Put the change in a PR and merge it, because `master`
+does not accept direct pushes (see [Deploy triggers](deploy-triggers.md#branch-protection)).
+Expect container recreation within a few seconds of the merge. If it doesn't land within a couple of minutes, don't assume this
 is normal — check Komodo Core's logs for the webhook delivery and Procedure execution
 (`docker logs komodo-core-1`, note the `-1` container-name suffix) before falling back to a
 manual Deploy click in the Komodo UI. Auto Update / Poll for Updates is a separate feature

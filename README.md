@@ -113,11 +113,12 @@ Getting Started section for the full convention and reasoning.
 
 ### Development
 
-The GitOps loop: edit a stack's `compose.yml` (or its `secrets.enc.env` via `sops`) and push
-to `master`. A single repo-level Forgejo webhook fires a Komodo Procedure that scans every
-Stack and redeploys only what actually changed — no per-stack webhook setup needed. Editing
-`handbook/` and pushing auto-deploys the live handbook via its Coolify pipeline within about a
-minute. See `handbook/docs/operations/` for the detailed playbooks (adopting a stack, deploy
+The GitOps loop: edit a stack's `compose.yml` (or its `secrets.enc.env` via `sops`) on a
+branch, open a PR, and merge it into `master`. `master` is protected and does not accept
+direct pushes. A single repo-level Forgejo webhook fires on each merge and starts a Komodo
+Procedure that scans every Stack and redeploys only what actually changed — no per-stack
+webhook setup needed. A merged change under `handbook/` auto-deploys the live handbook via its
+Coolify pipeline within about a minute. See `handbook/docs/operations/` for the detailed playbooks (adopting a stack, deploy
 triggers, maintaining the handbook).
 
 Preview the handbook locally before pushing:
@@ -135,8 +136,8 @@ in the traditional sense. What runs instead:
 - **Pre-commit hooks** — regenerate handbook stack pages from `stacks/` changes, and hard-fail
   on any dangling ADR reference.
 - **Forgejo Actions CI** — Ansible lint + syntax check on `ansible/**` changes, an ADR-content
-  consistency check (warn-only) on `stacks/**` changes, and a check that generated handbook
-  stack pages match their source compose files.
+  consistency check (warn-only) on `stacks/**` changes merged to `master`, and a check that
+  generated handbook stack pages match their source compose files.
 - **`mkdocs build --strict`** — the same build CI runs; a clean local build (see the Setting
   Up docker command above) is a real signal before pushing handbook changes.
 

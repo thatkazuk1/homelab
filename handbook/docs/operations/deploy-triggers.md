@@ -1,6 +1,34 @@
 # Operations: Deploy triggers
 
-How a `git push` to the fleet monorepo turns into a running redeploy.
+How a merged change on `master` turns into a running redeploy.
+
+## Branch protection
+
+`master` accepts changes only through merged PRs (protection rule added 2026-10-09).
+
+| Setting | Value |
+|---|---|
+| Direct push | Off for every account, admins included |
+| Merge | `kazuki` only |
+| Required approvals | 0 (Forgejo does not let an author approve their own PR) |
+| Required status checks | Off (all CI workflows use path filters, so a required check that does not run would block the PR) |
+| Force-push, deletion | Blocked, because push is off |
+
+A PR merge is a push to `master`, so the webhook below fires on every merge. The
+deploy model does not change.
+
+Effects to know:
+
+- **Renovate** opens PRs as before. `renovate-bot` has write access, but it is not on the merge
+  list, so it cannot merge its own PRs.
+- **Komodo resource sync write-back fails.** `homelab-resources` is `managed = true`. If you
+  edit a resource in the Komodo UI and Komodo tries to commit it to `komodo/resources/default.toml`,
+  Forgejo rejects the push. Make the change in a PR instead.
+- **What this does not stop:** a stolen `kazuki` token can still open and merge a PR. Only a
+  second reviewer can stop that, and this repo has one operator.
+
+To merge from the shell, use Forgejo's merge API, not a local `git merge` and push:
+`POST /repos/kazuki/homelab/pulls/{index}/merge` with `{"Do":"squash"}` or `{"Do":"merge"}`.
 
 ## The model
 
@@ -39,9 +67,8 @@ second with zero unexpected container recreations, confirmed by comparing `docke
 
 Nothing to configure. The Procedure's `*` target picks up any Stack that exists in Komodo at
 the time a push lands — create the Stack (see
-[Adopting a stack](adopting-a-stack.md)), and the next push to `master` (from any source —
-this change, an unrelated change, a Renovate-merged PR) will scan it along with everything
-else.
+[Adopting a stack](adopting-a-stack.md)), and the next merge to `master` (this change, an
+unrelated change, a Renovate PR) will scan it along with everything else.
 
 ## Modifying or troubleshooting
 

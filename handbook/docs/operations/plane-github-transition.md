@@ -38,12 +38,12 @@ this monorepo, deliberately, since it's a generic PR-to-Plane bridge with no hom
 code. It's a small Python tool (official `plane-sdk`, pinned to an exact version) packaged as a
 single container image on `ghcr.io`, wrapped in an `action.yml` so GitHub Actions can `uses:`
 it directly. Forgejo Actions resolves the same external `uses:` the same way GitHub does —
-confirmed live (2026-08-31) — so both `.github/workflows/plane-sync.yml` on
-[`infra-stackdoc`](https://github.com/thatkazuk1/infra-stackdoc) and
-`.forgejo/workflows/plane-sync.yml` here use the identical `uses: thatkazuk1/plane-transition@v1`
-form. The action's `runs.image` is itself pinned to the published image's immutable digest, so
-that floating `v1` tag always resolves to a known-good container regardless of what's on
-`plane-transition`'s default branch at the time.
+confirmed live (2026-08-31). `.github/workflows/plane-sync.yml` on
+[`infra-stackdoc`](https://github.com/thatkazuk1/infra-stackdoc) uses the floating
+`thatkazuk1/plane-transition@v1` tag. `.forgejo/workflows/plane-sync.yml` here pins the action
+to a full commit SHA instead (changed 2026-10-09). A tag can move to new code, but a commit SHA
+cannot. The action's `runs.image` is itself pinned to the published image's immutable digest.
+To take a new action release in this repo, update the SHA in both jobs.
 
 Each repo's workflow has two jobs, gated on `github.event.action`:
 

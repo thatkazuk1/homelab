@@ -973,6 +973,33 @@ Not yet documented. Fleet network model is:
 
 The cluster and all its guests live on VLAN 50 (LAB).
 
+## LAB egress filtering (state as of 2026-10-09)
+
+**Important:** AdGuard on `core-01` (`192.168.50.3`) is in LAB, and every VLAN uses it for
+DNS. If a rule blocks AdGuard's upstream resolvers, every VLAN loses name resolution. To users,
+this looks like a full internet outage.
+
+On 2026-10-09, an egress allowlist replaced the rule "Allow LAB outbound to Any". The
+allowlist had only TCP 80/443, UDP 53, UDP 123, UDP 51820 (`nas-01` only) and TCP 465/587.
+The whole network lost internet at once. The most likely cause is that AdGuard's upstream
+traffic used a port that was not on the list (not confirmed). The same rule set also blocked LAB traffic to the other VLANs, the Cloudflare tunnels
+(TCP/UDP 7844), direct Tailscale (UDP 41641) and ICMP.
+
+Current state:
+
+- Six floating pass rules (category `LAB`) hold the allowlist above.
+- "Allow LAB outbound to Any" is enabled again, with **logging on**.
+- OPNsense checks floating rules first. So the log of the allow-any rule shows only the
+  traffic that the allowlist does not cover.
+
+Next step: collect that log for about one week. Add rules for the real traffic, including
+AdGuard's upstream port. Then disable the allow-any rule again. Do not write an allowlist
+from assumptions. Base it on observed traffic.
+
+Intra-VLAN traffic goes through the switch, not OPNsense, so OPNsense rules cannot filter it.
+The Hawser agents (port 2376) use host `iptables` rules for this reason. See
+`stacks/hawser/README.md`.
+
 When you fill this section in, cover:
 
 - Proxmox bridge configuration on each node (which bridge maps to
@@ -1065,6 +1092,7 @@ Not yet fully documented. Accumulate here as you hit them:
   `docker-prod-01` after cold boot (documented in Cold Boot Phase 6)
 - Two-node cluster quorum behavior (documented in Cluster Architecture)
 - `proxy-prod-01` disk fill from an unrotated Traefik access log (below)
+- Every Traefik route serves `TRAEFIK DEFAULT CERT` after a Traefik restart (below)
 - A rotated `FORGEJO_REGISTRY_TOKEN` can authenticate against Forgejo's
   generic login endpoint successfully while still 401ing on the actual
   image pull — looks like an Ansible/credential-wiring bug but isn't;
@@ -1163,3 +1191,50 @@ normal daily timer — it simply had nothing telling it about this file.
 **Sprint 3v Docker restart pattern applies:** the daemon restart used
 here (to pick up `daemon.json`) is the same operation documented in
 Cold Boot Procedure Phase 6.
+
+### Traefik serves `TRAEFIK DEFAULT CERT` after a restart
+
+**Symptom:** After a Traefik restart on `proxy-prod-01`, browsers show certificate warnings
+on every route. The served certificate is self-signed, with subject `CN=TRAEFIK DEFAULT CERT`.
+The `notBefore` time is the restart time. First seen 2026-10-08.
+
+**Cause:** Traefik refuses `acme.json` when the file permissions are wider than `600`. It then
+drops the `cloudflare` certificate resolver for the whole run:
+
+```text
+ERR The ACME resolve is skipped from the resolvers list
+  error="unable to get ACME account: permissions 640 for /etc/traefik/acme.json are too open, please use 600"
+```
+
+Each router then logs `Router uses a nonexistent certificate resolver`. Traefik checks the
+permissions only at startup, so a running instance keeps working until its next restart.
+Here, the file had a POSIX ACL entry (`user:kazuki:r--`) that shows as mode `640`.
+`/opt/homelab` has a default ACL, but the source of the entry on `acme.json` is not confirmed.
+
+**Diagnosis:**
+
+1. Check the served certificate:
+   `openssl s_client -connect <host>:443 -servername <host> </dev/null | openssl x509 -noout -subject -issuer`
+2. Check the file: `stat -c '%a' /opt/homelab/gateway/traefik/acme.json` and
+   `getfacl -p /opt/homelab/gateway/traefik/acme.json`
+3. Read the Traefik log at the restart time. The container log can contain binary bytes, so
+   read it with `grep -a`.
+
+**Fix:** The certificates stay in `acme.json`, so Traefik does not need to request new ones.
+
+```bash
+sudo setfacl -b /opt/homelab/gateway/traefik/acme.json
+sudo chmod 600 /opt/homelab/gateway/traefik/acme.json
+docker restart traefik
+```
+
+After the restart, confirm the line `Starting provider *acme.Provider` in the log. Confirm that
+the routes serve Let's Encrypt certificates again.
+
+**Prevention:** After any Traefik restart, check that `acme.json` is still `600`.
+
+**Gateway config in git:** `gateway/traefik/` in the repo is a reference copy of
+`/opt/homelab/gateway/traefik/` on `proxy-prod-01` (tracked since 2026-10-08). The host copy
+is the deployed state, and Komodo does not manage it. To apply a change, copy the file to the
+host. Traefik reloads files in `dynamic/` automatically. A change to `traefik.yml` needs a
+container restart, so do the `acme.json` check above after the restart.

@@ -13,25 +13,40 @@ and public from the moment it's pushed, same as the rest of the shareable repo c
 ## Authoring workflow
 
 1. Edit any `.md` file under `handbook/docs/`.
-2. `git commit`, `git push` (to the Forgejo origin — the canonical repo).
-3. Forgejo's push mirror syncs the change to the GitHub mirror. This is not instant — there's
-   a real, occasionally multi-commit lag window, not a push-triggered sync. If a change needs
-   to land immediately, trigger it manually: Forgejo → repo **Settings → Push Mirrors →
-   Synchronize Now**.
-4. In Coolify's UI, open the `handbook` application and click **Deploy**. Coolify pulls the
-   current GitHub mirror state, rebuilds the `Base Directory: /handbook` Dockerfile, and
-   rolls the new container out.
+2. Commit on a branch, push the branch to the Forgejo origin (the canonical repo), and open a
+   PR. Merge the PR to put the change on `master`. `master` does not accept direct pushes
+   (see [Deploy triggers](deploy-triggers.md#branch-protection)).
+3. The merge publishes the change. Coolify rebuilds and deploys the handbook within about a
+   minute. You do not need to click anything in Coolify (see the next section).
+4. Forgejo's push mirror copies the change to the GitHub mirror later. This copy has a lag and
+   is not triggered by the push. To copy it at once, use Forgejo → repo **Settings → Push
+   Mirrors → Synchronize Now**. The GitHub mirror is not in the deploy path, so the lag does
+   not delay the live handbook.
 
-Step 4 is manual — see the next section.
+## How the deploy is triggered
 
-## Auto-trigger reality
+A Forgejo webhook on `kazuki/homelab` (Gitea type, push events only, branch filter `master`)
+calls Coolify's manual webhook endpoint (`/webhooks/source/gitea/events/manual`) on
+`coolify.ts.kazuki.uk`. Coolify matches the request to the `handbook` application by
+repository path. Every merge to `master` sends this webhook, also merges that do not touch
+`handbook/`.
 
-**Coolify has no auto-deploy webhook configured for this application.** A push (even after
-the mirror has synced) does not trigger a rebuild by itself; the **Deploy** button in Coolify's
-UI is the actual publish step, every time. Treat it as the normal step after a push, not a
-break-glass fallback. This is the same operational shape the pipeline had before the Sprint 3k
-migration to Coolify — a webhook could close this gap in the future, but it isn't configured
-today, and setting one up wasn't part of the migration itself.
+The `handbook` application is a Coolify "Private Repository (Deploy Key)" application. It does
+not use a Coolify "Source" object, because this Coolify version (4.1.2) has a Source type for
+GitHub only. Coolify clones over SSH directly from `forgejo-prod-01` at
+`192.168.50.108:2222`, with a read-only deploy key (`coolify-prod-01-handbook`). It does not
+use `forgejo.ts.kazuki.uk`, because that Traefik route carries HTTP(S) only, not git over SSH.
+Coolify then builds the `Base Directory: /handbook` Dockerfile and rolls the new container out.
+
+If a merge does not appear on `http://handbook.lan/` after a few minutes:
+
+1. In Forgejo, open **Settings → Webhooks**, open the Coolify webhook, and check the most
+   recent delivery.
+2. In Coolify, open the `handbook` application and check its deployment log.
+3. As a fallback, click **Deploy** in the `handbook` application.
+
+This replaced the Sprint 3k pipeline, where Coolify pulled from the GitHub mirror and every
+publish needed a manual **Deploy** click.
 
 A full rebuild currently takes several minutes (the `mkdocs-material` pip install is the slow
 step; Docker layer caching should make it much faster on repeat deploys unless the Coolify
@@ -71,8 +86,8 @@ these basics.
 ## Content principles
 
 - **Accurate over aspirational.** Document what actually is, not what should eventually be
-  true. The "Auto-trigger reality" section above is the clearest example — it would be easy
-  to describe the pipeline as fully automatic and quietly wrong; it isn't, so it says so.
+  true. When reality changes, update the page. This page described a manual Deploy click
+  for some time after the pipeline became automatic, and that stale text misled readers.
 - **Reasoning matters as much as steps.** A page that just lists commands is thinner than one
   that explains why those commands and not some other approach — that's most of what
   separates this handbook from a bare command reference.
@@ -297,8 +312,11 @@ check forever.
   multi-host stacks (`hawser`'s `compose.<host>.yml` files map to `hawser-<host>` Komodo Stacks).
 
 Always exits 0 — findings print but never block. Runs via
-`.forgejo/workflows/check-adr-content.yml` on every push touching `stacks/**`, using the same
+`.forgejo/workflows/check-adr-content.yml` on every push to `master` that touches `stacks/**`
+(in practice, every merged PR that touches `stacks/**`). It uses the same
 `KOMODO_API_KEY`/`KOMODO_API_SECRET` Forgejo Actions secrets as any Komodo-API-dependent CI step.
+The workflow does not run on other branches. This stops a pushed branch from running a
+changed script with those secrets.
 
 Run locally: `sops exec-env scripts/secrets.enc.env "python3 scripts/check-adr-content.py"`.
 
