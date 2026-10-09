@@ -17,13 +17,24 @@ a proposal, not a change to the running fleet, until someone reviews and merges 
 Renovate isn't a standing container. It runs as an ephemeral job inside a Forgejo Actions
 workflow (`.forgejo/workflows/renovate.yml`) on the existing Forgejo Actions runner — chosen
 over the JS-based `renovatebot/github-action` wrapper because the runner's job image has no
-Node.js installed. The workflow first builds a small custom image
-(`docker build -f .forgejo/renovate.Dockerfile`), layering `python3-jinja2` and
-`python3-ruamel.yaml` onto `renovate/renovate:latest` (PyYAML is already present upstream,
-those two aren't), then runs Renovate from that image rather than pulling
-`renovate/renovate:latest` directly. The extra packages exist solely so Renovate's own
-`postUpgradeTasks` can call `scripts/generate-stack-pages.py` — see **Keeping generated docs
-in sync** below. Configuration lives in `renovate.json` at the repo root, picked up
+Node.js installed.
+
+Since 2026-10-09, the job runs directly inside the pinned `renovate/renovate` image (the
+job's `container.image`, with tag and digest). The runner no longer gives jobs the host
+Docker socket, so the job cannot build or run images. It works in three steps:
+
+1. The job container starts as root (`options: --user root`).
+2. The first step installs `python3-jinja2` and `python3-ruamel.yaml` with `apt-get`. PyYAML
+   is already in the image. Renovate's `postUpgradeTasks` need these packages to run
+   `scripts/generate-stack-pages.py` (see **Keeping generated docs in sync** below).
+3. The second step drops to the image's own user (`setpriv --reuid=12021 --regid=0`) and
+   starts Renovate through the image entrypoint (`/usr/local/sbin/renovate-entrypoint.sh`).
+
+Before this change, the job built a custom image from `.forgejo/renovate.Dockerfile` on
+`renovate/renovate:latest`, through the host Docker socket. That gave every CI job root on
+`forgejo-prod-01`. Also, `docker build` used the locally cached `latest`, so Renovate stayed on
+the same version for two months. To update Renovate now, change the tag and digest in
+`container.image`. Configuration lives in `renovate.json` at the repo root, picked up
 automatically since the config was committed directly (Renovate's own onboarding-PR flow was
 skipped).
 
@@ -42,9 +53,12 @@ after Renovate finishes updating each branch (`executionMode: "branch"`, so it r
 when several deps are grouped into one PR), with `fileFilters` scoped to
 `handbook/docs/stacks/**` and `handbook/mkdocs.yml` so only the generated docs get swept into
 Renovate's own commit. This needs two things to actually work: the jinja2/ruamel.yaml packages
-from the custom Dockerfile above, and `RENOVATE_ALLOWED_COMMANDS` set in the workflow's
-`docker run` step — Renovate refuses to execute any `postUpgradeTasks` command that isn't
-matched by this allowlist regex, so the two must be kept in sync if the command ever changes.
+from the workflow's apt step above, and `RENOVATE_ALLOWED_COMMANDS` set in the env of the
+workflow's "Run Renovate" step — Renovate refuses to execute any `postUpgradeTasks` command
+that isn't matched by this allowlist regex, so the two must be kept in sync if the command
+ever changes. Confirmed with the new job layout on 2026-10-09: a `workflow_dispatch` run
+updated `renovate/codewithcj-sparkyfitness-1.x`, its commit included the regenerated
+`handbook/docs/stacks/sparkyfitness.md`, and "Check generated stack pages" passed.
 
 Status: confirmed end-to-end offline (the custom image builds, the three Python deps import
 correctly, and the generator runs correctly against a real copy of the repo) and confirmed the

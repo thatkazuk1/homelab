@@ -315,8 +315,10 @@ Always exits 0 — findings print but never block. Runs via
 `.forgejo/workflows/check-adr-content.yml` on every push to `master` that touches `stacks/**`
 (in practice, every merged PR that touches `stacks/**`). It uses the same
 `KOMODO_API_KEY`/`KOMODO_API_SECRET` Forgejo Actions secrets as any Komodo-API-dependent CI step.
-The workflow does not run on other branches. This stops a pushed branch from running a
-changed script with those secrets.
+The workflow does not run on other branches. This only stops accidental runs. It does not
+protect the secrets: a push event uses the workflow files from the pushed commit, so a pushed
+branch can change this workflow or add a new one that reads any repo secret. Any account that
+can push a branch (`kazuki`, `renovate-bot`) can therefore read the repo's Actions secrets.
 
 Run locally: `sops exec-env scripts/secrets.enc.env "python3 scripts/check-adr-content.py"`.
 

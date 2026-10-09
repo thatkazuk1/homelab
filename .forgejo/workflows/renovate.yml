@@ -8,30 +8,25 @@ on:
 jobs:
   renovate:
     runs-on: docker
+    # The job runs inside the Renovate image, so it needs no Docker socket.
+    # Root is only for apt; Renovate itself runs as the image's own user.
+    container:
+      image: renovate/renovate:43.259.2@sha256:119e8b9fd8fcad14152ca42e0f3ba9cbf14ec33dee2ad6a0b46146a98e6fa753
+      options: --user root
     steps:
-      - name: Checkout
+      - name: Install doc-generation dependencies
+        # scripts/generate-stack-pages.py runs as a postUpgradeTask and needs these; PyYAML is already in the image.
         run: |
-          git init -q .
-          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@${GITHUB_SERVER_URL#https://}/${GITHUB_REPOSITORY}.git"
-          git fetch -q --depth 1 origin "${GITHUB_SHA}"
-          git checkout -q FETCH_HEAD
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build Renovate image with doc-generation deps
-        run: docker build -t homelab-renovate:local -f .forgejo/renovate.Dockerfile .forgejo
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends python3-jinja2 python3-ruamel.yaml
 
       - name: Run Renovate
-        run: |
-          docker run --rm \
-            -e RENOVATE_TOKEN \
-            -e RENOVATE_PLATFORM=forgejo \
-            -e RENOVATE_ENDPOINT="https://forgejo.ts.kazuki.uk/api/v1" \
-            -e RENOVATE_REPOSITORIES=kazuki/homelab \
-            -e RENOVATE_AUTODISCOVER=false \
-            -e RENOVATE_GITHUB_COM_TOKEN \
-            -e RENOVATE_ALLOWED_COMMANDS='["^python3 scripts/generate-stack-pages\.py$"]' \
-            homelab-renovate:local
+        run: setpriv --reuid=12021 --regid=0 --init-groups env HOME=/home/ubuntu /usr/local/sbin/renovate-entrypoint.sh renovate
         env:
           RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          RENOVATE_PLATFORM: forgejo
+          RENOVATE_ENDPOINT: https://forgejo.ts.kazuki.uk/api/v1
+          RENOVATE_REPOSITORIES: kazuki/homelab
+          RENOVATE_AUTODISCOVER: 'false'
           RENOVATE_GITHUB_COM_TOKEN: ${{ secrets.RENOVATE_GITHUB_COM_TOKEN }}
+          RENOVATE_ALLOWED_COMMANDS: '["^python3 scripts/generate-stack-pages\.py$"]'
