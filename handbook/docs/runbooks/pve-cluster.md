@@ -1177,6 +1177,16 @@ normal daily timer — it simply had nothing telling it about this file.
   `proxy-prod-01`, targeting `/opt/homelab/gateway/traefik/logs/access.log`,
   `daily`, `maxsize 200M` (rotates on whichever comes first), `rotate 7`,
   `copytruncate`, `compress`/`delaycompress`.
+- **Changed 2026-10-09.** `maxsize` had no effect, because `logrotate.timer`
+  ran only once a day, and the log reached about 830 MB a day. The entry is
+  now `daily`, `maxsize 100M`, `rotate 14`, `compress` (no `delaycompress`),
+  `missingok`, `notifempty`, `copytruncate`. A drop-in
+  (`/etc/systemd/system/logrotate.timer.d/override.conf`) runs the timer
+  hourly, so `maxsize` applies within an hour. At the same time,
+  `traefik.yml` changed to keep only the access-log fields that CrowdSec
+  reads (`fields.defaultMode: drop`, all request headers dropped except
+  `User-Agent`). Before that, the log held session cookies and API keys in
+  plain text, and each line was about 2.8 KB.
 - `/etc/docker/daemon.json` added with `max-size: 50m`, `max-file: 3`;
   `traefik` and `crowdsec` containers force-recreated to pick it up
   immediately (verified via `docker inspect`). `hawser`,

@@ -61,18 +61,33 @@ accessLog:
       - "300-399"
       - "400-404"
       - "500-503"
+  # Keep only the fields that CrowdSec's traefik-logs parser reads, plus a few
+  # for debugging. Request headers can hold session cookies and API keys, so
+  # drop all of them except User-Agent. Do not filter out 2xx/3xx status codes:
+  # CrowdSec scenarios such as http-crawl-non_statics need them.
   fields:
-    defaultMode: keep
+    defaultMode: drop
     names:
-      ClientUsername: drop
+      StartUTC: keep
+      RouterName: keep
+      ServiceName: keep
+      entryPointName: keep
+      ClientHost: keep
+      ClientAddr: keep
+      RequestAddr: keep
+      ServiceAddr: keep
+      RequestHost: keep
+      RequestMethod: keep
+      RequestPath: keep
+      RequestProtocol: keep
+      DownstreamStatus: keep
+      DownstreamContentSize: keep
+      OriginStatus: keep
+      Duration: keep
     headers:
-      defaultMode: keep
+      defaultMode: drop
       names:
         User-Agent: keep
-        Authorization: drop
-        Content-Type: keep
-        X-Forwarded-For: keep
-        X-Real-IP: keep
 
 experimental:
   plugins:
