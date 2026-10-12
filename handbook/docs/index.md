@@ -29,10 +29,10 @@ holds itself to over completeness.
 ## Elsewhere
 
 The full source — compose files, this handbook, and everything else meant to be shared —
-lives in the public repo: [github.com/meetKazuki/homelab](https://github.com/meetKazuki/homelab).
+lives in the public repo: [github.com/meetKazuki/homelab](https://github.com/thatkazuk1/homelab).
 
 The infrastructure this handbook documents is also the validation target for
-[Homelab StackDoc](https://stackdoc.kazuki.uk), a separate visualisation project.
+[Oriweave](https://oriweave.dev), a separate visualisation project.
 
 ---
 

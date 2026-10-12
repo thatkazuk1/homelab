@@ -1,8 +1,8 @@
 site_name: Kazuki's Homelab Handbook
 site_description: A living reference for a self-hosted, GitOps-managed homelab.
 site_url: http://handbook.lan/
-repo_url: https://github.com/meetKazuki/homelab
-repo_name: meetKazuki/homelab
+repo_url: https://github.com/thatkazuk1/homelab
+repo_name: thatkazuk1/homelab
 edit_uri: edit/master/handbook/docs/
 strict: true
 
