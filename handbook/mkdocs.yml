@@ -37,21 +37,25 @@ theme:
     - content.code.annotate
     - content.code.copy
     - content.tabs.link
+    - navigation.footer
     - navigation.indexes
     - navigation.instant
     - navigation.instant.prefetch
     - navigation.instant.progress
-    - navigation.path
     - navigation.top
     - navigation.tracking
     - search.suggest
     - search.highlight
     - toc.follow
   icon:
+    logo: material/server-network
     repo: fontawesome/brands/github
 
 extra_css:
   - extra/tweaks.css
+
+extra_javascript:
+  - extra/hotkey.js
 
 nav:
   - Home: index.md
