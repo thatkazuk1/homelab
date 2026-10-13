@@ -41,16 +41,19 @@ x-rails-env: &rails_env
   GENERIC_S3_ENDPOINT: ${GENERIC_S3_ENDPOINT}
   GENERIC_S3_FORCE_PATH_STYLE: ${GENERIC_S3_FORCE_PATH_STYLE}
   ASSISTANT_TYPE: builtin
-  OPENAI_ACCESS_TOKEN: ollama-local
-  OPENAI_URI_BASE: http://192.168.30.111:11434/v1
-  # -instruct, not the plain qwen3-vl:4b this stack ran before Azure: the
-  # thinking variant burns hundreds of tokens reasoning before every answer,
-  # which only makes the context-truncation problem below worse. See
-  # handbook/docs/runbooks/ollama-prod-01.md §5a/§7.
-  OPENAI_MODEL: qwen3-vl:4b-instruct
-  LLM_CONTEXT_WINDOW: 8192
+  # Azure Foundry, deployment gpt-6-astra. The deployment accepts both the
+  # Responses API and chat completions. Sure uses /responses, because its
+  # generic chat path does not stream. Sure adds that path to OPENAI_URI_BASE.
+  # Local fallback (ollama-prod-01): OPENAI_ACCESS_TOKEN ollama-local,
+  # OPENAI_URI_BASE http://192.168.30.111:11434/v1, OPENAI_MODEL
+  # qwen3-vl:4b-instruct, LLM_CONTEXT_WINDOW 8192,
+  # ASSISTANT_MAX_TOOL_CALL_ITERATIONS 2, no OPENAI_SUPPORTS_RESPONSES_ENDPOINT.
+  OPENAI_ACCESS_TOKEN: ${OPENAI_ACCESS_TOKEN}
+  OPENAI_URI_BASE: https://myai-coding.services.ai.azure.com/openai/v1
+  OPENAI_MODEL: gpt-6-astra
+  OPENAI_SUPPORTS_RESPONSES_ENDPOINT: true
+  LLM_CONTEXT_WINDOW: 128000
   OPENAI_REQUEST_TIMEOUT: 180
-  ASSISTANT_MAX_TOOL_CALL_ITERATIONS: 2
   AI_RESPONSE_TIMEOUT: 720
   MCP_API_TOKEN: ${MCP_API_TOKEN}
   MCP_USER_EMAIL: ${MCP_USER_EMAIL}
