@@ -50,7 +50,7 @@ Arr-stack media automation running as one compose project on nas-01: Seerr, Aurr
 
 ### `sonarr`
 
-- **Image:** `lscr.io/linuxserver/sonarr:latest`
+- **Image:** `lscr.io/linuxserver/sonarr:develop-version-5.0.0.2569`
 - **Container:** `sonarr`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `8989:8989`

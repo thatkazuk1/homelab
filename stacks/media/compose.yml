@@ -101,7 +101,8 @@ services:
       - TZ=Africa/Lagos
 
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    # v5 beta. Its database migration is one-way: restore a config backup to return to v4.
+    image: lscr.io/linuxserver/sonarr:develop-version-5.0.0.2569
     container_name: sonarr
     restart: unless-stopped
     ports:
