@@ -19,6 +19,13 @@
   The checkout is inside the Periphery container, not on the host filesystem. After a fresh
   start, the API waits until all database migrations finish. The web UI shows "Plane didn't
   start up correctly" for about two minutes.
+- The image tag comes from `APP_RELEASE` (compose default in `compose.yml`). A value in
+  `secrets.enc.env` overrides that default, and `sops exec-env` puts it in the environment
+  before Compose runs. A pin of `v1.2.1` in the secrets file made the v1.4.2 upgrade (PR #74)
+  have no effect until it was removed (2026-10-15). Do not set `APP_RELEASE` in the secrets
+  file. To check the resolved tags, run `docker compose -p plane-app config` inside
+  `sops exec-env` and count the `image:` lines per tag. The Plane API reports its version at
+  `/api/instances/` (`instance.current_version`).
 - `plane.kazuki.uk` is behind Cloudflare Access (2026-10-09), so a public request gets the
   Access login page first. On the LAN, AdGuard resolves the name to Traefik directly, so LAN
   requests do not go through Access.
