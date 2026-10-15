@@ -2,8 +2,8 @@
 
 > **Node:** ASUS TUF Dash F15 laptop (Windows), adopted into the fleet as a small, GPU-backed
 > LLM host
-> **Purpose:** light LLM tasks for homelab integrations — currently SparkyFitness meal-photo
-> scanning and chat
+> **Purpose:** light LLM tasks for homelab integrations — currently SparkyFitness chat.
+> SparkyFitness meal-photo scanning moved to a hosted model on 2026-10-13 (section 8).
 > **Not Komodo-managed.** Windows host; no Periphery, no Ansible role, no Stack. Configured by
 > hand over SSH and documented here instead.
 
@@ -230,7 +230,15 @@ Expect `OLLAMA_FLASH_ATTENTION:true`, `OLLAMA_KV_CACHE_TYPE:q8_0`,
 
 | Consumer | Setting | Notes |
 |---|---|---|
-| SparkyFitness (`docker-prod-02`) | Settings, AI Services: service type **Ollama**, URL `http://192.168.30.111:11434`, custom model name `qwen3-vl:4b-instruct`, chat tool set **Core** | Configured in the app UI and stored in its database (the API key field is unused for Ollama). Not in the compose file, so nothing to redeploy. Its photo requests use native `/api/chat` with `format:"json"` and `num_ctx:8192`, which is why a thinking model fails here (section 7). |
+| SparkyFitness (`docker-prod-02`) | Settings, AI Services: service type **Ollama**, URL `http://192.168.30.111:11434`, custom model name `qwen3-vl:4b-instruct`, chat tool set **Core** | This service is the **Active AI provider**, so it handles chat. Configured in the app UI and stored in its database (the API key field is unused for Ollama). Not in the compose file, so nothing to redeploy. Its requests use native `/api/chat` with `format:"json"` and `num_ctx:8192`, which is why a thinking model fails here (section 7). |
+
+**Photo scanning (since 2026-10-13).** SparkyFitness reads meal photos through its separate
+**Active vision AI provider**. That setting points at a hosted OpenAI-compatible deployment
+(service type `openai_compatible`), so the laptop is not in the photo path. Chat stays on this
+host. The hosted model rejects function tools on `/chat/completions`, and SparkyFitness chat
+always sends tools. A warm photo request takes about 1 s here and about 6 s on the hosted
+model. To move photo scanning back to this host, set **Active vision AI provider** to "Same as
+default".
 
 **Former consumer: Sure.** Sure's builtin assistant ran here from 2026-09-21 and was moved to a
 hosted model the same day. Its 35 tool definitions alone are about 13k tokens, well beyond the
