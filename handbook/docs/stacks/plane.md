@@ -16,35 +16,35 @@ Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-styl
 
 ### `web`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-frontend:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-frontend:${APP_RELEASE:-v1.4.3-rc1}`
 
 ### `space`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-space:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-space:${APP_RELEASE:-v1.4.3-rc1}`
 
 ### `admin`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-admin:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-admin:${APP_RELEASE:-v1.4.3-rc1}`
 
 ### `live`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-live:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-live:${APP_RELEASE:-v1.4.3-rc1}`
 
 ### `api`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.4.3-rc1}`
 
 ### `worker`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.4.3-rc1}`
 
 ### `beat-worker`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.4.3-rc1}`
 
 ### `migrator`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-backend:${APP_RELEASE:-v1.4.3-rc1}`
 
 ### `plane-db`
 
@@ -64,7 +64,7 @@ Self-hosted project management (issues, cycles, roadmaps) — a Linear/Jira-styl
 
 ### `proxy`
 
-- **Image:** `artifacts.plane.so/makeplane/plane-proxy:${APP_RELEASE:-v1.4.2}`
+- **Image:** `artifacts.plane.so/makeplane/plane-proxy:${APP_RELEASE:-v1.4.3-rc1}`
 - **Ports:** `${LISTEN_HTTP_PORT:-80}:80/tcp`, `${LISTEN_HTTPS_PORT:-443}:443/tcp`
 
 ## Named volumes
