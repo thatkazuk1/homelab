@@ -26,6 +26,18 @@
   file. To check the resolved tags, run `docker compose -p plane-app config` inside
   `sops exec-env` and count the `image:` lines per tag. The Plane API reports its version at
   `/api/instances/` (`instance.current_version`).
+- `plane-prod-01` has a 16 GB disk. The images use about 7 GB, and Plane's own data is about
+  80 MB. `plane-live` (1.7 GB) and `plane-space` (1.5 GB) are the largest images. Docker uses
+  the containerd image store here, so each image exists twice: unpacked and compressed. Plan
+  for about 3 GB of free space for each upgrade. Measured 2026-10-15.
+- Removing an old image tag does not free its layers at once. Docker puts an 8-hour lease
+  (`moby/prune.images=true`) on each removed image, so the layers stay on disk until it
+  expires. `docker system df` shows these layers as reclaimable, but they share layers with
+  the new tags, so the figure is too high. To free the space at once after an upgrade has been
+  verified, delete only the prune leases: list them with `sudo ctr -n moby leases ls`, then
+  run `sudo ctr -n moby leases delete <id>` for each ID whose label is
+  `moby/prune.images=true`. Keep the leases that have no label, because they belong to
+  containers and images that are in use. Check that no pull is running first.
 - `plane.kazuki.uk` is behind Cloudflare Access (2026-10-09), so a public request gets the
   Access login page first. On the LAN, AdGuard resolves the name to Traefik directly, so LAN
   requests do not go through Access.
