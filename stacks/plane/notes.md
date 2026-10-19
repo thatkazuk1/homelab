@@ -38,6 +38,12 @@
   run `sudo ctr -n moby leases delete <id>` for each ID whose label is
   `moby/prune.images=true`. Keep the leases that have no label, because they belong to
   containers and images that are in use. Check that no pull is running first.
+- `minio/minio` no longer exists on Docker Hub (HTTP 404 on 2026-10-19), so every Komodo
+  deploy of this stack failed at the image pull ("pull access denied for minio/minio"), even
+  though the old image was still on the host. The stack now uses the community fork
+  `docker.io/pgsty/minio`, pinned to a release tag, the same image that upstream Plane uses
+  since v1.4.3-rc1. Komodo shows the stack as "unhealthy" while the `migrator` container has
+  exited with code 0; this is normal for a one-shot job.
 - `plane.kazuki.uk` is behind Cloudflare Access (2026-10-09), so a public request gets the
   Access login page first. On the LAN, AdGuard resolves the name to Traefik directly, so LAN
   requests do not go through Access.
