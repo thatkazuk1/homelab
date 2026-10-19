@@ -116,6 +116,7 @@ nav:
       - sure: stacks/sure.md
       - sure-spending-widget: stacks/sure-spending-widget.md
       - telegraf-adguard: stacks/telegraf-adguard.md
+      - tracearr: stacks/tracearr.md
       - uptime-kuma: stacks/uptime-kuma.md
       - vaultwarden: stacks/vaultwarden.md
   - Conventions: conventions/index.md

@@ -1,0 +1,103 @@
+name: tracearr
+
+x-meta:
+  name: tracearr
+  host: nas-01
+  category: media
+  description: >
+    Tracearr — playback and session monitor for the Jellyfin server on nas-01
+    (live sessions, watch history, transcode and bandwidth analytics, sharing
+    detection). Runs next to Jellystat for a three-day observation period,
+    then replaces it. Follows the vendor's standard PostgreSQL 18 compose file
+    (TimescaleDB HA + Redis), with memory caps because nas-01 has little RAM.
+    Jellyfin pushes events to it through the Tracearr SSE plugin.
+  status: new
+  adrs:
+    - 8
+
+services:
+  tracearr:
+    image: ghcr.io/connorgallopo/tracearr:latest
+    container_name: tracearr
+    restart: unless-stopped
+    mem_limit: 1g
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - TZ=Africa/Lagos
+      - DATABASE_URL=postgres://tracearr:${DB_PASSWORD}@timescale:5432/tracearr
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET
+      - COOKIE_SECRET
+      - LOG_LEVEL=info
+      # Add TRUST_PROXY=true when a Traefik route is put in front of this service.
+    ports:
+      # Host port 3000 is taken by Jellystat on this host. The container always listens on 3000.
+      - "3002:3000"
+    depends_on:
+      timescale:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - tracearr_backups:/data/backup
+      - tracearr_images:/data/tracearr/image-cache
+    networks:
+      - tracearr-internal
+
+  timescale:
+    # Pinned by the vendor. The PostgreSQL 18 data format cannot be read by older majors.
+    image: timescale/timescaledb-ha:pg18.4-ts2.29.1
+    container_name: tracearr-db
+    restart: unless-stopped
+    mem_limit: 1536m
+    shm_size: 512mb
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    command: postgres -c timescaledb.license=timescale -c timescaledb.max_tuples_decompressed_per_dml_transaction=100000 -c max_locks_per_transaction=4096 -c timescaledb.telemetry_level=off -c max_connections=150
+    environment:
+      - POSTGRES_USER=tracearr
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=tracearr
+    volumes:
+      # Named volume, not a bind mount: this image runs as the postgres user and does not chown a host directory.
+      - timescale_data:/home/postgres/pgdata/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracearr"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tracearr-internal
+
+  redis:
+    image: redis:8-alpine
+    container_name: tracearr-redis
+    restart: unless-stopped
+    mem_limit: 256m
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tracearr-internal
+
+networks:
+  tracearr-internal:
+    name: tracearr-internal
+
+volumes:
+  tracearr_backups:
+    name: tracearr_backups
+  tracearr_images:
+    name: tracearr_images
+  timescale_data:
+    name: tracearr_timescale_data
+  redis_data:
+    name: tracearr_redis_data

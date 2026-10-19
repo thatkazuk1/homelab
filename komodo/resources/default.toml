@@ -415,6 +415,21 @@ compose_cmd_wrapper_include = ["up"]
 ##
 
 [[stack]]
+name = "tracearr"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "tracearr"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/tracearr"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
 name = "media"
 tags = ["nas-01"]
 [stack.config]
