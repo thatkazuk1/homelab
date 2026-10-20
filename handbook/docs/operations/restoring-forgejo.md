@@ -8,7 +8,7 @@
 ## When you need this
 
 Forgejo's data is lost, corrupted, or `forgejo-prod-01` has died. You have a backup archive
-in Garage bucket `forgejo-backup` (7-day rolling retention) and need to restore Forgejo to
+in Garage bucket `forgejo-backup` (3-day rolling retention) and need to restore Forgejo to
 working state.
 
 ## What's in the backup

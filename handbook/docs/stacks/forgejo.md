@@ -46,7 +46,7 @@ No SOPS-encrypted secrets file. Configuration lives in the compose file directly
 
 Forgejo's daily backup runs via a systemd timer on `forgejo-prod-01`
 (not Komodo, not the stack itself). Backup archives land in Garage
-bucket `forgejo-backup`, 7-day rolling retention.
+bucket `forgejo-backup`, 3-day rolling retention.
 
 Restore procedure documented at [Restoring Forgejo](../operations/restoring-forgejo.md).
 
