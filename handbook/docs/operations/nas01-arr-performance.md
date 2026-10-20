@@ -3,6 +3,10 @@
 What to do when Sonarr/Radarr/Lidarr/Bazarr (or the wider arr stack on `nas-01`) become slow or
 unreachable, without necessarily being crashed.
 
+!!! note
+    If `nas-01` rebooted in the last two days, check for a RAID resync first. See
+    [nas-01 slow after a power loss](nas01-slow-after-power-loss.md).
+
 ## The pattern
 
 `qbittorrent`'s memory footprint grows over time — observed climbing to 1.7-2.5GiB (roughly
