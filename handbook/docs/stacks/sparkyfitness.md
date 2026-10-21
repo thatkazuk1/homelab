@@ -22,13 +22,13 @@ SparkyFitness — self-hosted nutrition, exercise, and body-metric tracker (a pr
 
 ### `sparkyfitness-server`
 
-- **Image:** `codewithcj/sparkyfitness_server:v1.8.0`
+- **Image:** `codewithcj/sparkyfitness_server:v1.9.0`
 - **Container:** `sparkyfitness-server`
 - **Restart policy:** `unless-stopped`
 
 ### `sparkyfitness-frontend`
 
-- **Image:** `codewithcj/sparkyfitness:v1.8.0`
+- **Image:** `codewithcj/sparkyfitness:v1.9.0`
 - **Container:** `sparkyfitness-frontend`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `3004:80`
@@ -116,7 +116,7 @@ check at boot and can race the migrations.
 
 ## Renovate
 
-`postgres:18.3-alpine` and both `codewithcj/*:v1.7.0` tags are pinned and tracked by
+`postgres:18.3-alpine` and both `codewithcj/*` tags are pinned and tracked by
 Renovate like every other stack.
 
 ---

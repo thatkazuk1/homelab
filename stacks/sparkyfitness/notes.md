@@ -71,5 +71,5 @@ check at boot and can race the migrations.
 
 ## Renovate
 
-`postgres:18.3-alpine` and both `codewithcj/*:v1.7.0` tags are pinned and tracked by
+`postgres:18.3-alpine` and both `codewithcj/*` tags are pinned and tracked by
 Renovate like every other stack.
