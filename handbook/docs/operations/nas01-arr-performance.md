@@ -70,16 +70,30 @@ immediately post-restart (re-init, VPN/port-forward re-sync via Gluetun) before 
 normal footprint. Re-run the `.lan` curl checks above to confirm the whole stack recovered, not
 just qBittorrent itself.
 
-## Why this isn't fully fixed
+## What fixed it
 
-This is a capacity problem, not a misconfiguration — no oversized disk-cache setting was found in
-`qBittorrent.conf`; the growth is consistent with libtorrent 2.x's default mmap-based disk I/O for
-whatever large media files are actively being handled, which is normal behavior, just expensive on
-a box this tight on RAM. Restarting `qbittorrent` clears the immediate backlog but the box will
-trend back toward the same pressure over time.
+The growth came from the default disk I/O mode of libtorrent 2.x, which maps files into memory.
+Two changes stop it:
 
-**The durable fix is a RAM upgrade.** The F4-424 has one SO-DIMM slot, factory-populated with 8GB
-DDR5-4800 (not DDR4 — physically incompatible). It's a swap, not an addition. TerraMaster
-officially supports up to 32GB in that slot (`A-SRAMD5-16G` / `A-SRAMD5-32G`, or equivalent
-third-party DDR5-4800 SO-DIMMs). Not yet done as of this writing — restarting `qbittorrent` remains
-the standing mitigation until the upgrade happens.
+1. **Disk IO type.** In qBittorrent the setting is `Simple pread/pwrite`. The key in
+   `qBittorrent.conf` is `Session\DiskIOType=SimplePreadPwrite`. With this setting, `qbittorrent`
+   uses about 30 to 90 MiB. Before the change it grew to 1.5 to 2.5 GiB.
+2. **Memory cap.** The compose file sets `mem_limit: 3g` and `memswap_limit: 3g` for `qbittorrent`.
+   If it ever grows again, the kernel stops only this container and not the whole host.
+
+Check the cap after every recreate of `qbittorrent`:
+
+```bash
+docker inspect qbittorrent --format 'mem={{.HostConfig.Memory}} swap={{.HostConfig.MemorySwap}}'
+```
+
+Both values must be `3221225472`. On 2026-10-21 the running container had `mem=0`, although the
+compose file had the limit. Docker applies limits on this host, so the container was created
+without them. Recreate only this service to restore the cap. From the stack directory, run
+`docker compose -p qbittorrent -f compose.yml up -d --force-recreate --no-deps qbittorrent`. Run it
+through `komodo-periphery` with `sops exec-env secrets.enc.env`. Do not recreate `gluetun`.
+
+A RAM upgrade is not the main fix now. It stays an option if memory pressure returns. The F4-424 has
+one SO-DIMM slot with 8GB DDR5-4800. DDR4 does not fit. A new module replaces the old one. TerraMaster
+supports up to 32GB in that slot (`A-SRAMD5-16G` or `A-SRAMD5-32G`, or an equal third-party DDR5-4800
+SO-DIMM).
