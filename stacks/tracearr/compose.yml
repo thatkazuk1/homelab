@@ -7,8 +7,7 @@ x-meta:
   description: >
     Tracearr — playback and session monitor for the Jellyfin server on nas-01
     (live sessions, watch history, transcode and bandwidth analytics, sharing
-    detection). Runs next to Jellystat for a three-day observation period,
-    then replaces it. Follows the vendor's standard PostgreSQL 18 compose file
+    detection). Replaced Jellystat. Follows the vendor's standard PostgreSQL 18 compose file
     (TimescaleDB HA + Redis), with memory caps because nas-01 has little RAM.
     Jellyfin pushes events to it through the Tracearr SSE plugin.
   status: new
@@ -32,7 +31,7 @@ services:
       - LOG_LEVEL=info
       # Add TRUST_PROXY=true when a Traefik route is put in front of this service.
     ports:
-      # Host port 3000 is taken by Jellystat on this host. The container always listens on 3000.
+      # Host port 3002 is kept from the Jellystat period (Jellystat held 3000). The container always listens on 3000.
       - "3002:3000"
     depends_on:
       timescale:

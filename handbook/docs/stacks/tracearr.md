@@ -1,6 +1,6 @@
 # tracearr
 
-Tracearr — playback and session monitor for the Jellyfin server on nas-01 (live sessions, watch history, transcode and bandwidth analytics, sharing detection). Runs next to Jellystat for a three-day observation period, then replaces it. Follows the vendor's standard PostgreSQL 18 compose file (TimescaleDB HA + Redis), with memory caps because nas-01 has little RAM. Jellyfin pushes events to it through the Tracearr SSE plugin.
+Tracearr — playback and session monitor for the Jellyfin server on nas-01 (live sessions, watch history, transcode and bandwidth analytics, sharing detection). Replaced Jellystat. Follows the vendor's standard PostgreSQL 18 compose file (TimescaleDB HA + Redis), with memory caps because nas-01 has little RAM. Jellyfin pushes events to it through the Tracearr SSE plugin.
 
 ## Reference
 

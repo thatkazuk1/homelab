@@ -20,16 +20,6 @@ http:
       tls:
         certResolver: cloudflare
 
-    jellystat:
-      entrypoints:
-        - websecure
-      rule: "Host(`jellystat.kazuki.uk`)"
-      service: jellystat-service
-      middlewares:
-        - crowdsec
-      tls:
-        certResolver: cloudflare
-
     navidrome:
       entrypoints:
         - websecure
@@ -370,11 +360,6 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.50.163:8096"
-
-    jellystat-service:
-      loadBalancer:
-        servers:
-          - url: "http://192.168.50.163:3000"
 
     navidrome-service:
       loadBalancer:

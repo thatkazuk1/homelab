@@ -1,6 +1,6 @@
 # jellyfin
 
-Jellyfin media server with Jellystat watch-history tracking (Postgres-backed), running as one compose project on nas-01.
+Jellyfin media server running as one compose project on nas-01. Watch-history tracking moved to Tracearr (stacks/tracearr); Jellystat is retired.
 
 ## Reference
 
@@ -20,22 +20,9 @@ Jellyfin media server with Jellystat watch-history tracking (Postgres-backed), r
 - **Restart policy:** `unless-stopped`
 - **Ports:** `8096:8096`
 
-### `jellystat`
-
-- **Image:** `cyfershepard/jellystat:latest`
-- **Container:** `jellystat`
-- **Restart policy:** `unless-stopped`
-- **Ports:** `3000:3000`
-
-### `jellystat-db`
-
-- **Image:** `postgres:15.19`
-- **Container:** `jellystat-db`
-- **Restart policy:** `unless-stopped`
-
 ## Secrets
 
-This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack-sops-secrets.md). Encrypted values live in `stacks/jellyfin/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
+No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
 
 ## Related decisions
 
