@@ -26,6 +26,14 @@ services:
     image: ghcr.io/moghtech/komodo-core:${COMPOSE_KOMODO_IMAGE_TAG:-2}
     init: true
     restart: unless-stopped
+    # Docker's json-file driver does not rotate by default. Before this limit the
+    # FerretDB and Postgres logs grew to 8.0 GB and 2.7 GB and filled the disk to 98%.
+    # The limit applies only to containers created after it is set.
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: "3"
     labels:
       komodo.skip:
     depends_on:
@@ -52,6 +60,11 @@ services:
     image: ghcr.io/moghtech/komodo-periphery:${COMPOSE_KOMODO_IMAGE_TAG:-2}
     init: true
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: "3"
     labels:
       komodo.skip:
     depends_on:
@@ -78,6 +91,11 @@ services:
   postgres:
     image: ghcr.io/ferretdb/postgres-documentdb:15-0.107.0-ferretdb-2.7.0
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: "3"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
@@ -90,6 +108,11 @@ services:
   ferretdb:
     image: ghcr.io/ferretdb/ferretdb:2.7.0
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: "3"
     depends_on:
       - postgres
     volumes:
