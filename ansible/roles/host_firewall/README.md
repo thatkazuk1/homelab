@@ -147,7 +147,6 @@ Known gaps to watch for in the sets:
 |---|---|---|
 | `docker-prod-01` | 111 (`rpcbind`) | Not allowed on purpose. |
 | `docker-prod-02` | 5355 (LLMNR) | Not allowed on purpose. |
-| `docker-prod-02` | 4000 (litellm) | Allowed from the proxy and ADMIN. Other clients show in the sets. |
 | `telemetry-prod-01` | 8181 (influxdb) | Docker bridges are allowed. External writers are unknown. |
 | `garage-prod-01` | 3901 | The Garage RPC port is not allowed. A self-connection uses loopback. |
 

@@ -20,7 +20,7 @@ baseline_managed: true
 # 5355 (LLMNR) is not allowed on purpose. It shows in the would-drop sets.
 host_firewall_hawser: true
 host_firewall_host_rules:
-  - ports: [3001, 3004, 8100, 4000]
+  - ports: [3001, 3004, 8100]
     proto: tcp
     sources: ["{{ host_firewall_addr_proxy }}"]
-    comment: web services and litellm behind traefik
+    comment: web services behind traefik
