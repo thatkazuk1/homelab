@@ -4,4 +4,7 @@
   {{ super() }}
   <link rel="preload" href="{{ 'extra/fonts/hanken-grotesk-var.woff2' | url }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ 'extra/fonts/roboto-mono-var.woff2' | url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="icon" href="{{ 'favicon.ico' | url }}" sizes="any">
+  <link rel="apple-touch-icon" href="{{ 'extra/brand/apple-touch-icon.png' | url }}">
+  <link rel="manifest" href="{{ 'extra/brand/site.webmanifest' | url }}">
 {% endblock %}

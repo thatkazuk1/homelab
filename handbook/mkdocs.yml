@@ -9,6 +9,7 @@ strict: true
 theme:
   name: material
   custom_dir: overrides
+  favicon: extra/brand/favicon.svg
   font: false
   palette:
     - media: "(prefers-color-scheme)"
@@ -48,7 +49,6 @@ theme:
     - search.highlight
     - toc.follow
   icon:
-    logo: material/server-network
     repo: fontawesome/brands/github
 
 extra_css:
