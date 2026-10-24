@@ -4,8 +4,8 @@ What to do when Sonarr/Radarr/Lidarr/Bazarr (or the wider arr stack on `nas-01`)
 unreachable, without necessarily being crashed.
 
 !!! note
-    If `nas-01` rebooted in the last two days, check for a RAID resync first. See
-    [nas-01 slow after a power loss](nas01-slow-after-power-loss.md).
+    If `nas-01` restarted in the last hour, wait 5 minutes and check the containers first. See
+    [nas-01 after a restart or a power loss](nas01-slow-after-power-loss.md).
 
 ## The pattern
 
@@ -59,8 +59,7 @@ problem with a different fix).
 docker restart -t 30 qbittorrent
 ```
 
-Run from `nas-01` directly (SSH as `nexus-tnas` — see [SSH](../getting-started/ssh.md) for why
-`kazuki` doesn't work here). Use `-t 30` (or higher) rather than the default: under real
+Run from `nas-01` directly (`ssh nas-01`, user `kazuki` — see [SSH](../getting-started/ssh.md)). Use `-t 30` (or higher) rather than the default: under real
 contention, a plain `docker restart` can itself hang past Docker's default grace period without
 completing — observed taking 90+ seconds under a severe episode, and completing in under a second
 once the box wasn't as deeply wedged. Give it real room rather than assuming it failed.
@@ -80,6 +79,9 @@ Two changes stop it:
    uses about 30 to 90 MiB. Before the change it grew to 1.5 to 2.5 GiB.
 2. **Memory cap.** The compose file sets `mem_limit: 3g` and `memswap_limit: 3g` for `qbittorrent`.
    If it ever grows again, the kernel stops only this container and not the whole host.
+
+After a rebuild of `nas-01`, the qBittorrent config is new, and the Disk IO type is the default
+again. [Rebuilding nas-01](nas01-rebuild.md) lists the keys to set in the config file.
 
 Check the cap after every recreate of `qbittorrent`:
 

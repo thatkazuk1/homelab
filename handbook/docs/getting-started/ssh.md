@@ -57,10 +57,10 @@ instead is a `kazuki` user (UID 1001) with passwordless `sudo`: you SSH in as `k
 via `sudo`, not as an anonymous `root` session) without adding meaningful friction, since
 `sudo` doesn't prompt for a password.
 
-**`nas-01` is an exception to this pattern.** SSH there is as `nexus-tnas` (TOS's built-in
-root-equivalent account, UID 0) directly, with `PermitRootLogin prohibit-password` — not
-`kazuki` + `sudo`. This isn't the intended long-term state; it's a working fallback. See below
-for why.
+**`nas-01` is an exception to this pattern.** The TOS superuser `kazuki` has UID 0, so it is root,
+and there is no `sudo` step. `PermitRootLogin` is `prohibit-password`, so only the key works. The
+account `nexus-tnas` of the old system does not exist since the rebuild of 2026-10-24. See
+[Rebuilding nas-01](../operations/nas01-rebuild.md).
 
 ## Recovering from a locked-out key
 
@@ -69,22 +69,18 @@ wrong — the recovery path depends on what kind of host it is:
 
 - **Proxmox guests (CTs/VMs)** — the Proxmox web UI's console gives direct terminal access to
   the guest without going through SSH at all.
-- **`nas-01`** — has no reliable SSH story for `kazuki` at all, and the recovery path is TOS's
-  own browser-based Terminal app (login as `nexus-tnas`), not SSH. Two distinct, confirmed
-  issues, not one: (1) TOS's own iptables chain (`INPUT_PROTECT`) silently drops inbound
-  traffic to the SSH port from any subnet outside nas-01's own LAN, its Docker networks, and a
-  Tailscale range — fixed per-source via Control Panel → Security → Firewall, an Allow rule
-  for the connecting subnet on the SSH port; and (2) `sshd_config`'s `AllowUsers` line reverts
-  to `nexus-tnas`-only on its own, on some undetermined trigger unrelated to GUI panel touches
-  — `kazuki` gets silently dropped from it, and editing the file directly does not hold.
-  Root cause of (2) is unconfirmed but circumstantially points at `TOSDaemon` (an always-running
-  vendor process) reconciling system config from a local Postgres database it maintains
-  (`postgres: terramaster tos`) — not yet investigated further. **Working access today is
-  `nexus-tnas` (root-equivalent), not `kazuki`** — a key is staged at
-  `/home/nexus-tnas/.ssh/authorized_keys` and `PermitRootLogin prohibit-password` is set,
-  confirmed durable (unlike `AllowUsers` edits, which revert within seconds). `sudo` from
-  non-`nexus-tnas` accounts still resolves to a neutralised placeholder UID, not real root, so
-  this exception is specifically about SSH login identity, not a broader relaxation.
+- **`nas-01`** — SSH uses port `9222`. If you cannot connect, check these items in order:
+  1. The TOS firewall (**Control Panel → Security → Firewall**) needs an Allow rule for the
+     source subnet on TCP `9222`. Without it, TOS drops the packets and gives no message.
+  2. `AllowUsers` in `/etc/ssh/sshd_config` must list `kazuki`. The old system reset this line at
+     each restart. Check it after a restart.
+  3. `/home/kazuki` must not be writable by group or others. TOS makes new home folders mode
+     `777`, and `sshd` then ignores `authorized_keys` without a message (`StrictModes`). Fix it with
+     `chmod go-w ~`.
+  4. When the agent holds many keys, `ssh-copy-id` fails with `Too many authentication failures`.
+     Add `-o PubkeyAuthentication=no`.
+
+  If SSH is gone completely, use the Terminal app in the TOS web interface, signed in as `kazuki`.
 - **`core-01`** (Raspberry Pi) — no SSH-independent console exists by default. Recovery means
   physical access: pull the SD card and edit files directly, or attach a monitor and
   keyboard. Worth knowing this before you need it, since it means locking yourself out of

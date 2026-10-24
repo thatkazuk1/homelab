@@ -71,9 +71,11 @@ run inside the cluster:
   fleet. Loss of AdGuard breaks `.lan` and `.ts.kazuki.uk` name
   resolution — some cluster operations rely on this for reaching
   storage backends.
-- **`nas-01`** (TerraMaster F4-424 running TOS 7) provides storage
-  to the cluster via NFS. Detailed storage relationships in the
-  Storage section below.
+- **`nas-01`** (TerraMaster F4-424 running TOS 7) provided storage
+  to the cluster via NFS. Since the rebuild of 2026-10-24 it exports no
+  share to the cluster, and the old NFS storage entries in Proxmox are
+  dead. Create a new share and a new entry before you rely on it. The
+  Storage section below describes the old layout.
 
 ## Storage
 

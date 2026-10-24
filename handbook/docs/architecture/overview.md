@@ -113,8 +113,9 @@ Anything not explicitly behind Cloudflare Tunnel or Tailscale uses `.lan`.
 
 A few things are deliberately outside this picture, by choice rather than oversight:
 
-- **`nas-01`'s media stack is not under GitOps yet.** Deferred — it runs its own Docker Compose
-  stacks directly on the NAS, outside Komodo's reconciliation.
+- **`nas-01`'s Komodo Periphery is deployed by hand.** The stacks on `nas-01` are under GitOps
+  like every other host. The Periphery agent that runs them is not, because Komodo cannot manage
+  the agent that it needs. See [Rebuilding nas-01](../operations/nas01-rebuild.md).
 - **Home Assistant on `core-01` is manually managed, by choice.** Home Assistant's own
   configuration UI is the natural way to manage it; forcing it through GitOps compose files
   would fight the tool rather than use it.
