@@ -29,10 +29,9 @@ services:
       - SLSKD_API_KEY
       - SLSKD_USERNAME
       - SLSKD_PASSWORD
-      - SLSKD_DOWNLOADS_DIR=/downloads/torrents
-      - SLSKD_INCOMPLETE_DIR=/downloads/torrenting
-      - SLSKD_SHARED_DIR=/media/music
+      - SLSKD_DOWNLOADS_DIR=/data/downloads/torrents
+      - SLSKD_INCOMPLETE_DIR=/data/downloads/torrenting
+      - SLSKD_SHARED_DIR=/data/media/music
     volumes:
       - /Volume1/@apps/homelab/slskd/config:/app
-      - /Volume1/data/downloads:/downloads
-      - /Volume1/data/media:/media
+      - /Volume1/data:/data

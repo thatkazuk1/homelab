@@ -70,7 +70,7 @@ services:
     labels:
       - autoheal=true
     volumes:
-      - /Volume1/data/downloads:/downloads
+      - /Volume1/data:/data
       - /Volume1/@apps/homelab/qBittorrent/qbittorrent/config:/config
     environment:
       - PUID=1006

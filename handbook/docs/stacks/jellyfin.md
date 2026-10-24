@@ -37,7 +37,7 @@ is an intra-library grouping; it can't carry its own metadata-provider order or
 episode-ordering rules). Nothing in this compose file changes for it — the
 `jellyfin` service already bind-mounts the whole media tree
 (`/Volume1/data/media:/data/media`) and the `media` stack's Sonarr/Radarr
-mount the same tree at `/media`. The anime setup is entirely app-config across
+mount the whole `data` share at `/data`, so they see the same files at `/data/media`. The anime setup is entirely app-config across
 Jellyfin, Sonarr, and Seerr.
 
 ### Folder layout (on `nas-01`)
@@ -75,7 +75,7 @@ AniDB metadata usually handles this; TVDB-sourced entries often need the nudge.
 
 ### Sonarr routing
 
-- Root folder `/media/anime` added in Sonarr (Media Management).
+- Root folder `/data/media/anime` added in Sonarr (Media Management).
 - Sonarr tag `anime` created — used by Seerr's anime routing and for anime
   release profiles / custom formats (see TRaSH-Guides "Anime" section).
 - Series added via Seerr's anime path arrive with `seriesType: anime` set
@@ -90,7 +90,7 @@ Seerr auto-detects anime (bundled anidb↔tvdb mapping) and applies the
 Seerr carries both a default and an anime set of (quality profile, root folder,
 language profile, tags). Config on the Sonarr service in Seerr:
 
-- Anime Root Folder: `/media/anime`
+- Anime Root Folder: `/data/media/anime`
 - Anime Quality Profile: (dedicated anime profile, or reuse HD-1080p)
 - Anime Language Profile: as needed (e.g. a profile allowing Japanese + English)
 - Anime Tags: `anime`
