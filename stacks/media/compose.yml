@@ -41,8 +41,8 @@ services:
     container_name: aurral
     restart: unless-stopped
     volumes:
-      - /Volume1/nexus-pve/media:/media
-      - /Volume1/nexus-pve/downloads:/downloads
+      - /Volume1/data/media:/media
+      - /Volume1/data/downloads:/downloads
       - /Volume1/@apps/homelab/media/aurral/data:/app/backend/data
     networks:
       - media-internal
@@ -90,8 +90,8 @@ services:
     ports:
       - "7878:7878"
     volumes:
-      - /Volume1/nexus-pve/media:/media
-      - /Volume1/nexus-pve/downloads:/downloads
+      - /Volume1/data/media:/media
+      - /Volume1/data/downloads:/downloads
       - /Volume1/@apps/homelab/media/radarr/config:/config
     networks:
       - media-internal
@@ -108,8 +108,8 @@ services:
     ports:
       - "8989:8989"
     volumes:
-      - /Volume1/nexus-pve/media:/media
-      - /Volume1/nexus-pve/downloads:/downloads
+      - /Volume1/data/media:/media
+      - /Volume1/data/downloads:/downloads
       - /Volume1/@apps/homelab/media/sonarr/config:/config
     networks:
       - media-internal
@@ -125,7 +125,7 @@ services:
     ports:
       - "6767:6767"
     volumes:
-      - /Volume1/nexus-pve/media:/media
+      - /Volume1/data/media:/media
       - /Volume1/@apps/homelab/media/bazarr/config:/config
     networks:
       - media-internal
@@ -141,8 +141,8 @@ services:
     ports:
       - "8686:8686"
     volumes:
-      - /Volume1/nexus-pve/media:/media
-      - /Volume1/nexus-pve/downloads:/downloads
+      - /Volume1/data/media:/media
+      - /Volume1/data/downloads:/downloads
       - /Volume1/@apps/homelab/media/lidarr/config:/config
     networks:
       - media-internal

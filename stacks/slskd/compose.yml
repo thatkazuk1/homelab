@@ -34,5 +34,5 @@ services:
       - SLSKD_SHARED_DIR=/media/music
     volumes:
       - /Volume1/@apps/homelab/slskd/config:/app
-      - /Volume1/nexus-pve/downloads:/downloads
-      - /Volume1/nexus-pve/media:/media
+      - /Volume1/data/downloads:/downloads
+      - /Volume1/data/media:/media

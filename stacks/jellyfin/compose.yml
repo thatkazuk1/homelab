@@ -23,7 +23,7 @@ services:
     volumes:
       - /Volume1/@apps/homelab/jellyfin/jellyfin/config:/config
       - /Volume1/@apps/homelab/jellyfin/jellyfin/cache:/cache
-      - /Volume1/nexus-pve/media:/data/media
+      - /Volume1/data/media:/data/media
     ports:
       - 8096:8096
     devices:

@@ -4,15 +4,15 @@ Anime runs as **dedicated libraries**, not a Jellyfin "Collection" (a Collection
 is an intra-library grouping; it can't carry its own metadata-provider order or
 episode-ordering rules). Nothing in this compose file changes for it — the
 `jellyfin` service already bind-mounts the whole media tree
-(`/Volume1/nexus-pve/media:/data/media`) and the `media` stack's Sonarr/Radarr
+(`/Volume1/data/media:/data/media`) and the `media` stack's Sonarr/Radarr
 mount the same tree at `/media`. The anime setup is entirely app-config across
 Jellyfin, Sonarr, and Seerr.
 
 ### Folder layout (on `nas-01`)
 
 ```
-/Volume1/nexus-pve/media/anime/          # series      -> Jellyfin "Anime" (Shows)
-/Volume1/nexus-pve/media/anime-movies/   # films       -> Jellyfin "Anime Movies" (Movies)
+/Volume1/data/media/anime/          # series      -> Jellyfin "Anime" (Shows)
+/Volume1/data/media/anime-movies/   # films       -> Jellyfin "Anime Movies" (Movies)
 ```
 
 Both owned `1006:997` to match the container `user:` in the `jellyfin` and

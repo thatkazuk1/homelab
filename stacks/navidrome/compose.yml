@@ -33,4 +33,4 @@ services:
       - ND_LASTFM_APIKEY
     volumes:
       - /Volume1/@apps/homelab/navidrome/data:/data
-      - /Volume1/nexus-pve/media/music:/media/music:ro
+      - /Volume1/data/media/music:/media/music:ro
