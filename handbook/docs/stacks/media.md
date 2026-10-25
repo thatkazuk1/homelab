@@ -1,6 +1,6 @@
 # media
 
-Arr-stack media automation running as one compose project on nas-01: Seerr, Aurral, FlareSolverr, Prowlarr, Radarr, Sonarr, Bazarr, Lidarr.
+Arr-stack media automation running as one compose project on nas-01: Seerr, FlareSolverr, Prowlarr, Radarr, Sonarr, Bazarr, Lidarr.
 
 ## Reference
 
@@ -19,13 +19,6 @@ Arr-stack media automation running as one compose project on nas-01: Seerr, Aurr
 - **Container:** `seerr`
 - **Restart policy:** `unless-stopped`
 - **Ports:** `5055:5055`
-
-### `aurral`
-
-- **Image:** `ghcr.io/lklynet/aurral:latest`
-- **Container:** `aurral`
-- **Restart policy:** `unless-stopped`
-- **Ports:** `3001:3001`
 
 ### `flaresolverr`
 
@@ -71,7 +64,7 @@ Arr-stack media automation running as one compose project on nas-01: Seerr, Aurr
 
 ## Secrets
 
-This stack uses the [SOPS-encrypted secrets pattern](../decisions/0008-per-stack-sops-secrets.md). Encrypted values live in `stacks/media/secrets.enc.env`; the Komodo compose wrapper decrypts them into environment variables at deploy time.
+No SOPS-encrypted secrets file. Configuration lives in the compose file directly or in bind-mounted files on the host.
 
 ## Related decisions
 

@@ -4,7 +4,7 @@ x-meta:
   category: media
   description: >
     Arr-stack media automation running as one compose project on nas-01:
-    Seerr, Aurral, FlareSolverr, Prowlarr, Radarr, Sonarr, Bazarr, Lidarr.
+    Seerr, FlareSolverr, Prowlarr, Radarr, Sonarr, Bazarr, Lidarr.
   status: adopted
   adrs:
     - 8
@@ -35,25 +35,6 @@ services:
       timeout: 3s
       interval: 15s
       retries: 3
-
-  aurral:
-    image: ghcr.io/lklynet/aurral:latest
-    container_name: aurral
-    restart: unless-stopped
-    volumes:
-      - /Volume1/data:/data
-      - /Volume1/@apps/homelab/media/aurral/data:/app/backend/data
-    networks:
-      - media-internal
-    ports:
-      - "3001:3001"
-    environment:
-      - PUID=1006
-      - PGID=997
-      - TZ=Africa/Lagos
-      - SOULSEEK_USERNAME=${AURRAL_SLSK_USERNAME}
-      - SOULSEEK_PASSWORD=${AURRAL_SLSK_PASSWORD}
-      - DOWNLOAD_FOLDER=/data/media/music/aurral
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest

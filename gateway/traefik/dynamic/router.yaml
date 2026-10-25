@@ -1,15 +1,5 @@
 http:
   routers:
-    aurral:
-      entrypoints:
-        - websecure
-      rule: "Host(`aurral.kazuki.uk`)"
-      service: aurral-service
-      middlewares:
-        - crowdsec
-      tls:
-        certResolver: cloudflare
-
     jellyfin:
       entrypoints:
         - websecure
@@ -291,11 +281,6 @@ http:
           X-Forwarded-Ssl: "on"
 
   services:
-    aurral-service:
-      loadBalancer:
-        servers:
-          - url: "http://192.168.50.163:3001"
-
     backrest-service:
       loadBalancer:
         servers:
