@@ -18,6 +18,7 @@ to a full set of running stacks. It records what we did on 2026-10-24, after TOS
 | Storage | One JBOD pool, 7.26 TB, Btrfs. **No redundancy.** |
 | Volume | `Volume 1`, mounted at `/Volume1`. TOS fixes this name. |
 | Shared folder | `data` (one Btrfs subvolume), with `media/` and `downloads/` inside |
+| Download folders | `downloads/torrents/{tv,movies,music,anime}` for qBittorrent, `downloads/soulseek/{complete,incomplete}` for `slskd` |
 | App state | `/Volume1/@apps/homelab/<stack>/` |
 | SSH | Port `9222`, user `kazuki` (UID 0), key only |
 
@@ -104,9 +105,21 @@ you cannot download again.
 3. Make the folders from the shell and give them to the UID that the containers use:
 
    ```bash
-   mkdir -p /Volume1/data/media /Volume1/data/downloads
-   chown 1006:997 /Volume1/data/media /Volume1/data/downloads
-   chmod 775 /Volume1/data/media /Volume1/data/downloads
+   mkdir -p /Volume1/data/media /Volume1/data/downloads/torrents/{tv,movies,music,anime} \
+     /Volume1/data/downloads/soulseek/{complete,incomplete}
+   chown -R 1006:997 /Volume1/data/media /Volume1/data/downloads
+   chmod -R 775 /Volume1/data/media /Volume1/data/downloads
+   ```
+
+   Make the category folders before the first download. qBittorrent makes a category folder only
+   at the first torrent of that category. The arr apps warn when the folder is missing, and
+   `slskd` does not start without its two folders. One folder for each downloader keeps the
+   layout clear:
+
+   ```text
+   /data/downloads/
+   ├── torrents/    qBittorrent: tv  movies  music  anime
+   └── soulseek/    slskd: complete  incomplete
    ```
 
    The containers use `PUID=1006` and `PGID=997` (group `allusers`). No TOS user with the UID 1006
@@ -170,8 +183,9 @@ Rules that cost time on 2026-10-24:
     /Volume1/@apps/homelab/navidrome /Volume1/@apps/homelab/slskd /Volume1/@apps/homelab/qBittorrent
   ```
 
-- **`slskd` needs its download folders:** `mkdir /Volume1/data/downloads/torrents
-  /Volume1/data/downloads/torrenting`, owner `1006:997`.
+- **`slskd` needs its download folders:** `/Volume1/data/downloads/soulseek/complete` and
+  `/Volume1/data/downloads/soulseek/incomplete`, owner `1006:997`. It stops at start with
+  "non-existent directory" when one is missing.
 - **`gluetun` needs the file `config.toml` before the first start.** The compose file mounts
   `/Volume1/@apps/homelab/qBittorrent/config.toml`. If the file is missing, Docker makes a
   **directory** with that name, and `gluetun` stops with `config.toml: is a directory`. Docker also
@@ -211,8 +225,8 @@ Set these keys (the paths in the file at first start point at `/downloads`, whic
 
 ```ini
 [BitTorrent]
-Session\DefaultSavePath=/data/downloads/
-Session\TempPath=/data/downloads/incomplete/
+Session\DefaultSavePath=/data/downloads/torrents/
+Session\TempPath=/data/downloads/torrents/incomplete/
 Session\DiskIOType=SimplePreadPwrite
 Session\DisableAutoTMMByDefault=false
 
@@ -231,9 +245,25 @@ Do **not** set the listening port by hand. The add-on writes the forwarded port 
 qBittorrent at each start. Check with the add-on log line "Qbittorrent port successfully updated".
 At the first login, the temporary password is in the container log:
 `docker logs qbittorrent 2>&1 | grep -i "temporary password"`. Run it in your own terminal, and set
-a real password at once (**Tools → Options → Web UI**). Add the categories `tv`, `movies` and
-`music` (**Categories**), with the save paths `/data/downloads/tv`, `/data/downloads/movies` and
-`/data/downloads/music`.
+a real password at once (**Tools → Options → Web UI**).
+
+Each arr app uses its own category. Two apps with one category see each other's torrents, and
+the TRaSH guide advises against it. The apps make the categories when they first connect. Then
+set the save path of each one (**Categories** in the left list, right-click, **Edit category**):
+
+| Category | Used by | Save path |
+|---|---|---|
+| `tv-sonarr` | Sonarr, normal series | `/data/downloads/torrents/tv` |
+| `radarr` | Radarr, normal films | `/data/downloads/torrents/movies` |
+| `lidarr` | Lidarr | `/data/downloads/torrents/music` |
+| `anime-sonarr` | Sonarr, client `qBittorrent - Anime` (tag `anime-sonarr`) | `/data/downloads/torrents/anime` |
+| `anime-radarr` | Radarr, client `qBittorrent - Anime` (tag `anime-radarr`) | `/data/downloads/torrents/anime` |
+
+Set the default save path to `/data/downloads/torrents` (**Options → Downloads**). In **Saving
+Management**, tick the options to relocate affected torrents when the category changes and when
+a category save path changes. They are off by default. Without them, a changed path moves
+nothing. A move inside the `data` subvolume is a rename, so it is instant and the hardlinks to
+the library stay valid.
 
 ### The arr apps
 
@@ -243,7 +273,7 @@ Inside the `media` stack, containers reach each other by service name on the net
 | App (port) | Setting |
 |---|---|
 | Sonarr (`8989`), Radarr (`7878`), Lidarr (`8686`) | **Media Management → Root Folders:** `/data/media/tv`, `/data/media/movies`, `/data/media/music`. Keep **Use Hardlinks instead of Copy** on. |
-| Sonarr, Radarr, Lidarr | **Download Clients → qBittorrent:** host `nas-01.lan`, port `8080`, the qBittorrent user and password, category `tv`, `movies` or `music`. Test shows the check mark. |
+| Sonarr, Radarr, Lidarr | **Download Clients → qBittorrent:** host `nas-01.lan`, port `8080`, the qBittorrent user and password, and the category from the table above. Test shows the check mark. |
 | Prowlarr (`9696`) | **Settings → Apps:** add Sonarr (`http://sonarr:8989`), Radarr (`http://radarr:7878`) and Lidarr (`http://lidarr:8686`). Prowlarr server URL: `http://prowlarr:9696`. Take each API key from **Settings → General** of the app. |
 | Prowlarr | **Settings → Indexers → Add proxy:** FlareSolverr, `http://flaresolverr:8191`, with a tag. Give the same tag to the indexers that need it. |
 | Bazarr (`6767`) | **Settings → Sonarr / Radarr:** hosts `sonarr` and `radarr`, with the API keys. Bazarr mounts `/data/media`, so the paths match and no path mapping is needed. |
