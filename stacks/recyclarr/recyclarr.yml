@@ -11,9 +11,10 @@
 ##  - "Upgrade Until" is Bluray-1080p, with the guide's score limit of 10000.
 ##  - The quality size definition is the standard one (series, movie), because a
 ##    single instance holds both anime and normal content.
-##  - Anime Dual Audio scores 101: a dual audio release ranks one tier above a
-##    single audio release. The guide default is 0. Use 10 to rank it only
-##    inside a tier, or 2000 to rank it above every tier.
+##  - Anime Dual Audio keeps the guide score, 0. The operator watches in Japanese
+##    with English subtitles, so a dual audio release gets no bonus and the ranking
+##    follows the release group tiers. To prefer dual audio, add a custom_formats
+##    entry with the score 10 (inside a tier), 101 (one tier up) or 2000 (above all).
 ##
 ## Secrets: SONARR_API_KEY and RADARR_API_KEY come from secrets.enc.env.
 ## The apps are reached through the published ports on nas-01.
@@ -58,12 +59,6 @@ sonarr:
           - name: DVD
           - name: SDTV
 
-    custom_formats:
-      - trash_ids:
-          - 418f50b10f1907201b6cfdf881f467b7  # Anime Dual Audio
-        assign_scores_to:
-          - trash_id: 20e0fc959f1f1704bed501f23bdae76f
-            score: 101
 
 radarr:
   radarr-anime:
@@ -102,10 +97,3 @@ radarr:
               - WEBDL-480p
           - name: DVD
           - name: SDTV
-
-    custom_formats:
-      - trash_ids:
-          - 4a3b087eea2ce012fcc1ce319259a3be  # Anime Dual Audio
-        assign_scores_to:
-          - trash_id: 722b624f9af1e492284c4bc842153a38
-            score: 101
