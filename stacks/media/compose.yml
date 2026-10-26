@@ -29,6 +29,10 @@ services:
       - PGID=997
       - LOG_LEVEL=debug
       - TZ=Africa/Lagos
+      # Node gives each address 250 ms to connect. The connect time from nas-01 to
+      # GitHub's CDN is about 300 ms, so the anime list download failed on every
+      # address and the Jellyfin sync stopped every 5 minutes. 2000 ms fixes it.
+      - NODE_OPTIONS=--network-family-autoselection-attempt-timeout=2000
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
       start_period: 20s
