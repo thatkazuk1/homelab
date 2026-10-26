@@ -31,7 +31,7 @@ services:
       - /opt/homelab/influxdb3/plugins:/var/lib/influxdb3/plugins
 
   influxdb3-explorer:
-    image: influxdata/influxdb3-ui:1.11.0
+    image: influxdata/influxdb3-ui:1.11.1
     container_name: influxdb3-explorer
     restart: unless-stopped
     ports:
