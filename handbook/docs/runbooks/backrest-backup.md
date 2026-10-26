@@ -229,7 +229,11 @@ Do not put these files on the TOS system partition: TOS checks its hash at every
 
 **Check.** After a run, `/opt/homelab/backup-staging/nas-01/_backup-dumps/` holds 11 files, and
 `komodo-periphery` is not in the folder. In the Backrest UI, a snapshot of the plan `fleet-staging`
-lists `nas-01/`. Do one test restore of a file (to `/tmp`) after the first night.
+lists `nas-01/`. Test restore, done on 2026-10-26: in the Backrest UI, open the plan `fleet-staging`, pick a snapshot, browse to
+`nas-01/media/sonarr/config/config.xml`, and restore it to `/tmp/restore-test`. **The restore path must not exist yet.**
+`/tmp` itself fails with "target directory already exists". Inside the container, `/tmp` is the folder
+`stacks/backrest/tmp` of the stack on `docker-prod-01`. Compare the hash of the restored file with the original
+(`sha256sum`, never print it: it holds an API key), then delete the folder. The hashes were identical.
 
 ## Deferred / not in scope this sprint
 
