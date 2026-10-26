@@ -27,8 +27,16 @@ services:
     environment:
       - ND_MUSICFOLDER=/media/music
       - ND_DATAFOLDER=/data
-      - ND_SCANSCHEDULE=1h
+      # The current name is ND_SCANNER_SCHEDULE. The file watcher (5 s) already scans after a
+      # Lidarr import; the hourly scan is a safety net.
+      - ND_SCANNER_SCHEDULE=@every 1h
       - ND_LOGLEVEL=info
+      # Privacy and exposure: no anonymous usage data, and no public share links
+      # (the service is reachable from the internet).
+      - ND_ENABLEINSIGHTSCOLLECTOR=false
+      - ND_ENABLESHARING=false
+      # Search matches anywhere in a name, not only at the start of a word.
+      - ND_SEARCH_FULLSTRING=true
       - TZ=Africa/Lagos
       - ND_LASTFM_APIKEY
     volumes:

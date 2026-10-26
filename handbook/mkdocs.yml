@@ -78,6 +78,7 @@ nav:
       - nas-01 arr stack performance: operations/nas01-arr-performance.md
       - Rebuilding nas-01: operations/nas01-rebuild.md
       - nas-01 after a restart or a power loss: operations/nas01-slow-after-power-loss.md
+      - Music library (Lidarr to Navidrome): operations/music-library.md
       - HA Tuya sensors (cloud poll): operations/home-assistant-tuya-sensors.md
       - Plane PR-merge automation: operations/plane-github-transition.md
   - Runbooks:
