@@ -5,6 +5,7 @@
 #
 # Source side is read-only: the key is restricted with
 #   command="/usr/bin/rrsync -ro /opt/homelab",restrict,from="192.168.50.105"
+# (nas-01 uses a forced command that also allows one dump step: scripts/backup/nas-01/)
 # Files root-owned on a source host are skipped (rsync exit 23) and logged.
 # --delete is deliberately NOT used: a path that becomes unreadable would
 # otherwise be removed from staging, and the next snapshot would lose it.
@@ -14,7 +15,7 @@ STAGING=/opt/homelab/backup-staging
 KEY="$HOME/.ssh/homelab_backup_pull"
 KNOWN_HOSTS="$HOME/.ssh/known_hosts"
 
-# name ip
+# name ip [ssh port]
 HOSTS=(
   "proxy-prod-01 192.168.50.107"
   "telemetry-prod-01 192.168.50.106"
@@ -22,6 +23,7 @@ HOSTS=(
   "forgejo-prod-01 192.168.50.108"
   "garage-prod-01 192.168.50.80"
   "docker-prod-02 192.168.50.100"
+  "nas-01 192.168.50.163 9222"
 )
 
 # Heartbeat to Uptime Kuma (core-01). Push URLs live in kuma.env, not in
@@ -38,14 +40,45 @@ kuma_ping() { # $1 = variable name, $2 = up|down, $3 = message word
 
 failed=0
 for entry in "${HOSTS[@]}"; do
-  read -r name ip <<<"$entry"
+  read -r name ip port <<<"$entry"
+  port=${port:-22}
   dest="$STAGING/$name"
   mkdir -p "$dest"
+  ssh_cmd="ssh -p $port -i $KEY -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS"
 
   # Crowdsec API credentials are excluded: they are live secrets, not config.
+  excludes=(--exclude='gateway/crowdsec/config/*_credentials.yaml')
+
+  if [ "$name" = "nas-01" ]; then
+    # The apps on nas-01 keep SQLite databases in WAL mode. The forced command on
+    # the key (scripts/backup/nas-01/gate.sh) first makes consistent copies
+    # (*.db.dump). The live databases are then left out of the pull.
+    if ! $ssh_cmd "kazuki@$ip" dump; then
+      echo "$name: FAILED — database dump did not finish; the pull is skipped"
+      failed=1
+      continue
+    fi
+    # Left out: live secrets (age key, registry login, VPN API keys), caches,
+    # logs, posters that the arr apps fetch again, and the live databases.
+    excludes=(
+      --exclude='komodo-periphery/'
+      --exclude='qBittorrent/config.toml'
+      --exclude='jellyfin/jellyfin/cache/'
+      --exclude='jellyfin/jellyfin/config/log/'
+      --exclude='jellyfin/jellyfin/config/transcodes/'
+      --exclude='**/MediaCover/'
+      --exclude='**/logs/'
+      --exclude='media/seerr/config/cache/'
+      --exclude='media/seerr/config/anime-list.xml'
+      --exclude='navidrome/data/cache/'
+      --exclude='*.db' --exclude='*.db-wal' --exclude='*.db-shm'
+      --exclude='*.sqlite3' --exclude='*.sqlite3-wal' --exclude='*.sqlite3-shm'
+    )
+  fi
+
   rsync -a --partial --timeout=120 \
-    --exclude='gateway/crowdsec/config/*_credentials.yaml' \
-    -e "ssh -i $KEY -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS" \
+    "${excludes[@]}" \
+    -e "$ssh_cmd" \
     "kazuki@$ip:" "$dest/"
   rc=$?
 

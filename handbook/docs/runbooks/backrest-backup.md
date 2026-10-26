@@ -186,6 +186,51 @@ a nonexistent source path) rather than assumed from the config.
   attached to the `docker-prod-01` plan (hooks are per-plan, not global —
   editing/recreating a plan does not carry hooks over automatically).
 
+## nas-01 (app state)
+
+`nas-01` is backed up through the same route as the other hosts: the nightly pull
+(`scripts/backup/pull-staging.sh`, 22:30) copies its app state into
+`/opt/homelab/backup-staging/nas-01/` on `docker-prod-01`, and the plan `fleet-staging`
+(23:59) sends that folder to Google Drive. There is no extra plan.
+
+**What is copied.** The folder `/Volume1/@apps/homelab` (about 400 MB): the config and the
+databases of Jellyfin, Sonarr, Radarr, Lidarr, Prowlarr, Bazarr, Seerr, Navidrome, `slskd` and
+qBittorrent (including its `BT_backup` resume data). The media files and the downloads are **not**
+backed up. They can be downloaded again.
+
+**What is left out on purpose.**
+
+| Left out | Reason |
+|---|---|
+| `komodo-periphery/` | The SOPS age key and the registry login. Live secrets. The age key lives on `nexus-v`. |
+| `qBittorrent/config.toml` | The API keys of `gluetun`. They are in SOPS (`stacks/qbittorrent`, `stacks/homepage`). |
+| Caches, logs, transcodes, `MediaCover/` | The apps make them again. |
+| Live `*.db`, `*.db-wal`, `*.db-shm`, `*.sqlite3*` files | A copy of a running SQLite database in WAL mode can be inconsistent. See below. |
+
+**Consistent database copies.** Before the pull, the script runs the command `dump` on the NAS.
+`/Volume1/@apps/backup/dump.py` copies every database with the SQLite backup function, checks the
+copy (`PRAGMA quick_check`) and writes it to `/Volume1/@apps/homelab/_backup-dumps/<path>.dump`
+(11 databases, 24 MB, 5 seconds). The pull takes these `.dump` files. To restore one, copy it back
+and remove the `.dump` suffix, with the app stopped.
+
+**The key.** The pull uses the same key as the other hosts (`~/.ssh/homelab_backup_pull` on
+`docker-prod-01`). On the NAS it carries a forced command, so it can do only two things: run `dump`,
+and read the app folder with `rrsync -ro`. The line in `/home/kazuki/.ssh/authorized_keys`:
+
+```text
+command="/Volume1/@apps/backup/gate.sh",restrict,from="192.168.50.105" ssh-ed25519 <public key> backup-pull@docker-prod-01
+```
+
+The account `kazuki` is UID 0 on TOS, so keep `gate.sh` short (it is in `scripts/backup/nas-01/`).
+Copy `gate.sh` and `dump.py` to `/Volume1/@apps/backup/` (owner `0:0`, mode 755). Add the host key
+`[192.168.50.163]:9222` to `~/.ssh/known_hosts` of `kazuki` on `docker-prod-01`, after you compare
+its fingerprint with the one on the NAS (`ssh-keyscan -p 9222 -t ed25519 <ip> | ssh-keygen -lf -`).
+Do not put these files on the TOS system partition: TOS checks its hash at every boot.
+
+**Check.** After a run, `/opt/homelab/backup-staging/nas-01/_backup-dumps/` holds 11 files, and
+`komodo-periphery` is not in the folder. In the Backrest UI, a snapshot of the plan `fleet-staging`
+lists `nas-01/`. Do one test restore of a file (to `/tmp`) after the first night.
+
 ## Deferred / not in scope this sprint
 
 - **Remote-host backup** (`proxy-prod-01`, `telemetry-prod-01`,
@@ -201,6 +246,4 @@ a nonexistent source path) rather than assumed from the config.
   architecture decision (reliability of network-mount-based backup,
   mount lifecycle management) that needs the planner's input, not
   something to substitute in silently.
-- `nas-01` — deferred, TOS Shared Folder limitation (per original sprint
-  scope).
 - 3-2-1 gap — see the Destination section above.
