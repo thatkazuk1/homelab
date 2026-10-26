@@ -55,6 +55,28 @@ Create the two profiles first, then set the root folder defaults.
 | Only a lossy file was found | No FLAC is on Soulseek or the trackers yet | Leave it. The profile upgrades it when FLAC shows up. |
 | You have files that did not come from Lidarr | They carry any tags | Tag them with MusicBrainz Picard, then use Lidarr **Manual Import** from a folder |
 
+## Music that is not in MusicBrainz (DJ edits, mixes)
+
+Lidarr cannot import a release that MusicBrainz does not list. For example, a DJ playlist from Samply
+is not in MusicBrainz. Add such music by hand, outside the Lidarr flow:
+
+1. Put the files in `/Volume1/data/media/music/<Artist>/<Album>/`. The owner must be `1006:997`.
+2. Write the tags with `ffmpeg`: title, artist, album, album artist, track number (`N/total`) and an embedded cover.
+   Convert WAV to FLAC (lossless), because WAV has weak tag support. Keep MP3 as MP3.
+3. Name the files `NN - Title.ext`. Put the cover in the album folder as `folder.jpg`.
+4. Compare each file length with the length on the source page. A match confirms the right title for each file.
+5. Wait for the Navidrome watcher (a few seconds). Check that the album shows the right track count.
+
+Do not run a Lidarr rename or retag on these folders. Lidarr does not know them. These tracks have no
+MusicBrainz IDs, so ListenBrainz may not link them to a recording.
+
+## Artist pictures
+
+Navidrome fetches an artist picture from Deezer the first time you open the artist. Nothing to do for
+most artists. Deezer does not know some artists (small local artists, DJs). For those artists, put a file
+named `artist.jpg` in the artist folder, for example `/Volume1/data/media/music/<Artist>/artist.jpg`.
+A local `artist.jpg` takes priority over the Deezer picture.
+
 ## Navidrome settings
 
 | Variable | Value | Reason |
