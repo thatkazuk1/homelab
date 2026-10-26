@@ -508,6 +508,21 @@ compose_cmd_wrapper_include = ["up"]
 ##
 
 [[stack]]
+name = "recyclarr"
+tags = ["nas-01"]
+[stack.config]
+server = "nas-01"
+project_name = "recyclarr"
+linked_repo = "kazuki/homelab"
+webhook_enabled = false
+run_directory = "stacks/recyclarr"
+file_paths = ["compose.yml"]
+compose_cmd_wrapper = "sops exec-env secrets.enc.env '[[COMPOSE_COMMAND]]'"
+compose_cmd_wrapper_include = ["up"]
+
+##
+
+[[stack]]
 name = "slskd"
 tags = ["nas-01"]
 [stack.config]

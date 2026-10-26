@@ -1,0 +1,33 @@
+x-meta:
+  name: recyclarr
+  host: nas-01
+  category: media
+  description: >
+    Recyclarr syncs the TRaSH Guides anime quality profiles and custom
+    formats into Sonarr and Radarr once a day. The profile settings live in
+    recyclarr.yml in this folder.
+  status: new
+  adrs:
+    - 8
+
+name: recyclarr
+
+services:
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:8.8.0
+    container_name: recyclarr
+    restart: unless-stopped
+    mem_limit: 512m
+    environment:
+      - TZ=Africa/Lagos
+      - CRON_SCHEDULE=@daily
+      - RECYCLARR_CREATE_CONFIG=false
+      - SONARR_API_KEY
+      - RADARR_API_KEY
+    volumes:
+      - recyclarr-config:/config
+      - ./recyclarr.yml:/config/recyclarr.yml:ro
+
+volumes:
+  recyclarr-config:
+    name: recyclarr-config

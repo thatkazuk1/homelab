@@ -111,6 +111,7 @@ nav:
       - ntfy: stacks/ntfy.md
       - plane: stacks/plane.md
       - qbittorrent: stacks/qbittorrent.md
+      - recyclarr: stacks/recyclarr.md
       - slskd: stacks/slskd.md
       - sparkyfitness: stacks/sparkyfitness.md
       - speedtest-tracker: stacks/speedtest-tracker.md

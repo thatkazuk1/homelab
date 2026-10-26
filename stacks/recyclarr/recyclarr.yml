@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=https://schemas.recyclarr.dev/v8/config-schema.json
+################################################################################
+## TRaSH Guides: [Anime] Remux-1080p, adapted for nas-01
+##
+## Sonarr  https://trash-guides.info/Sonarr/sonarr-setup-quality-profiles-anime/
+## Radarr  https://trash-guides.info/Radarr/radarr-setup-quality-profiles-anime/
+##
+## Changes from the guide template (both apps):
+##  - The Remux quality is removed (TRaSH FAQ). The pool has no redundancy and
+##    a Remux is very large. The top quality is Bluray-1080p.
+##  - "Upgrade Until" is Bluray-1080p, with the guide's score limit of 10000.
+##  - The quality size definition is the standard one (series, movie), because a
+##    single instance holds both anime and normal content.
+##  - Anime Dual Audio scores 101: a dual audio release ranks one tier above a
+##    single audio release. The guide default is 0. Use 10 to rank it only
+##    inside a tier, or 2000 to rank it above every tier.
+##
+## Secrets: SONARR_API_KEY and RADARR_API_KEY come from secrets.enc.env.
+## The apps are reached through the published ports on nas-01.
+################################################################################
+
+sonarr:
+  sonarr-anime:
+    base_url: http://nas-01.lan:8989
+    api_key: !env_var SONARR_API_KEY
+
+    # The size limits apply to the whole app, not to one profile. A single
+    # instance uses the standard definition (TRaSH guide note).
+    quality_definition:
+      type: series
+
+    quality_profiles:
+      - trash_id: 20e0fc959f1f1704bed501f23bdae76f  # [Anime] Remux-1080p
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Bluray-1080p
+          until_score: 10000
+        qualities:
+          - name: Bluray-1080p
+          - name: WEB 1080p
+            qualities:
+              - HDTV-1080p
+              - WEBRip-1080p
+              - WEBDL-1080p
+          - name: Bluray-720p
+          - name: WEB 720p
+            qualities:
+              - HDTV-720p
+              - WEBRip-720p
+              - WEBDL-720p
+          - name: Bluray-480p
+          - name: WEB 480p
+            qualities:
+              - WEBRip-480p
+              - WEBDL-480p
+          - name: DVD
+          - name: SDTV
+
+    custom_formats:
+      - trash_ids:
+          - 418f50b10f1907201b6cfdf881f467b7  # Anime Dual Audio
+        assign_scores_to:
+          - trash_id: 20e0fc959f1f1704bed501f23bdae76f
+            score: 101
+
+radarr:
+  radarr-anime:
+    base_url: http://nas-01.lan:7878
+    api_key: !env_var RADARR_API_KEY
+
+    quality_definition:
+      type: movie
+
+    quality_profiles:
+      - trash_id: 722b624f9af1e492284c4bc842153a38  # [Anime] Remux-1080p
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Bluray-1080p
+          until_score: 10000
+        qualities:
+          - name: Bluray-1080p
+          - name: WEB 1080p
+            qualities:
+              - HDTV-1080p
+              - WEBRip-1080p
+              - WEBDL-1080p
+          - name: Bluray-720p
+          - name: WEB 720p
+            qualities:
+              - HDTV-720p
+              - WEBRip-720p
+              - WEBDL-720p
+          - name: Bluray-576p
+          - name: Bluray-480p
+          - name: WEB 480p
+            qualities:
+              - WEBRip-480p
+              - WEBDL-480p
+          - name: DVD
+          - name: SDTV
+
+    custom_formats:
+      - trash_ids:
+          - 4a3b087eea2ce012fcc1ce319259a3be  # Anime Dual Audio
+        assign_scores_to:
+          - trash_id: 722b624f9af1e492284c4bc842153a38
+            score: 101
