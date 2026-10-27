@@ -16,16 +16,12 @@
       register: unattended_upgrades_install
 
     - name: Write the periodic apt settings
-      ansible.builtin.copy:
+      ansible.builtin.template:
+        src: 20auto-upgrades.j2
         dest: /etc/apt/apt.conf.d/20auto-upgrades
         owner: root
         group: root
         mode: "0644"
-        content: |
-          // {{ ansible_managed }}
-          APT::Periodic::Update-Package-Lists "1";
-          APT::Periodic::Unattended-Upgrade "1";
-          APT::Periodic::AutocleanInterval "7";
 
     - name: Write the homelab unattended-upgrades policy
       ansible.builtin.template:
