@@ -25,7 +25,6 @@ Arr-stack media automation running as one compose project on nas-01: Seerr, Flar
 - **Image:** `ghcr.io/flaresolverr/flaresolverr:latest`
 - **Container:** `flaresolverr`
 - **Restart policy:** `unless-stopped`
-- **Ports:** `8191:8191`
 
 ### `prowlarr`
 
