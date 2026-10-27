@@ -10,6 +10,15 @@ http:
           crowdsecLapiKeyFile: /etc/traefik/secrets/crowdsec-lapi-key
           crowdsecLapiHost: crowdsec:8080
           crowdsecLapiScheme: http
+          crowdsecAppsecEnabled: true
+          crowdsecAppsecHost: crowdsec:7422
+          crowdsecAppsecPath: /
+          crowdsecAppsecKeyFile: /etc/traefik/secrets/crowdsec-lapi-key
+          crowdsecAppsecFailureBlock: false
+          crowdsecAppsecUnreachableBlock: false
+          crowdsecAppsecUnreadableBodyBlock: false
+          crowdsecAppsecBodyLimit: 1048576
+          httpTimeoutSeconds: 2
           clientTrustedIPs:
             - "100.64.0.0/10"
             - "172.16.0.0/12"
