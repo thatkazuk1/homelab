@@ -4,9 +4,10 @@ http:
       plugin:
         bouncer:
           enabled: true
-          logLevel: DEBUG
+          logLevel: INFO
           crowdsecMode: live
-          crowdsecLapiKey: {{ env "CROWDSEC_BOUNCER_API_KEY" }}
+          updateMaxFailure: -1
+          crowdsecLapiKeyFile: /etc/traefik/secrets/crowdsec-lapi-key
           crowdsecLapiHost: crowdsec:8080
           crowdsecLapiScheme: http
           clientTrustedIPs:

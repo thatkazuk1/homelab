@@ -1095,6 +1095,7 @@ Not yet fully documented. Accumulate here as you hit them:
 - Two-node cluster quorum behavior (documented in Cluster Architecture)
 - `proxy-prod-01` disk fill from an unrotated Traefik access log (below)
 - Every Traefik route serves `TRAEFIK DEFAULT CERT` after a Traefik restart (below)
+- The CrowdSec bouncer fails open, so a wrong bouncer key fails silently (below)
 - A rotated `FORGEJO_REGISTRY_TOKEN` can authenticate against Forgejo's
   generic login endpoint successfully while still 401ing on the actual
   image pull — looks like an Ansible/credential-wiring bug but isn't;
@@ -1250,3 +1251,31 @@ the routes serve Let's Encrypt certificates again.
 is the deployed state, and Komodo does not manage it. To apply a change, copy the file to the
 host. Traefik reloads files in `dynamic/` automatically. A change to `traefik.yml` needs a
 container restart, so do the `acme.json` check above after the restart.
+
+### CrowdSec bouncer key and fail-open behavior
+
+**Where the key is:** The bouncer plugin (`crowdsec-bouncer-traefik-plugin`) reads its key from
+the file `/opt/homelab/gateway/traefik/secrets/crowdsec-lapi-key` on `proxy-prod-01`. The file
+has mode `600`. It is not in the repo (the folder `gateway/traefik/secrets/` is in
+`.gitignore`) and not in `.env`. The file `dynamic/crowdsec.yml` names the file with
+`crowdsecLapiKeyFile`. The Traefik container sees the key file through a directory mount.
+
+**Fail open:** The middleware has `updateMaxFailure: -1`. If the key is wrong, the plugin
+cannot get the ban list. It logs the error, lets all traffic pass, and Traefik stays up. No
+alert starts. A wrong key therefore fails silently.
+
+**After any key change:**
+
+1. Run `docker exec crowdsec cscli bouncers list`. The new bouncer must show a fresh last pull.
+2. Run a ban test from a client that is not in `clientTrustedIPs`. Ban the client IP with
+   `cscli decisions add`. Wait for the next plugin update (about one minute). Expect `403`.
+   Then remove the decision.
+
+**Rotate the key:**
+
+1. On the host, run `umask 077`. Add the new bouncer with `cscli bouncers add <new-name> -o raw`.
+   Write the output straight into a new key file. Do not print it.
+2. Move the new file to `traefik/secrets/crowdsec-lapi-key`. The mount is the directory, so
+   Traefik needs no recreate.
+3. Do the two checks above.
+4. Delete the old bouncer with `cscli bouncers delete <old-name>`.

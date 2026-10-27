@@ -6,6 +6,9 @@
 .env
 .env.*
 
+# CrowdSec bouncer key file (host-side only)
+gateway/traefik/secrets/
+
 # SOPS / age — the private key must NEVER be in this repo
 *.agekey
 age-keys.txt
