@@ -1,0 +1,114 @@
+name: crowdsec-manager
+
+x-meta:
+  name: crowdsec-manager
+  host: proxy-prod-01
+  category: security
+  description: >
+    Web UI for the CrowdSec engine on proxy-prod-01. The fleet Traefik serves
+    it at crowdsec.ts.kazuki.uk behind a strict allowlist and a basic-auth
+    login. A socket proxy limits the Docker API to the crowdsec container.
+  status: new
+  adrs:
+    - 9
+  public_url: crowdsec.ts.kazuki.uk
+
+services:
+  crowdsec-manager:
+    image: hhftechnology/crowdsec-manager:2.4.1@sha256:033dd76360e5f5da01b21084921e1f82cef226ebc53e33f77f4128da8d01be2e
+    container_name: crowdsec-manager
+    restart: unless-stopped
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    depends_on:
+      - crowdsec-manager-socket-proxy
+    environment:
+      PORT: "8080"
+      ENVIRONMENT: production
+      LOG_LEVEL: info
+      LOG_FILE: /app/logs/crowdsec-manager.log
+      # The manager reaches Docker only through the socket proxy.
+      DOCKER_HOST: tcp://crowdsec-manager-socket-proxy:2375
+      CONFIG_DIR: /app/config
+      DATABASE_PATH: /app/data/settings.db
+      HISTORY_DATABASE_PATH: /app/data/history.db
+      BACKUP_DIR: /app/backups
+      CROWDSEC_CONTAINER_NAME: crowdsec
+      TRAEFIK_CONTAINER_NAME: traefik
+      INCLUDE_CROWDSEC: "true"
+      INCLUDE_PANGOLIN: "false"
+      INCLUDE_GERBIL: "false"
+      DECISION_LIST_LIMIT: "500"
+      ALERT_LIST_LIMIT: "500"
+    volumes:
+      - crowdsec-manager-data:/app/data
+      - crowdsec-manager-config:/app/config
+    tmpfs:
+      - /tmp
+      - /app/logs
+      - /app/backups
+    networks:
+      - proxy
+      - socket
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  crowdsec-manager-socket-proxy:
+    image: wollomatic/socket-proxy:1.13.2@sha256:ff95d6ff6c27853005ef85eb8f4ab5923dc3d2f1e055f98fb6aeeaceec3fe848
+    container_name: crowdsec-manager-socket-proxy
+    restart: unless-stopped
+    # 65534 = nobody. 991 = docker group on proxy-prod-01 (verified 2026-10-27).
+    user: "65534:991"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - "-loglevel=info"
+      - "-listenip=0.0.0.0"
+      # Only the manager is on this internal network, so its subnet is the allow list.
+      - "-allowfrom=10.250.77.0/29"
+      - "-watchdoginterval=3600"
+      - "-stoponwatchdog"
+      # Each method lists the allowed API paths. The proxy anchors the regexes.
+      # The 64-character ID below is the ID of the crowdsec container. The ID
+      # changes each time the crowdsec container is recreated. After a recreate,
+      # replace the four IDs through a PR (see notes.md).
+      - '-allowHEAD=(/_ping|/v[0-9.]+/containers/d715c752e895c2ba298d534932f67df559502e942decab7f200855bf086291ed/archive)'
+      - '-allowGET=/(_ping|v[0-9.]+/(version|containers/json|containers/d715c752e895c2ba298d534932f67df559502e942decab7f200855bf086291ed/(json|logs|stats|top|changes|archive)|exec/[0-9a-f]{64}/json))'
+      - '-allowPOST=/v[0-9.]+/(containers/d715c752e895c2ba298d534932f67df559502e942decab7f200855bf086291ed/(exec|start|restart|resize)|exec/[0-9a-f]{64}/(start|resize))'
+      - '-allowPUT=/v[0-9.]+/containers/d715c752e895c2ba298d534932f67df559502e942decab7f200855bf086291ed/archive'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - socket
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  crowdsec-manager-data:
+    name: crowdsec-manager-data
+  crowdsec-manager-config:
+    name: crowdsec-manager-config
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+  socket:
+    name: crowdsec-manager-socket
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.250.77.0/29

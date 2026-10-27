@@ -166,6 +166,22 @@ compose_cmd_wrapper_include = ["up"]
 ##
 
 [[stack]]
+name = "crowdsec-manager"
+tags = ["proxy-prod-01"]
+[stack.config]
+server = "proxy-prod-01"
+project_name = "crowdsec-manager"
+git_provider = "forgejo.ts.kazuki.uk"
+git_account = "kazuki"
+repo = "kazuki/homelab"
+branch = "master"
+webhook_enabled = false
+run_directory = "stacks/crowdsec-manager"
+file_paths = ["compose.yml"]
+
+##
+
+[[stack]]
 name = "dockhand"
 tags = ["docker-prod-01"]
 [stack.config]

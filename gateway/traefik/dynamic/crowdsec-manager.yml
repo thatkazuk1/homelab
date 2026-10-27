@@ -1,0 +1,26 @@
+http:
+  middlewares:
+    # Allowlist for the CrowdSec Manager route only. Stricter than
+    # tailscale-whitelist: the LAB VLAN (192.168.50.0/24) is left out on
+    # purpose. The tool has no login of its own and gives control of CrowdSec,
+    # so a compromised LAB host must not reach it.
+    crowdsec-manager-allowlist:
+      ipAllowList:
+        sourceRange:
+          - "100.64.0.0/10"
+          # tailscaled runs in userspace mode on this LXC, so tailnet clients arrive from the Docker bridge gateway
+          - "172.18.0.1/32"
+          # ADMIN VLAN
+          - "192.168.30.0/24"
+
+    crowdsec-manager-auth:
+      basicAuth:
+        usersFile: /etc/traefik/secrets/crowdsec-manager-users
+        realm: crowdsec-manager
+        removeHeader: true
+
+    # Answers 403 to every client. Used by the blocked-path router.
+    crowdsec-manager-deny:
+      ipAllowList:
+        sourceRange:
+          - "192.0.2.1/32"

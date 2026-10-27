@@ -120,6 +120,32 @@ http:
       tls:
         certResolver: cloudflare
 
+    crowdsec-manager:
+      entrypoints:
+        - websecure
+      # Origin rule: match only when the request has no Origin header, or when
+      # the Origin is the own host name. This stops cross-site requests and
+      # cross-site WebSockets from a web page in the operator's browser.
+      rule: "Host(`crowdsec.ts.kazuki.uk`) && (!HeaderRegexp(`Origin`, `.+`) || Header(`Origin`, `https://crowdsec.ts.kazuki.uk`))"
+      service: crowdsec-manager-service
+      middlewares:
+        - crowdsec-manager-allowlist
+        - crowdsec-manager-auth
+      tls:
+        certResolver: cloudflare
+
+    crowdsec-manager-blocked:
+      entrypoints:
+        - websecure
+      rule: "Host(`crowdsec.ts.kazuki.uk`) && (PathPrefix(`/api/terminal`) || PathPrefix(`/api/update`) || PathPrefix(`/api/services/shutdown`))"
+      priority: 10000
+      service: crowdsec-manager-service
+      middlewares:
+        - crowdsec-manager-allowlist
+        - crowdsec-manager-deny
+      tls:
+        certResolver: cloudflare
+
     dockhand:
       entrypoints:
         - websecure
@@ -305,6 +331,11 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.50.30:6001"
+
+    crowdsec-manager-service:
+      loadBalancer:
+        servers:
+          - url: "http://crowdsec-manager:8080"
 
     dockhand-service:
       loadBalancer:

@@ -94,6 +94,7 @@ nav:
       - beszel: stacks/beszel.md
       - beszel-agent: stacks/beszel-agent.md
       - cloudflared: stacks/cloudflared.md
+      - crowdsec-manager: stacks/crowdsec-manager.md
       - dockhand: stacks/dockhand.md
       - forgejo: stacks/forgejo.md
       - forgejo-runner: stacks/forgejo-runner.md
