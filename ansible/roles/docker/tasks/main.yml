@@ -60,3 +60,32 @@
   ansible.builtin.command: docker version
   register: docker_version_out
   changed_when: false
+
+# Make network-online.target wait for the DHCP lease. ifup@<iface>.service
+# is a simple unit, so ifupdown does not wait for dhcpcd by itself. The
+# route method waits for a default route. dhcpcd adds the route after it
+# writes /etc/resolv.conf, so the nameserver exists when Docker starts.
+# docker.service already has After=network-online.target, so it needs no
+# drop-in. If the route never comes, the wait ends after the timeout and
+# Docker starts (the target only Wants the wait unit).
+# Apply only these tasks:  --tags docker_wait_for_route
+- name: Wait for the default route before network-online.target
+  when: docker_wait_for_default_route | bool
+  tags: [docker_wait_for_route]
+  block:
+    - name: Set the ifupdown wait-online method and timeout
+      ansible.builtin.lineinfile:
+        path: /etc/default/networking
+        regexp: '^#?\s*{{ item.key }}='
+        line: "{{ item.key }}={{ item.value }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - { key: WAIT_ONLINE_METHOD, value: route }
+        - { key: WAIT_ONLINE_TIMEOUT, value: "{{ docker_wait_for_default_route_timeout }}" }
+
+    - name: Enable ifupdown-wait-online.service
+      ansible.builtin.systemd_service:
+        name: ifupdown-wait-online.service
+        enabled: true

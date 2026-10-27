@@ -36,7 +36,11 @@ management, and Talos itself is deferred with no active driver.
   being set there. Real per-host drift (directory modes, file group ownership, host-local
   `.env` exceptions) is captured here rather than normalized away — see the comments in each
   `host_vars/<host>.yml` file for what's genuine fleet divergence vs. role defaults.
-- `roles/docker` — installs Docker CE from the official DEB822 `.sources` repo, trixie suite
+- `roles/docker` — installs Docker CE from the official DEB822 `.sources` repo, trixie suite.
+  A host with a DHCP address through ifupdown sets `docker_wait_for_default_route: true`
+  (`docker-prod-01`). Then `network-online.target` waits for the default route, so Docker
+  starts after `/etc/resolv.conf` has a nameserver. Apply only this part with
+  `--tags docker_wait_for_route`.
 - `roles/periphery` — deploys `komodo-periphery-sops:2`, including placing the fleet's age
   private key on the target (see `roles/periphery/defaults/main.yml` for why this can't be
   sops-encrypted at rest) and logging in to the private Forgejo registry first (credential in

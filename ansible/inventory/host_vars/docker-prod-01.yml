@@ -26,6 +26,12 @@ periphery_stack_dir_mode: "02755"
 # see docker role defaults).
 docker_apt_deb822: true
 
+# This host gets its address by DHCP (ifupdown, allow-hotplug ens18, dhcpcd).
+# On 2026-10-27 Docker started 7 seconds before the lease and every container
+# got "no external nameservers". Wait for the default route first.
+# No other docker_hosts member needs this (static address or systemd-networkd).
+docker_wait_for_default_route: true
+
 # Host firewall (roles/host_firewall).
 # No Hawser agent here (Dockhand runs on this host).
 # 45876/tcp (beszel-agent, host network) is reached from Docker bridges,

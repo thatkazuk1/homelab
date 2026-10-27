@@ -5,3 +5,15 @@
 # sole exception, already on the newer DEB822 docker.sources format.
 # Default to what's actually there; override per-host where it isn't.
 docker_apt_deb822: false
+
+# A host that gets its address from DHCP through ifupdown (allow-hotplug)
+# needs this. There, `network-online.target` is reached before the DHCP lease
+# and before /etc/resolv.conf has a nameserver. Docker then starts first and
+# every container gets no external DNS (seen on docker-prod-01, 2026-10-27).
+# Set it to true in host_vars for such a host. A host with a static address
+# or with systemd-networkd does not need it.
+docker_wait_for_default_route: false
+
+# The longest wait in seconds. After this time Docker starts anyway.
+# Keep it below 90: systemd stops the wait-online unit at 90 seconds.
+docker_wait_for_default_route_timeout: 60
