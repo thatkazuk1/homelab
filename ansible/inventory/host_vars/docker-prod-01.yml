@@ -26,10 +26,12 @@ periphery_stack_dir_mode: "02755"
 # see docker role defaults).
 docker_apt_deb822: true
 
-# This host gets its address by DHCP (ifupdown, allow-hotplug ens18, dhcpcd).
-# On 2026-10-27 Docker started 7 seconds before the lease and every container
-# got "no external nameservers". Wait for the default route first.
-# No other docker_hosts member needs this (static address or systemd-networkd).
+# This host has a static address since 2026-10-27 (ifupdown, auto ens18).
+# Before that it used DHCP (dhcpcd). After a power loss OPNsense boots late,
+# dhcpcd falls back to IPv4LL, and Docker starts with a link-local default
+# route and no nameserver (every container got "no external nameservers").
+# The static address removes the cause. The wait unit stays only as a
+# harmless guard, so Docker still starts after the default route exists.
 docker_wait_for_default_route: true
 
 # Host firewall (roles/host_firewall).
