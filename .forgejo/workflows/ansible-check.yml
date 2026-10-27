@@ -38,7 +38,7 @@ jobs:
           ansible-galaxy collection install -r ansible/requirements.yml
 
       - name: ansible-lint
-        run: ansible-lint ansible/playbooks/provision-baseline.yml ansible/playbooks/host-firewall.yml
+        run: ansible-lint ansible/playbooks/provision-baseline.yml ansible/playbooks/host-firewall.yml ansible/playbooks/unattended-upgrades.yml
         env:
           ANSIBLE_CONFIG: ansible/ansible.cfg
 
@@ -46,5 +46,6 @@ jobs:
         run: |
           ansible-playbook --syntax-check ansible/playbooks/provision-baseline.yml
           ansible-playbook --syntax-check ansible/playbooks/host-firewall.yml
+          ansible-playbook --syntax-check ansible/playbooks/unattended-upgrades.yml
         env:
           ANSIBLE_CONFIG: ansible/ansible.cfg

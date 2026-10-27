@@ -1,0 +1,13 @@
+---
+# Automatic Debian security updates, without the rest of the baseline.
+# This play covers core-01 (firewall_only_hosts), which provision-baseline.yml
+# must never run on, and all docker_hosts. nas-01 (TOS, never apt) and
+# uptime-kuma-ext-01 are in neither group.
+#
+# Check first:  ansible-playbook playbooks/unattended-upgrades.yml --check --diff -l <host>
+- name: Install automatic security updates
+  hosts: docker_hosts:firewall_only_hosts
+  become: true
+  roles:
+    - role: unattended_upgrades
+      tags: [unattended_upgrades]

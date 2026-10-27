@@ -12,6 +12,8 @@
     - name: Reset connection so kazuki's new group membership takes effect
       ansible.builtin.meta: reset_connection
   roles:
+    - role: unattended_upgrades
+      tags: [unattended_upgrades]
     - docker
     - periphery
 

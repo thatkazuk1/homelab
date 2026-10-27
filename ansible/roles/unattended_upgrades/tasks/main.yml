@@ -1,0 +1,49 @@
+---
+# Installs and configures unattended-upgrades for Debian security updates.
+# Apply only these tasks:  --tags unattended_upgrades
+- name: Automatic security updates
+  when: unattended_upgrades_enabled | bool
+  tags: [unattended_upgrades]
+  block:
+    - name: Install unattended-upgrades and apt-listchanges
+      ansible.builtin.apt:
+        name:
+          - unattended-upgrades
+          - apt-listchanges
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+      register: unattended_upgrades_install
+
+    - name: Write the periodic apt settings
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          // {{ ansible_managed }}
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+          APT::Periodic::AutocleanInterval "7";
+
+    - name: Write the homelab unattended-upgrades policy
+      ansible.builtin.template:
+        src: 52homelab-unattended-upgrades.j2
+        dest: /etc/apt/apt.conf.d/52homelab-unattended-upgrades
+        owner: root
+        group: root
+        mode: "0644"
+
+    # In --check mode on a host without the package, the units do not exist
+    # yet. The install task only reports "changed", so skip the unit tasks.
+    - name: Enable the unattended-upgrades service and the apt timers
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop:
+        - unattended-upgrades.service
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
+      when: not (ansible_check_mode and unattended_upgrades_install is changed)

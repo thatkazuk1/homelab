@@ -55,9 +55,17 @@ management, and Talos itself is deferred with no active driver.
   Not part of `provision-baseline.yml`; it applies only when someone runs
   `playbooks/host-firewall.yml`. Review the would-drop sets with `make firewall-review`.
   See `roles/host_firewall/README.md`.
-- `playbooks/provision-baseline.yml` — two plays: `docker` + `periphery` against
-  `docker_hosts` (the real fleet baseline); `docker` + `periphery` + `hawser` against
-  `scratch` (the end-to-end proof path, hawser included there only).
+- `roles/unattended_upgrades` — automatic Debian security updates (`unattended-upgrades`).
+  Debian security origins only. Docker, Tailscale and other third-party packages stay manual,
+  and the role never reboots a host. A host opts out with `unattended_upgrades_enabled: false`
+  in its `host_vars`. Tag: `unattended_upgrades`. Runs in `provision-baseline.yml` and in
+  `playbooks/unattended-upgrades.yml`. See `handbook/docs/operations/deploying-a-new-host.md`.
+- `playbooks/provision-baseline.yml` — two plays: `unattended_upgrades` + `docker` +
+  `periphery` against `docker_hosts` (the real fleet baseline); `docker` + `periphery` +
+  `hawser` against `scratch` (the end-to-end proof path, hawser included there only).
+- `playbooks/unattended-upgrades.yml` — `unattended_upgrades` role only, against
+  `docker_hosts` and `firewall_only_hosts` (10 hosts). It covers `core-01` without the rest of
+  the baseline. Run it with `--check --diff -l <host>` first.
 - `playbooks/host-firewall.yml` — `host_firewall` role against `docker_hosts` and
   `firewall_only_hosts` (10 hosts). Run it with `--check --diff -l <host>` first.
 - `playbooks/provision-proxmox-node.yml` — `proxmox_node` role against `proxmox_nodes`

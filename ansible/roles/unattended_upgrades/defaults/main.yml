@@ -1,0 +1,30 @@
+---
+# Automatic security updates for Debian hosts (unattended-upgrades).
+# A host opts out with `unattended_upgrades_enabled: false` in its host_vars.
+# The role then does nothing on that host. It does not remove the package.
+unattended_upgrades_enabled: true
+
+# The operator reboots hosts by hand. A kernel or libc update waits for that.
+unattended_upgrades_automatic_reboot: false
+
+# Remove packages that no longer have a dependent after an upgrade.
+unattended_upgrades_remove_unused_dependencies: true
+
+# Debian security origins only. ${distro_codename} is expanded by
+# unattended-upgrades at run time, not by Ansible. Do not add Docker,
+# Tailscale or other third-party origins here: a docker-ce or containerd.io
+# upgrade restarts every container on a host (live-restore is off).
+unattended_upgrades_origins:
+  - "origin=Debian,codename=${distro_codename}-security,label=Debian-Security"
+  - "origin=Debian,codename=${distro_codename},label=Debian-Security"
+
+# Second guard. These names never upgrade without the operator, even if
+# a matching origin is added by mistake. Each entry is a regular expression
+# that matches the start of the package name.
+unattended_upgrades_blacklist:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose-plugin
+  - docker-buildx-plugin
+  - tailscale

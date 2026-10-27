@@ -48,6 +48,45 @@ new stack directories inherit group ownership automatically.
 **Unprivileged LXC containers have no `/dev/net/tun`** — if this host will run Tailscale,
 it needs `--tun=userspace-networking`, not the default mode.
 
+### Automatic security updates
+
+Every host in `docker_hosts` and `firewall_only_hosts` installs Debian security updates by
+itself (`unattended-upgrades`, role `ansible/roles/unattended_upgrades`).
+
+| Item | Automatic | Manual |
+|---|---|---|
+| Debian security updates (`trixie-security`) | Yes | |
+| Docker (`docker-ce`, `containerd.io`, plugins) | | Yes. An upgrade restarts every container, because `live-restore` is off. |
+| Tailscale | | Yes |
+| Other third-party packages | | Yes |
+| Reboot after a kernel or libc update | | Yes. The operator reboots the host. |
+
+The package blacklist in the role is a second guard for Docker and Tailscale. A host opts out
+with `unattended_upgrades_enabled: false` in its `host_vars`. `nas-01` (TOS) is not in these
+groups and must never run `apt`.
+
+Apply the role to a new or existing host. Check first, then run without `--check`:
+
+```bash
+cd ansible
+ansible-playbook playbooks/unattended-upgrades.yml --check --diff -l <host>
+ansible-playbook playbooks/unattended-upgrades.yml -l <host>
+# or, from the baseline playbook, only these tasks:
+ansible-playbook playbooks/provision-baseline.yml --tags unattended_upgrades --check --diff
+ansible-playbook playbooks/provision-baseline.yml --tags unattended_upgrades
+```
+
+Never run `provision-baseline.yml` on `core-01`. Use `playbooks/unattended-upgrades.yml` for it.
+
+Check a host:
+
+```bash
+systemctl status unattended-upgrades
+systemctl list-timers 'apt-daily*'
+tail /var/log/unattended-upgrades/unattended-upgrades.log
+sudo unattended-upgrade --dry-run --debug
+```
+
 ## 3. Register in Beszel
 
 Deploy a `beszel-agent` container pointed at the fleet's Beszel hub (see
