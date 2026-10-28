@@ -12,8 +12,11 @@ periphery_files_group: kazuki
 # Host firewall (roles/host_firewall).
 # 22/tcp from 10.0.0.0/8: the Coolify container connects to its host over
 # SSH from a Docker network in 10.0.0.0/8. The container CIDR list covers it.
-# 80 and 443 (Cloudflare tunnel in host mode) are local only. The loopback
-# rule covers them.
+# The Cloudflare tunnel on this host runs in host mode and reaches ports 80
+# and 443 on loopback. The loopback rule covers that.
+# Two flows come from other hosts: 443 from the fleet Traefik on
+# proxy-prod-01 (hop 2 of every tenant hostname), and 80 from the fleet tunnel
+# on docker-prod-01 (the Let's Encrypt HTTP-01 challenge for status.kazuki.uk).
 host_firewall_hawser: true
 host_firewall_container_cidrs:
   - 172.16.0.0/12
@@ -23,3 +26,12 @@ host_firewall_host_rules:
     proto: tcp
     sources: ["{{ host_firewall_addr_proxy }}"]
     comment: coolify web, realtime and terminal
+  - ports: [443]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_proxy }}"]
+    comment: tenant traffic from fleet traefik
+  - ports: [80]
+    proto: tcp
+    sources: ["{{ host_firewall_addr_dockhand }}"]
+    admin: false
+    comment: acme http-01 for status.kazuki.uk from the fleet tunnel

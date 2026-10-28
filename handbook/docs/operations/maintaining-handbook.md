@@ -32,8 +32,8 @@ repository path. Every merge to `master` sends this webhook, also merges that do
 `handbook/`.
 
 The `handbook` application is a Coolify "Private Repository (Deploy Key)" application. It does
-not use a Coolify "Source" object, because this Coolify version (4.1.2) has a Source type for
-GitHub only. Coolify clones over SSH directly from `forgejo-prod-01` at
+not use a Coolify "Source" object, because the Coolify version that was installed at that time (4.1.2) had a Source type for
+GitHub only. Coolify 4.5.0 runs now; the Source type was not checked again. Coolify clones over SSH directly from `forgejo-prod-01` at
 `192.168.50.108:2222`, with a read-only deploy key (`coolify-prod-01-handbook`). It does not
 use `forgejo.ts.kazuki.uk`, because that Traefik route carries HTTP(S) only, not git over SSH.
 Coolify then builds the `Base Directory: /handbook` Dockerfile and rolls the new container out.

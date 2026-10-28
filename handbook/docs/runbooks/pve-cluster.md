@@ -1096,6 +1096,7 @@ Not yet fully documented. Accumulate here as you hit them:
 - `proxy-prod-01` disk fill from an unrotated Traefik access log (below)
 - Every Traefik route serves `TRAEFIK DEFAULT CERT` after a Traefik restart (below)
 - The CrowdSec bouncer fails open, so a wrong bouncer key fails silently (below)
+- Coolify tenant traffic passes fleet Traefik twice-encrypted, and the origin certificate check is blind (below)
 - A rotated `FORGEJO_REGISTRY_TOKEN` can authenticate against Forgejo's
   generic login endpoint successfully while still 401ing on the actual
   image pull — looks like an Ansible/credential-wiring bug but isn't;
@@ -1279,3 +1280,44 @@ alert starts. A wrong key therefore fails silently.
    Traefik needs no recreate.
 3. Do the two checks above.
 4. Delete the old bouncer with `cscli bouncers delete <old-name>`.
+
+### Coolify tenant hostnames through the gateway
+
+Public Coolify tenant names (`netwright.kazuki.uk`, `school.kazuki.uk`, `status.kazuki.uk` and the
+`oriweave.dev` names) take two hops. The Cloudflare tunnel sends the request to
+`https://192.168.50.107:443` (fleet Traefik, with the `crowdsec` middleware). Fleet Traefik sends it
+to Coolify's Traefik at `https://192.168.50.30:443`. The routers are named `tenant-<name>` in
+`gateway/traefik/dynamic/router.yaml`. Full path, checklist and rollback are in
+**Architecture, Coolify**. The points below belong here.
+
+**A forged `X-Forwarded-For` from `coolify-prod-01`.** Fleet Traefik trusts `192.168.50.30` in
+`websecure` `forwardedHeaders.trustedIPs`, because the Coolify tunnel connects from that
+address. Traefik keeps `X-Forwarded-For` from a trusted source. The bouncer plugin reads the last
+entry as the client IP. A tenant container on `coolify-prod-01` can reach fleet Traefik with the
+trusted source address and send `X-Forwarded-For: 100.64.1.1`. That address is in
+`clientTrustedIPs`, so the bouncer skips CrowdSec and AppSec for that request. A client on the
+Internet cannot do this, because Cloudflare adds the real IP at the end of the header. The same
+applies to `192.168.50.105` (the fleet tunnel). The operator accepted this risk on 2026-10-27. The
+`tailscale-whitelist` middleware uses the connection address and is not affected.
+
+**Double TLS hop.** The tunnel connects to fleet Traefik over TLS with `noTLSVerify`. Fleet Traefik
+connects to Coolify's Traefik over TLS with `insecureSkipVerify`. A tenant router uses `tls: {}`
+(no `certResolver`), so fleet Traefik serves its default certificate for these names and starts no
+ACME order. A fresh connection to Coolify takes 9 to 19 ms. Traefik reuses connections.
+
+**`insecureSkipVerify` blind spot.** Because no hop verifies the certificate, a Coolify
+certificate that reverts to `TRAEFIK DEFAULT CERT` does not show in public traffic. Check the
+origin directly:
+
+```bash
+openssl s_client -connect 192.168.50.30:443 -servername <tenant> </dev/null 2>/dev/null \
+  | openssl x509 -noout -issuer -dates
+```
+
+The issuer must be Let's Encrypt. The Let's Encrypt HTTP-01 challenge does not use the gateway.
+Each tenant keeps a path rule (`^/\.well-known/acme-challenge/.*`) in its tunnel, before the main
+rule, that goes straight to port 80 of Coolify's Traefik.
+
+**Check after a router change.** Read the router through the Traefik API:
+`curl -sk -H "Host: traefik.ts.kazuki.uk" https://127.0.0.1/api/http/routers/<name>@file` on
+`proxy-prod-01`. The `tls` object must show `options: default` and no `certResolver`.

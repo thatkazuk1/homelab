@@ -300,11 +300,102 @@ http:
       tls:
         certResolver: cloudflare
 
+    # Coolify tenant hostnames. The Cloudflare tunnels send these names here
+    # first (hop 1). The service then forwards to Coolify's own Traefik (hop 2).
+    # tls: {} on purpose: an empty tls block does not inherit the entrypoint
+    # certResolver, so Traefik serves its default certificate and starts no
+    # ACME order for these names. The tunnels use noTLSVerify.
+    tenant-status:
+      entrypoints:
+        - websecure
+      rule: "Host(`status.kazuki.uk`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
+    tenant-netwright:
+      entrypoints:
+        - websecure
+      rule: "Host(`netwright.kazuki.uk`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
+    tenant-school:
+      entrypoints:
+        - websecure
+      rule: "Host(`school.kazuki.uk`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
+    tenant-oriweave:
+      entrypoints:
+        - websecure
+      rule: "Host(`oriweave.dev`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
+    tenant-api-oriweave:
+      entrypoints:
+        - websecure
+      rule: "Host(`api.oriweave.dev`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
+    tenant-docs-oriweave:
+      entrypoints:
+        - websecure
+      rule: "Host(`docs.oriweave.dev`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
+    tenant-dev-oriweave:
+      entrypoints:
+        - websecure
+      rule: "Host(`dev.oriweave.dev`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
+    tenant-api-dev-oriweave:
+      entrypoints:
+        - websecure
+      rule: "Host(`api-dev.oriweave.dev`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
+    tenant-docs-dev-oriweave:
+      entrypoints:
+        - websecure
+      rule: "Host(`docs-dev.oriweave.dev`)"
+      service: coolify-tenants-service
+      middlewares:
+        - crowdsec
+      tls: {}
+
   middlewares:
     sure-ssl-header:
       headers:
         customRequestHeaders:
           X-Forwarded-Ssl: "on"
+
+  serversTransports:
+    # Hop 2 to Coolify's Traefik. Same trust as the tunnel noTLSVerify setting.
+    coolify-tenants-transport:
+      insecureSkipVerify: true
 
   services:
     backrest-service:
@@ -436,3 +527,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.50.100:3004"
+
+    coolify-tenants-service:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: coolify-tenants-transport
+        servers:
+          - url: "https://192.168.50.30:443"
