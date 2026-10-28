@@ -1,0 +1,65 @@
+name: dossier
+
+x-meta:
+  name: dossier
+  host: docker-prod-02
+  category: applications
+  description: >
+    Dossier — self-hosted job-search tool (one profile, tailored resume and
+    cover letter for each job, application tracking). One Next.js app that
+    prints PDFs with Chromium, plus a Postgres database. Upstream:
+    https://github.com/AienTech/dossier
+  status: new
+  adrs:
+    - 8
+  public_url: dossier.ts.kazuki.uk
+
+services:
+  dossier-db:
+    image: postgres:18.3-alpine
+    container_name: dossier-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dossier
+      POSTGRES_DB: dossier
+      # sops exec-env injects DOSSIER_DB_PASSWORD; :- keeps
+      # `docker compose config` quiet when the wrapper is not in play.
+      POSTGRES_PASSWORD: ${DOSSIER_DB_PASSWORD:-}
+    volumes:
+      # Postgres 18 keeps data in a versioned subdirectory: mount the parent.
+      - dossier-pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dossier -d dossier"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dossier:
+    image: ghcr.io/aientech/dossier:v1.9.2
+    container_name: dossier
+    restart: unless-stopped
+    depends_on:
+      dossier-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://dossier:${DOSSIER_DB_PASSWORD:-}@dossier-db:5432/dossier
+      TZ: Africa/Lagos
+      DOSSIER_PUBLIC_URL: https://dossier.ts.kazuki.uk
+      # No usage ping. The app asks after sign-in when this is unset.
+      DOSSIER_TELEMETRY: "off"
+      # Secrets: sops exec-env injects these; bare pass-through keys per ADR-0008.
+      # DOSSIER_PASSWORD is an argon2id hash, not the password.
+      DOSSIER_PASSWORD:
+      DOSSIER_SECRET:
+    ports:
+      - "3005:3000"
+    volumes:
+      - dossier-data:/data
+    # Room for Chromium, which prints the PDFs (upstream minimum 768 MB).
+    mem_limit: 1g
+
+volumes:
+  dossier-pgdata:
+    name: dossier-pgdata
+  dossier-data:
+    name: dossier-data

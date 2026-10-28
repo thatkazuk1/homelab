@@ -96,6 +96,7 @@ nav:
       - cloudflared: stacks/cloudflared.md
       - crowdsec-manager: stacks/crowdsec-manager.md
       - dockhand: stacks/dockhand.md
+      - dossier: stacks/dossier.md
       - forgejo: stacks/forgejo.md
       - forgejo-runner: stacks/forgejo-runner.md
       - garage: stacks/garage.md

@@ -300,6 +300,17 @@ http:
       tls:
         certResolver: cloudflare
 
+    dossier:
+      entrypoints:
+        - websecure
+      rule: "Host(`dossier.ts.kazuki.uk`)"
+      service: dossier-service
+      middlewares:
+        - crowdsec
+        - tailscale-whitelist
+      tls:
+        certResolver: cloudflare
+
     # Coolify tenant hostnames. The Cloudflare tunnels send these names here
     # first (hop 1). The service then forwards to Coolify's own Traefik (hop 2).
     # tls: {} on purpose: an empty tls block does not inherit the entrypoint
@@ -527,6 +538,11 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.50.100:3004"
+
+    dossier-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.100:3005"
 
     coolify-tenants-service:
       loadBalancer:
