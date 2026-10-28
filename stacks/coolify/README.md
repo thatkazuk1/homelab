@@ -6,11 +6,11 @@ its operational standard as ADR-0014. Coolify remains deliberately outside Komod
 
 ## Current state
 
-- Version: Coolify 4.1.2 (fresh install via the official installer, pinned — upgrades are a
+- Version: Coolify 4.5.0 (fresh install via the official installer, pinned — upgrades are a
   deliberate operator action, not auto-drift).
 - Platform containers: `coolify`, `coolify-db` (Postgres 15), `coolify-redis`, `coolify-realtime`,
-  `coolify-proxy` (its own Traefik v3.6, `letsencrypt` cert resolver), `coolify-sentinel`
-  (monitoring agent).
+  `coolify-proxy` (its own Traefik v3.7.16, `letsencrypt` cert resolver), `coolify-sentinel`
+  (monitoring agent). The proxy version is set in the Coolify UI (Servers, Proxy, Configuration).
 - Tenants: two.
   - `stackdoc`, deployed from `github.com/thatkazuk1/infra-stackdoc` (branch `master`,
     Dockerfile build, `web` target — a static nginx-served SPA, no environment variables),
