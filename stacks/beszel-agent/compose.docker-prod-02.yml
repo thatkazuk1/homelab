@@ -1,0 +1,35 @@
+x-meta:
+  name: beszel-agent-docker-prod-02
+  host: docker-prod-02
+  category: monitoring
+  description: >
+    Beszel monitoring agent reporting docker-prod-02 host and container
+    metrics to the fleet's Beszel hub. The agent connects out to the hub
+    with a per-system token, so the hub does not need to reach this host.
+  status: new
+  adrs:
+    - 8
+
+name: beszel
+
+services:
+  beszel-agent:
+    image: henrygd/beszel-agent
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - beszel-agent-data:/var/lib/beszel-agent
+    environment:
+      LISTEN: 45876
+      # The hub's public key (not a secret). Same value as the nas-01 agent.
+      KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIdXBKe43tH/rPXhGVIen6W3bwYvCKcGTSQr8PWKuRP7"
+      HUB_URL: https://beszel.ts.kazuki.uk
+      # Per-system token from the hub. The agent exits without it. Set in
+      # secrets.enc.env (the plain TOKEN there belongs to the nas-01 agent).
+      TOKEN: ${TOKEN_DOCKER_PROD_02}
+
+volumes:
+  beszel-agent-data:
+    name: beszel-agent-data
